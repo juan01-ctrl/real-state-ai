@@ -1,28 +1,98 @@
+ "use client";
+
+import { useEffect, useRef } from "react";
+
+function PremiumCursor() {
+  const cursorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+
+    const cursor = cursorRef.current;
+    if (!cursor) return;
+
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    let targetX = x;
+    let targetY = y;
+    let rafId = 0;
+
+    const move = (e: MouseEvent) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+      cursor.style.opacity = "1";
+    };
+
+    const onMouseDown = () => cursor.classList.add("is-pressed");
+    const onMouseUp = () => cursor.classList.remove("is-pressed");
+    const onMouseLeave = () => (cursor.style.opacity = "0");
+    const onMouseEnter = () => (cursor.style.opacity = "1");
+    const onPointerOver = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("button")) cursor.classList.add("is-on-button");
+    };
+    const onPointerOut = (e: PointerEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("button")) cursor.classList.remove("is-on-button");
+    };
+
+    const animate = () => {
+      x += (targetX - x) * 0.28;
+      y += (targetY - y) * 0.28;
+      cursor.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+      rafId = requestAnimationFrame(animate);
+    };
+
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("mouseleave", onMouseLeave);
+    window.addEventListener("mouseenter", onMouseEnter);
+    window.addEventListener("pointerover", onPointerOver);
+    window.addEventListener("pointerout", onPointerOut);
+    rafId = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mouseup", onMouseUp);
+      window.removeEventListener("mouseleave", onMouseLeave);
+      window.removeEventListener("mouseenter", onMouseEnter);
+      window.removeEventListener("pointerover", onPointerOver);
+      window.removeEventListener("pointerout", onPointerOut);
+    };
+  }, []);
+
+  return <div aria-hidden="true" className="premium-cursor" ref={cursorRef} />;
+}
+
 export default function HomePage() {
   return (
-    <div className="aesthete-page bg-background text-on-background">
+    <div className="aesthete-page has-premium-cursor bg-background text-on-background">
+      <PremiumCursor />
       <nav className="fixed top-0 z-50 w-full bg-[#fbf9f6]/80 shadow-[0_40px_60px_rgba(49,51,48,0.05)] backdrop-blur-xl transition-all duration-500">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5 lg:px-12 lg:py-6">
           <div className="font-serif text-sm tracking-[0.2em] text-[#313330] sm:text-xl">AESTHETE AI</div>
           <div className="hidden items-center gap-10 lg:flex">
-            <a className="border-b border-[#58624e]/20 text-[12px] font-medium uppercase tracking-[0.1em] text-[#58624e]" href="#">
+            <a className="border-b border-[#58624e]/20 text-[12px] font-medium uppercase tracking-[0.1em] text-[#58624e]" href="#soluciones">
               Soluciones
             </a>
-            <a className="text-[12px] uppercase tracking-[0.1em] text-[#313330]/60 transition-all duration-500 hover:text-[#58624e]" href="#">
+            <a className="text-[12px] uppercase tracking-[0.1em] text-[#313330]/60 transition-all duration-500 hover:text-[#58624e]" href="#infraestructura">
               Infraestructura
             </a>
-            <a className="text-[12px] uppercase tracking-[0.1em] text-[#313330]/60 transition-all duration-500 hover:text-[#58624e]" href="#">
+            <a className="text-[12px] uppercase tracking-[0.1em] text-[#313330]/60 transition-all duration-500 hover:text-[#58624e]" href="#inteligencia">
               Inteligencia
             </a>
-            <a className="text-[12px] uppercase tracking-[0.1em] text-[#313330]/60 transition-all duration-500 hover:text-[#58624e]" href="#">
+            <a className="text-[12px] uppercase tracking-[0.1em] text-[#313330]/60 transition-all duration-500 hover:text-[#58624e]" href="#red">
               Red
             </a>
           </div>
           <div className="flex items-center gap-2 sm:gap-4 lg:gap-6">
-            <button className="text-[10px] uppercase tracking-[0.1em] text-[#313330]/60 transition-all duration-500 hover:text-[#58624e] sm:text-[12px]">
+            <button className="text-[10px] uppercase tracking-[0.1em] text-[#313330]/60 transition-all duration-300 hover:text-[#58624e] hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 sm:text-[12px]">
               Ingresar
             </button>
-            <button className="bg-primary px-3 py-2 text-[10px] font-medium uppercase tracking-[0.15em] text-on-primary transition-transform active:scale-95 sm:px-6 sm:py-2.5 sm:text-[11px]">
+            <button className="bg-primary px-3 py-2 text-[10px] font-medium uppercase tracking-[0.15em] text-on-primary shadow-[0_10px_24px_-14px_rgba(88,98,78,0.75)] transition-all duration-300 hover:bg-[#4d5643] hover:shadow-[0_18px_30px_-16px_rgba(88,98,78,0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-95 sm:px-6 sm:py-2.5 sm:text-[11px]">
               Solicitar acceso
             </button>
           </div>
@@ -30,7 +100,7 @@ export default function HomePage() {
       </nav>
 
       <main className="bg-background pt-20 text-on-background selection:bg-[#dce6cd] selection:text-[#4b5542] sm:pt-24">
-        <section className="mx-auto flex max-w-7xl items-center overflow-hidden px-4 py-10 sm:px-6 lg:min-h-screen lg:px-12 lg:py-0">
+        <section className="mx-auto flex max-w-7xl items-center overflow-hidden px-4 py-10 sm:px-6 lg:min-h-screen lg:px-12 lg:py-0" id="soluciones">
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-16">
             <div className="space-y-8 lg:col-span-6 lg:space-y-10">
               <div className="space-y-5 sm:space-y-6">
@@ -42,7 +112,7 @@ export default function HomePage() {
                 </p>
               </div>
               <div className="flex flex-col gap-4">
-                <button className="w-fit bg-primary px-6 py-4 text-xs font-semibold uppercase tracking-widest text-on-primary shadow-lg transition-transform active:scale-[0.98] sm:px-10 sm:py-5 sm:text-sm">
+                <button className="w-fit bg-primary px-6 py-4 text-xs font-semibold uppercase tracking-widest text-on-primary shadow-[0_18px_36px_-20px_rgba(88,98,78,0.85)] transition-all duration-300 hover:bg-[#4d5643] hover:shadow-[0_28px_46px_-22px_rgba(88,98,78,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-[0.98] sm:px-10 sm:py-5 sm:text-sm">
                   Reservar demo privada
                 </button>
                 <p className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-outline">
@@ -52,30 +122,38 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="relative lg:col-span-6">
+            <div className="relative mx-auto w-full max-w-[680px] lg:col-span-6">
               <div className="absolute -right-20 -top-20 -z-10 hidden h-[120%] w-[120%] rounded-full bg-surface-container opacity-50 blur-3xl lg:block"></div>
               <div className="relative space-y-4">
                 <div className="relative z-10 border-l-2 border-primary/20 bg-surface-container-lowest p-5 shadow-[0_40px_80px_-20px_rgba(49,51,48,0.1)] sm:p-8">
-                  <div className="mb-6 flex items-start justify-between sm:mb-8">
+                  <div className="mb-5 grid grid-cols-[1fr_auto] items-start gap-x-3 sm:mb-8">
                     <div>
-                      <span className="mb-1 block text-[10px] uppercase tracking-widest text-outline">Análisis del lead</span>
-                      <h3 className="serif text-xl italic">Valeria Di Rossy</h3>
+                      <span className="mb-1 block text-[10px] uppercase tracking-widest text-outline sm:text-[11px]">Análisis del lead</span>
+                      <h3 className="serif text-[clamp(1.75rem,7vw,2.35rem)] italic leading-none sm:text-xl">Valeria Di Rossy</h3>
                     </div>
-                    <div className="text-right">
-                      <span className="text-3xl font-light text-primary">82%</span>
-                      <span className="block text-[10px] uppercase tracking-widest text-outline">Probabilidad de cierre</span>
+                    <div className="pt-1 text-right sm:pt-0">
+                      <span className="block text-[clamp(2.1rem,9vw,3rem)] font-light leading-none text-primary sm:text-3xl">82%</span>
+                      <span className="mt-1 block text-[10px] uppercase tracking-[0.14em] text-outline sm:tracking-widest">
+                        Probabilidad de cierre
+                      </span>
                     </div>
                   </div>
                   <div className="space-y-4 border-t border-surface-container pt-5 sm:pt-6">
                     <div className="flex items-start gap-3 sm:gap-4">
                       <span className="material-symbols-outlined text-lg text-primary">lightbulb</span>
-                      <p className="text-sm leading-relaxed text-on-surface">Este lead tiene alta probabilidad de agendar una visita dentro de 3 días.</p>
+                      <p className="pr-1 text-[clamp(0.86rem,3.9vw,1.02rem)] leading-[1.45] text-on-surface sm:pr-0 sm:text-sm sm:leading-relaxed">
+                        Este lead tiene alta probabilidad de agendar una visita dentro de 3 días.
+                      </p>
                     </div>
                     <div className="flex items-start gap-3 sm:gap-4">
                       <span className="material-symbols-outlined text-lg text-primary">rocket_launch</span>
                       <div className="w-full bg-surface-container-low p-4">
-                        <span className="mb-2 block text-[10px] uppercase tracking-widest text-outline">Movimiento recomendado</span>
-                        <p className="text-sm font-medium">Mostrar 2 propiedades en Palermo y sugerir una llamada mañana.</p>
+                        <span className="mb-2 block text-[10px] uppercase tracking-[0.14em] text-outline sm:tracking-widest">
+                          Movimiento recomendado
+                        </span>
+                        <p className="text-[clamp(0.86rem,3.9vw,1.02rem)] font-medium leading-[1.35] sm:text-sm sm:leading-normal">
+                          Mostrar 2 propiedades en Palermo y sugerir una llamada mañana.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -111,7 +189,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-surface-container py-16 sm:py-24 lg:py-32">
+        <section className="bg-surface-container py-16 sm:py-24 lg:py-32" id="infraestructura">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-12">
             <div className="mb-12 max-w-3xl sm:mb-16 lg:mb-24">
               <h2 className="letter-spacing-display text-3xl font-normal leading-tight text-on-background sm:text-4xl lg:text-5xl">
@@ -119,24 +197,24 @@ export default function HomePage() {
               </h2>
             </div>
             <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-20">
-              <div className="relative h-[300px] sm:h-[360px] lg:col-span-7 lg:h-[400px]">
-                <div className="absolute left-0 top-0 rotate-2 border border-outline-variant/10 bg-surface-container-lowest p-3 text-xs opacity-40 blur-[1px] sm:p-4">
+              <div className="relative h-[340px] overflow-hidden sm:h-[360px] lg:col-span-7 lg:h-[400px]">
+                <div className="absolute left-1 top-4 rotate-[3deg] whitespace-nowrap border border-outline-variant/10 bg-surface-container-lowest px-5 py-3 text-[13px] opacity-33 blur-[0.8px] sm:left-0 sm:top-0 sm:rotate-2 sm:p-4 sm:text-xs sm:opacity-40 sm:blur-[1px]">
                   Lead #4928 - Consulta
                 </div>
-                <div className="absolute left-24 top-16 -rotate-3 border border-outline-variant/10 bg-surface-container-lowest p-3 text-xs opacity-60 shadow-sm sm:left-40 sm:top-20 sm:p-4">
+                <div className="absolute left-[46%] top-[19%] -rotate-[4.5deg] whitespace-nowrap border border-outline-variant/10 bg-surface-container-lowest px-5 py-3 text-[13px] opacity-88 shadow-sm sm:left-40 sm:top-20 sm:-rotate-3 sm:p-4 sm:text-xs sm:opacity-60">
                   Lead #5011 - Facebook
                 </div>
-                <div className="absolute bottom-10 left-8 rotate-6 border border-outline-variant/10 bg-surface-container-lowest p-3 text-xs opacity-30 blur-[2px] sm:left-10 sm:p-4">
+                <div className="absolute bottom-6 left-8 rotate-[7deg] whitespace-nowrap border border-outline-variant/10 bg-surface-container-lowest px-5 py-3 text-[13px] opacity-18 blur-[2px] sm:bottom-10 sm:left-10 sm:rotate-6 sm:p-4 sm:text-xs sm:opacity-30">
                   Lead #3882 - Web
                 </div>
-                <div className="absolute left-1/3 top-1/2 rotate-1 border border-outline-variant/10 bg-surface-container-lowest p-3 text-xs opacity-50 sm:p-4">
+                <div className="absolute left-[33%] top-[56%] rotate-[1.8deg] whitespace-nowrap border border-outline-variant/10 bg-surface-container-lowest px-5 py-3 text-[13px] opacity-72 sm:left-1/3 sm:top-1/2 sm:rotate-1 sm:p-4 sm:text-xs sm:opacity-50">
                   Lead #4001 - Portal
                 </div>
-                <div className="absolute bottom-1/4 right-1/4 -rotate-6 border border-outline-variant/10 bg-surface-container-lowest p-3 text-xs opacity-70 shadow-md sm:p-4">
+                <div className="absolute bottom-[17%] right-[5%] -rotate-[6.8deg] whitespace-nowrap border border-outline-variant/10 bg-surface-container-lowest px-5 py-3 text-[13px] opacity-92 shadow-md sm:bottom-1/4 sm:right-1/4 sm:-rotate-6 sm:p-4 sm:text-xs sm:opacity-70">
                   Lead #4122 - Referido
                 </div>
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-20">
-                  <span className="material-symbols-outlined text-[90px] font-extralight text-outline sm:text-[120px]">grain</span>
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-15 sm:opacity-20">
+                  <span className="material-symbols-outlined text-[72px] font-extralight text-outline sm:text-[120px]">grain</span>
                 </div>
               </div>
 
@@ -163,7 +241,7 @@ export default function HomePage() {
                       &quot;Detectamos 4 visitas separadas a la planta &apos;Penthouse Terrace&apos; en los últimos 12 minutos. Perfil de alta urgencia.&quot;
                     </p>
                   </div>
-                  <button className="w-full border border-primary py-4 text-[11px] font-bold uppercase tracking-widest text-primary transition-all duration-300 hover:bg-primary hover:text-on-primary">
+                  <button className="w-full border border-primary py-4 text-[11px] font-bold uppercase tracking-widest text-primary transition-all duration-300 hover:bg-primary hover:text-on-primary hover:shadow-[0_16px_30px_-20px_rgba(88,98,78,0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30">
                     Contactar ahora
                   </button>
                 </div>
@@ -172,7 +250,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-surface py-16 sm:py-24 lg:py-40">
+        <section className="bg-surface py-16 sm:py-24 lg:py-40" id="inteligencia">
           <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:gap-16 lg:px-12">
             <div className="lg:col-span-5">
               <img
@@ -273,7 +351,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-surface py-16 sm:py-24 lg:py-32">
+        <section className="bg-surface py-16 sm:py-24 lg:py-32" id="red">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-12">
             <div className="mb-16 flex flex-col items-center justify-between gap-10 border-b border-surface-container pb-12 md:flex-row md:gap-16 lg:mb-32 lg:pb-20">
               <div className="flex-1 text-center md:text-left">
@@ -317,7 +395,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="space-y-8">
-              <button className="bg-primary px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-on-primary shadow-2xl transition-transform active:scale-95 sm:px-16 sm:py-6 sm:text-sm sm:tracking-[0.25em]">
+              <button className="bg-primary px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-on-primary shadow-[0_24px_44px_-24px_rgba(88,98,78,0.95)] transition-all duration-300 hover:bg-[#4d5643] hover:shadow-[0_34px_56px_-24px_rgba(88,98,78,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-95 sm:px-16 sm:py-6 sm:text-sm sm:tracking-[0.25em]">
                 Reservar demo privada
               </button>
               <div className="flex items-center justify-center gap-2">
@@ -333,23 +411,23 @@ export default function HomePage() {
       </main>
 
       <footer className="w-full bg-surface-container py-12 text-[#58624e] sm:py-16 lg:py-20">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 text-center sm:px-6 md:flex-row md:gap-8 md:text-left lg:px-12">
-          <div className="font-serif text-lg tracking-widest text-[#313330]">AESTHETE AI</div>
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:gap-10">
-            <a className="font-sans text-[12px] uppercase tracking-widest text-[#313330]/40 transition-colors hover:text-[#58624e]" href="#">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-7 px-6 text-center sm:px-6 md:flex-row md:gap-8 md:text-left lg:px-12">
+          <div className="font-serif text-[1.45rem] tracking-[0.14em] text-[#313330] sm:text-lg sm:tracking-widest">AESTHETE AI</div>
+          <div className="flex w-full max-w-[18rem] flex-col items-center gap-1 sm:flex sm:w-auto sm:max-w-none sm:flex-wrap sm:flex-row sm:justify-center sm:gap-8 lg:gap-10">
+            <a className="py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest" href="#">
               Infraestructura
             </a>
-            <a className="font-sans text-[12px] uppercase tracking-widest text-[#313330]/40 transition-colors hover:text-[#58624e]" href="#">
+            <a className="py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest" href="#">
               Privacidad
             </a>
-            <a className="font-sans text-[12px] uppercase tracking-widest text-[#313330]/40 transition-colors hover:text-[#58624e]" href="#">
+            <a className="py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest" href="#">
               Términos
             </a>
-            <a className="font-sans text-[12px] uppercase tracking-widest text-[#313330]/40 transition-colors hover:text-[#58624e]" href="#">
+            <a className="py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest" href="#">
               Contacto
             </a>
           </div>
-          <div className="font-sans text-[11px] uppercase tracking-widest text-[#313330]/40 sm:text-[12px]">
+          <div className="max-w-[30ch] font-sans text-[0.72rem] uppercase leading-[1.4] tracking-[0.1em] text-[#313330]/45 sm:max-w-none sm:text-[12px] sm:tracking-widest">
             © 2024 Aesthete AI. El atelier digital para real estate.
           </div>
         </div>

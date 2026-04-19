@@ -191,3 +191,46 @@ button {
   --tw-shadow-color: rgb(88 98 78 / 0.1);
   --tw-shadow: var(--tw-shadow-colored);
 }
+
+@media (pointer: fine) {
+  .has-premium-cursor,
+  .has-premium-cursor * {
+    cursor: none !important;
+  }
+}
+
+.premium-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  border: 1.5px solid transparent;
+  pointer-events: none;
+  opacity: 0;
+  background: #58624e;
+  box-shadow: 0 0 0 1px rgb(88 98 78 / 0.22), 0 6px 16px rgb(88 98 78 / 0.28);
+  transform: translate3d(-50%, -50%, 0);
+  will-change: transform, opacity;
+  transition:
+    opacity 120ms ease,
+    width 120ms ease,
+    height 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.premium-cursor.is-pressed {
+  width: 9px;
+  height: 9px;
+  box-shadow: 0 0 0 1px rgb(88 98 78 / 0.26), 0 4px 12px rgb(88 98 78 / 0.32);
+}
+
+.premium-cursor.is-on-button {
+  background: #ffffff;
+  border-color: #58624e;
+  box-shadow: 0 0 0 1px rgb(88 98 78 / 0.24), 0 6px 14px rgb(88 98 78 / 0.2);
+}
