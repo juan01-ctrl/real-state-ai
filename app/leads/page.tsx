@@ -2,6 +2,9 @@ import Link from "next/link";
 import { CreateDemoLeadsButton } from "@/components/leads/CreateDemoLeadsButton";
 import { LeadDetailPanel } from "@/components/leads/LeadDetailPanel";
 import { LeadsInboxList } from "@/components/leads/LeadsInboxList";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { SectionHeading } from "@/components/ui/section-heading";
 import { getLeadDetail, getLeadInboxItems } from "@/lib/server/read-models/leads";
 import styles from "./page.module.css";
 
@@ -24,32 +27,33 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
     <main className={styles.page}>
       <div className={styles.pageInner}>
         <header className={styles.topBar}>
-          <div>
-            <p className={styles.eyebrow}>INFRAESTRUCTURA DE VENTAS CON IA</p>
-            <h1>Bandeja de leads y calificación</h1>
-            <p className={styles.subtitle}>
-              Priorizá a quién contactar ahora, entendé la calidad de la intención y ejecutá la próxima acción comercial.
-            </p>
-          </div>
+          <SectionHeading
+            eyebrow="INFRAESTRUCTURA DE VENTAS CON IA"
+            title="Bandeja de leads y calificación"
+            subtitle="Priorizá a quién contactar ahora, entendé la calidad de la intención y ejecutá la próxima acción comercial."
+            className={styles.heading}
+          />
           <div className={styles.topActions}>
-            <Link href={`/analytics?agencyId=${agencyId}`} className={styles.refreshLink}>
-              Analytics
-            </Link>
+            <Button asChild className={styles.refreshLink} variant="outline" size="sm">
+              <Link href={`/analytics?agencyId=${agencyId}`}>Analítica</Link>
+            </Button>
             <CreateDemoLeadsButton agencyId={agencyId} />
-            <Link href={`/leads?agencyId=${agencyId}`} className={styles.refreshLink}>
-              Actualizar
-            </Link>
+            <Button asChild className={styles.refreshLink} variant="outline" size="sm">
+              <Link href={`/leads?agencyId=${agencyId}`}>Actualizar</Link>
+            </Button>
           </div>
         </header>
 
         {inboxItems.length === 0 ? (
-          <section className={styles.emptyState}>
-            <h2>Aún no hay leads para esta agencia</h2>
-            <p>
-              Generá registros de demostración para probar priorización, perfil extraído, historial de conversación y próximas acciones.
-            </p>
-            <CreateDemoLeadsButton agencyId={agencyId} />
-          </section>
+          <Card className={styles.emptyState}>
+            <CardContent>
+              <h2>Aún no hay leads para esta agencia</h2>
+              <p>
+                Generá registros de demostración para probar priorización, perfil extraído, historial de conversación y próximas acciones.
+              </p>
+              <CreateDemoLeadsButton agencyId={agencyId} />
+            </CardContent>
+          </Card>
         ) : (
           <section className={styles.layout}>
             <LeadsInboxList items={inboxItems} agencyId={agencyId} selectedLeadId={selectedLeadId} />

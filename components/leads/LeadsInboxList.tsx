@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { LeadInboxItem } from "@/lib/server/read-models/leads";
 import { formatRelativeHours } from "@/lib/formatters";
-import { displayChannel, displayLeadStage } from "@/lib/i18n/present";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { displayLeadStage } from "@/lib/i18n/present";
 import styles from "./leads-inbox-list.module.css";
 
 interface LeadsInboxListProps {
@@ -10,66 +13,68 @@ interface LeadsInboxListProps {
   selectedLeadId: string | null;
 }
 
-function badgeClass(priority: string) {
-  if (priority === "P1") return styles.badgeP1;
-  if (priority === "P2") return styles.badgeP2;
-  return styles.badgeP3;
+function buildJudgment(item: LeadInboxItem) {
+  if (item.score >= 85) {
+    return `Oportunidad con alta convicción: ${item.closeProbability}% de prob. de cierre y momentum claro hacia la visita.`;
+  }
+
+  if (item.score >= 70) {
+    return `Lead prometedor con señales accionables de intención; hace falta ejecución ajustada para convertir.`;
+  }
+
+  return `Perfil de intención moderada o baja por ahora. Nutrir sin quemar capacidad de agentes en contacto intensivo.`;
+}
+
+function buildUrgencyLine(item: LeadInboxItem) {
+  if (item.silenceHours == null) {
+    return "Todavía no hay señal clara de silencio.";
+  }
+
+  if (item.silenceHours >= 24) {
+    return `${formatRelativeHours(item.silenceHours)} sin actividad. El riesgo por demora en respuesta sube.`;
+  }
+
+  return `${formatRelativeHours(item.silenceHours)} sin actividad. El timing sigue siendo sano.`;
 }
 
 export function LeadsInboxList({ items, agencyId, selectedLeadId }: LeadsInboxListProps) {
   return (
-    <section className={styles.inbox}>
-      <header className={styles.header}>
-        <h2>Bandeja de leads</h2>
-        <p>{items.length} leads ordenados por prioridad, score y actividad reciente.</p>
-      </header>
+    <Card className={styles.inbox}>
+      <CardHeader className={styles.header}>
+        <p className={styles.kicker}>Feed de oportunidades</p>
+        <CardTitle>En qué enfocarse ahora</CardTitle>
+      </CardHeader>
+      <Separator />
 
-      <div className={styles.rows}>
+      <CardContent className={styles.rows}>
         {items.map((item) => {
           const isActive = item.id === selectedLeadId;
+
           return (
             <Link
               key={item.id}
               className={`${styles.row} ${isActive ? styles.rowActive : ""}`}
               href={`/leads?agencyId=${agencyId}&leadId=${item.id}`}
             >
-              <div className={styles.rowTop}>
-                <div>
-                  <h3>{item.fullName}</h3>
-                  <p>
-                    {displayChannel(item.sourceChannel)} {item.sourceCampaign ? `· ${item.sourceCampaign}` : ""}
-                  </p>
-                </div>
-                <span className={`${styles.priorityBadge} ${badgeClass(item.priority)}`}>{item.priority}</span>
+              <div className={styles.identityLine}>
+                <h3>{item.fullName}</h3>
+                <Badge variant="secondary" className={styles.stageBadge}>
+                  {displayLeadStage(item.stage)}
+                </Badge>
               </div>
 
-              <div className={styles.metricsGrid}>
-                <div>
-                  <span>Score</span>
-                  <strong>{item.score}</strong>
-                </div>
-                <div>
-                  <span>Prob. cierre</span>
-                  <strong>{item.closeProbability}%</strong>
-                </div>
-                <div>
-                  <span>Etapa</span>
-                  <strong>{displayLeadStage(item.stage)}</strong>
-                </div>
-                <div>
-                  <span>Silencio</span>
-                  <strong>{item.silenceHours == null ? "—" : formatRelativeHours(item.silenceHours)}</strong>
-                </div>
-              </div>
+              <p className={styles.judgment}>{buildJudgment(item)}</p>
 
-              <div className={styles.rowBottom}>
-                <p>{item.recommendedNextAction?.title ?? "Sin próxima acción calculada aún"}</p>
-                {item.hasManualReviewTask ? <span className={styles.alertBadge}>Revisión manual</span> : null}
-              </div>
+              <p className={styles.moveLine}>
+                <span>Mejor movimiento:</span>{" "}
+                {item.recommendedNextAction?.title ?? "Definí la próxima acción manualmente"}
+              </p>
+
+              <p className={styles.urgency}>{buildUrgencyLine(item)}</p>
             </Link>
           );
         })}
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   );
 }

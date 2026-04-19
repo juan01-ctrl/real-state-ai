@@ -1,5 +1,20 @@
 import { LeadPriority, LeadStage, TaskStatus } from "@prisma/client";
 import { db } from "@/lib/server/db";
+import {
+  formatBuyingIntentSummaryEs,
+  normalizeAppreciationNote,
+  normalizeFollowUpDetail,
+  normalizeFollowUpTitle,
+  normalizeMessageBody,
+  normalizeNextActionDetail,
+  normalizeNextActionTitle,
+  normalizeNextActionWhyLine,
+  normalizePropertyTitle,
+  normalizeRecommendationReason,
+  normalizeStageHistoryReason,
+  normalizeTaskTitle,
+  normalizeTradeoff
+} from "@/lib/i18n/legacy-copy-es";
 
 export interface LeadInboxItem {
   id: string;
@@ -25,10 +40,12 @@ export interface LeadInboxItem {
 
 export interface LeadDetailModel {
   id: string;
+  fullName: string;
   stage: LeadStage;
   priority: LeadPriority;
   score: number;
   closeProbability: number;
+  silenceHours: number | null;
   sourceChannel: string;
   sourceCampaign: string | null;
   ownerName: string | null;
@@ -123,7 +140,11 @@ function parseNextAction(outputJson: unknown): LeadInboxItem["recommendedNextAct
   const title = typeof next.title === "string" ? next.title : "Sin título";
   const detail = typeof next.detail === "string" ? next.detail : "";
 
-  return { type, title, detail };
+  return {
+    type,
+    title: normalizeNextActionTitle(title),
+    detail: normalizeNextActionDetail(detail)
+  };
 }
 
 export async function getLeadInboxItems(agencyId: string): Promise<LeadInboxItem[]> {
@@ -179,11 +200,14 @@ function parseDetailNextAction(outputJson: unknown): LeadDetailModel["nextAction
   const whyRaw = next.why;
   const why = Array.isArray(whyRaw) ? whyRaw.filter((w): w is string => typeof w === "string") : [];
 
+  const title = typeof next.title === "string" ? next.title : "Sin título";
+  const detail = typeof next.detail === "string" ? next.detail : "";
+
   return {
     type: typeof next.type === "string" ? next.type : "unknown",
-    title: typeof next.title === "string" ? next.title : "Sin título",
-    detail: typeof next.detail === "string" ? next.detail : "",
-    why
+    title: normalizeNextActionTitle(title),
+    detail: normalizeNextActionDetail(detail),
+    why: why.map(normalizeNextActionWhyLine)
   };
 }
 
@@ -223,10 +247,12 @@ export async function getLeadDetail(leadId: string): Promise<LeadDetailModel | n
 
   return {
     id: lead.id,
+    fullName: lead.contactName ?? `Contacto ${lead.id.slice(0, 8)}`,
     stage: lead.stage,
     priority: lead.priority,
     score: lead.leadScore,
     closeProbability: lead.closeProbability,
+    silenceHours: hoursSince(lead.lastActivityAt),
     sourceChannel: lead.sourceChannel,
     sourceCampaign: lead.sourceCampaign,
     ownerName: lead.owner?.name ?? null,
@@ -243,13 +269,20 @@ export async function getLeadDetail(leadId: string): Promise<LeadDetailModel | n
           seriousness: lead.profile.seriousness,
           urgency: lead.profile.urgency,
           objections: lead.profile.objections,
-          buyingIntentSummary: lead.profile.buyingIntentSummary,
+          buyingIntentSummary: formatBuyingIntentSummaryEs(
+            lead.profile.budgetMin,
+            lead.profile.budgetMax,
+            lead.profile.budgetCurrency,
+            lead.profile.preferredZones,
+            lead.profile.timelineMonths,
+            lead.leadScore
+          ),
           confidenceOverall: lead.profile.confidenceOverall
         }
       : null,
     conversation: messages.map((message) => ({
       id: message.id,
-      body: message.body,
+      body: normalizeMessageBody(message.body),
       direction: message.direction,
       senderName: message.senderName,
       sentAt: message.sentAt.toISOString(),
@@ -259,12 +292,12 @@ export async function getLeadDetail(leadId: string): Promise<LeadDetailModel | n
     stageHistory: lead.stageHistory.map((entry) => ({
       fromStage: entry.fromStage,
       toStage: entry.toStage,
-      reason: entry.reason,
+      reason: normalizeStageHistoryReason(entry.reason),
       changedAt: entry.changedAt.toISOString()
     })),
     tasks: lead.tasks.map((task) => ({
       id: task.id,
-      title: task.title,
+      title: normalizeTaskTitle(task.title),
       type: task.type,
       status: task.status,
       dueAt: task.dueAt?.toISOString() ?? null
@@ -272,8 +305,8 @@ export async function getLeadDetail(leadId: string): Promise<LeadDetailModel | n
     followUpEvents: lead.followUpEvents.map((event) => ({
       id: event.id,
       status: event.status,
-      title: event.title,
-      detail: event.detail,
+      title: normalizeFollowUpTitle(event.title),
+      detail: normalizeFollowUpDetail(event.detail),
       scheduledFor: event.scheduledFor.toISOString(),
       occurredAt: event.occurredAt?.toISOString() ?? null
     })),
@@ -281,15 +314,15 @@ export async function getLeadDetail(leadId: string): Promise<LeadDetailModel | n
       id: recommendation.id,
       rank: recommendation.rank,
       fitScore: recommendation.fitScore,
-      title: recommendation.property.title,
+      title: normalizePropertyTitle(recommendation.property.title),
       neighborhood: recommendation.property.neighborhood,
       price: recommendation.property.price,
       bedrooms: recommendation.property.bedrooms,
       bathrooms: recommendation.property.bathrooms,
       useCase: recommendation.property.useCase,
-      appreciationNote: recommendation.property.appreciationNote,
-      reasons: recommendation.reasons,
-      tradeoff: recommendation.tradeoff
+      appreciationNote: normalizeAppreciationNote(recommendation.property.appreciationNote),
+      reasons: recommendation.reasons.map(normalizeRecommendationReason),
+      tradeoff: normalizeTradeoff(recommendation.tradeoff)
     })),
     notes: lead.notes.map((note) => ({
       id: note.id,

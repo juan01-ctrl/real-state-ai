@@ -1,0 +1,14 @@
+---
+description: Idioma del producto — español para toda copy visible
+alwaysApply: true
+---
+
+# Idioma del producto
+
+- Toda la **copy de usuario** (UI, errores mostrados al operador, textos de demostración que ve el cliente) debe estar en **español**.
+- Tono B2B inmobiliario: claro, directo; en flujos operador **es-AR** (vos) cuando ya exista en el repo.
+- No introducir pantallas o componentes con etiquetas, títulos o párrafos de ayuda en inglés salvo términos técnicos aceptados (p. ej. «Analytics» solo si se acordó; por defecto usar **Analítica** o equivalente en español).
+- Al añadir strings nuevas, revisar `lib/i18n/present.ts` para enums y reutilizar helpers de presentación en lugar de mostrar valores crudos en inglés.
+- Texto histórico en inglés en la base: al exponer detalle de lead, aplicar normalización en `lib/server/read-models/leads.ts` usando `lib/i18n/legacy-copy-es.ts` (ampliar mapas allí si aparecen variantes nuevas).
+
+Consultá el subagente en `.cursor/agents/language-es-ar.md` para el mandato completo de idioma.

@@ -21,6 +21,7 @@ Project customization lives under [`.cursor/`](.cursor/):
 | Backend & systems engineer | [`backend-systems-engineer.md`](.cursor/agents/backend-systems-engineer.md) | Schema, webhooks, queues, CRM/channel integrations, events |
 | AI orchestration architect | [`ai-orchestration-architect.md`](.cursor/agents/ai-orchestration-architect.md) | Extraction, scoring, matching pipelines, eval, observability |
 | Conversion copywriter | [`conversion-copywriter.md`](.cursor/agents/conversion-copywriter.md) | Positioning and paste-ready copy for operators and buyers |
+| Language (es product) | [`language-es-ar.md`](.cursor/agents/language-es-ar.md) | All user-facing copy in Spanish; es-AR tone for operator UI; no English labels in the product surface |
 
 ## Skills (workflows)
 

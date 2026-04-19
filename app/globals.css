@@ -1,13 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 220 23% 96%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --primary: 222 47% 11%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 217 33% 94%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 216 20% 95%;
+  --muted-foreground: 215 20% 42%;
+  --accent: 215 25% 93%;
+  --accent-foreground: 222 47% 11%;
+  --border: 214 26% 88%;
+  --input: 214 26% 88%;
+  --ring: 221 83% 53%;
+  --radius: 0.6rem;
+}
+
 * {
   box-sizing: border-box;
+  border-color: hsl(var(--border));
 }
 
 html,
 body {
   margin: 0;
   padding: 0;
-  background: #f3f5f8;
-  color: #0f172a;
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
   font-family: "Avenir Next", "Avenir", "Segoe UI", "SF Pro Text", "Helvetica Neue", "Noto Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;

@@ -2,7 +2,7 @@
   min-height: 100vh;
   background: #f3f5f8;
   color: #111827;
-  padding: 34px 30px 42px;
+  padding: 40px 32px 48px;
 }
 
 .pageInner {
@@ -13,255 +13,140 @@
 .topBar {
   display: flex;
   justify-content: space-between;
-  gap: 22px;
   align-items: flex-end;
-  margin-bottom: 22px;
+  gap: 24px;
+  margin-bottom: 26px;
 }
 
-.kicker {
-  margin: 0;
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  font-weight: 600;
-  color: #65768f;
-}
-
-.topBar h1 {
-  margin: 10px 0 0;
-  font-size: 33px;
-  line-height: 1.08;
-  letter-spacing: -0.03em;
-  font-weight: 620;
-}
-
-.subtitle {
-  margin: 12px 0 0;
-  max-width: 760px;
-  color: #596a82;
-  font-size: 15px;
-  line-height: 1.55;
+.heading {
+  max-width: 860px;
 }
 
 .actions {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
 
 .linkButton,
 .linkButtonSecondary {
-  text-decoration: none;
-  border-radius: 9px;
-  padding: 9px 13px;
-  font-size: 12px;
-  font-weight: 590;
+  text-decoration: none !important;
+  font-weight: 580 !important;
 }
 
-.linkButton {
-  background: #0f172a;
-  color: #ffffff;
-  border: 1px solid #1f2937;
-}
-
-.linkButtonSecondary {
-  background: #ffffff;
-  color: #1f2937;
-  border: 1px solid #d4dbe7;
-}
-
-.kpiGrid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
+.hero {
   margin-bottom: 14px;
 }
 
-.kpiCard {
-  background: #ffffff;
-  border: 1px solid #dde4ee;
-  border-radius: 10px;
-  padding: 13px;
-}
-
-.kpiCard p {
+.heroKicker {
   margin: 0;
-  font-size: 11px;
-  color: #667991;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #667a93;
+  font-weight: 600;
 }
 
-.kpiCard strong {
+.heroMain {
+  margin-top: 10px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.heroMain h2 {
+  margin: 0;
+  max-width: 810px;
+  font-size: 32px;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+.heroMain p {
+  margin: 12px 0 0;
+  max-width: 780px;
+  color: #4f6078;
+  line-height: 1.58;
+  font-size: 14px;
+}
+
+.heroNumber {
+  font-size: 72px;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  font-weight: 640;
+  color: #0f172a;
+}
+
+.heroEvidence {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.heroEvidence span {
   display: block;
-  margin-top: 7px;
-  font-size: 24px;
-  letter-spacing: -0.02em;
-  font-weight: 620;
+  border-top: 1px solid #e0e7f2;
+  padding-top: 9px;
+  color: #42556f;
+  font-size: 12px;
 }
 
-.mainGrid {
+.recommendation {
+  margin: 13px 0 0;
+  color: #1f2f45;
+  line-height: 1.55;
+  font-size: 13px;
+  font-weight: 560;
+}
+
+.sectionGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 12px;
+  gap: 14px;
+  margin-top: 14px;
 }
 
-.surface {
-  background: #ffffff;
-  border: 1px solid #dde4ee;
-  border-radius: 10px;
-  padding: 16px;
-}
-
-.surface h2 {
+.sectionCard h3 {
   margin: 0;
-  font-size: 16px;
-  letter-spacing: -0.015em;
+  font-size: 17px;
+  letter-spacing: -0.018em;
 }
 
-.tableLike {
-  margin-top: 11px;
+.metricLine {
+  margin-top: 10px;
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  font-weight: 620;
+  color: #111827;
+}
+
+.sectionCard p {
+  margin: 11px 0 0;
+  color: #4f6078;
+  line-height: 1.57;
+  font-size: 13px;
+}
+
+.sectionCard ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
   display: grid;
   gap: 6px;
 }
 
-.tableRow,
-.tableRowStacked {
-  border: 1px solid #e8edf5;
-  border-radius: 8px;
-  padding: 9px 10px;
-  background: #fcfdff;
-}
-
-.tableRow {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  gap: 10px;
-}
-
-.tableRow span,
-.tableRowStacked span {
-  font-size: 12px;
-  color: #1f2937;
-}
-
-.tableRow strong,
-.tableRowStacked strong {
-  font-size: 12px;
+.sectionCard li {
   color: #334155;
-}
-
-.tableRow em,
-.tableRowStacked em {
-  font-size: 11px;
-  color: #62748b;
-  font-style: normal;
-}
-
-.tableRowStacked {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: center;
-}
-
-.insightList {
-  margin: 11px 0 0;
-  padding-left: 18px;
-  display: grid;
-  gap: 9px;
-}
-
-.insightList li {
-  color: #223247;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.46;
 }
 
-.barList {
-  margin-top: 11px;
-  display: grid;
-  gap: 10px;
-}
-
-.barLabelRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.barLabelRow span {
-  font-size: 12px;
-  color: #1f2937;
-}
-
-.barLabelRow strong {
-  font-size: 12px;
-  color: #334155;
-}
-
-.barTrack {
-  margin-top: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: #edf2f8;
-  overflow: hidden;
-}
-
-.barFill {
-  height: 100%;
-  border-radius: 999px;
-  background: #1f2937;
-}
-
-.riskList {
-  margin: 11px 0 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 8px;
-}
-
-.riskList li {
-  border: 1px solid #e8edf5;
-  border-radius: 8px;
-  padding: 9px 10px;
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.riskList strong {
-  display: block;
-  font-size: 13px;
-}
-
-.riskList span {
-  font-size: 12px;
-  color: #62748b;
-}
-
-.riskList em {
-  font-style: normal;
-  color: #7c2d12;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.emptyText {
-  margin: 12px 0 0;
-  color: #64748b;
-  font-size: 13px;
-}
-
-@media (max-width: 1200px) {
-  .kpiGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
+@media (max-width: 1080px) {
   .page {
-    padding: 20px 14px 28px;
+    padding: 24px 14px 32px;
   }
 
   .topBar {
@@ -270,12 +155,25 @@
     gap: 14px;
   }
 
-  .topBar h1 {
-    font-size: 29px;
+  .heroMain {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .kpiGrid,
-  .mainGrid {
+  .heroMain h2 {
+    font-size: 28px;
+  }
+
+  .heroNumber {
+    font-size: 54px;
+  }
+
+  .heroEvidence {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .sectionGrid {
     grid-template-columns: 1fr;
   }
 }

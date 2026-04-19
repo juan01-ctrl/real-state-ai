@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./create-demo-button.module.css";
+import { Button } from "@/components/ui/button";
 
 interface CreateDemoLeadsButtonProps {
   agencyId: string;
@@ -40,9 +41,9 @@ export function CreateDemoLeadsButton({ agencyId }: CreateDemoLeadsButtonProps) 
 
   return (
     <div>
-      <button className={styles.demoButton} disabled={loading} onClick={handleCreate}>
+      <Button size="sm" disabled={loading} onClick={handleCreate}>
         {loading ? "Creando…" : "Crear leads de demostración"}
-      </button>
+      </Button>
       {error ? <p className={styles.errorText}>{error}</p> : null}
     </div>
   );

@@ -104,7 +104,7 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
     create: {
       id: input.agencyId,
       slug: input.agencyId.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
-      name: `Agency ${input.agencyId}`
+      name: `Agencia ${input.agencyId}`
     }
   });
 
@@ -163,7 +163,7 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
         agencyId: agency.id,
         direction: message.direction === "inbound" ? MessageDirection.INBOUND : MessageDirection.OUTBOUND,
         senderType: message.direction === "inbound" ? SenderType.CONTACT : SenderType.AGENT,
-        senderName: message.direction === "inbound" ? input.contactName ?? "Contact" : "Agent",
+        senderName: message.direction === "inbound" ? input.contactName ?? "Contacto" : "Agente",
         body: message.body,
         sentAt: new Date(message.sentAt),
         deliveryStatus: toDeliveryStatus(message.direction === "inbound" ? "read" : "delivered")
@@ -194,7 +194,7 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
       data: {
         leadId: lead.id,
         toStage: lead.stage,
-        reason: "Initial stage from qualification pipeline"
+        reason: "Etapa inicial desde el pipeline de calificación"
       }
     });
 
@@ -203,7 +203,7 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
         data: {
           leadId: lead.id,
           type: "MANUAL_REVIEW",
-          title: "Review qualification output due to low confidence"
+          title: "Revisar salida de calificación por baja confianza"
         }
       });
     }
