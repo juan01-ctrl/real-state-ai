@@ -1,0 +1,381 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  AGENCY_ADMIN
+  AGENT
+}
+
+enum ChannelType {
+  WHATSAPP
+  INSTAGRAM
+  WEB_FORM
+  PORTAL
+  MANUAL_IMPORT
+}
+
+enum LeadStage {
+  NEW
+  CONTACTED
+  QUALIFIED
+  VISIT_SCHEDULED
+  OFFER_NEGOTIATION
+  WON
+  LOST
+  NURTURE
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum SenderType {
+  CONTACT
+  AGENT
+  SYSTEM
+}
+
+enum DeliveryStatus {
+  DELIVERED
+  READ
+  PENDING_APPROVAL
+  FAILED
+}
+
+enum FinancingMode {
+  CASH
+  MORTGAGE
+  PRE_APPROVED
+  UNKNOWN
+}
+
+enum SeriousnessLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum UrgencyLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum LeadPriority {
+  P1
+  P2
+  P3
+}
+
+enum TaskStatus {
+  OPEN
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskType {
+  CALL
+  FOLLOW_UP_MESSAGE
+  VISIT_CONFIRM
+  MANUAL_REVIEW
+}
+
+enum AiRunType {
+  EXTRACT_PROFILE
+  SCORE_LEAD
+  RANK_PROPERTIES
+  FOLLOW_UP_PLAN
+}
+
+enum AiRunStatus {
+  SUCCESS
+  FAILED
+}
+
+enum FollowUpEventStatus {
+  SCHEDULED
+  EXECUTED
+  FAILED
+  NEEDS_APPROVAL
+}
+
+enum RecommendationUseCase {
+  LIVING
+  INVESTMENT
+}
+
+model Agency {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  timezone  String   @default("UTC")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users            User[]
+  channelConnections ChannelConnection[]
+  leads            Lead[]
+  properties       Property[]
+  aiRuns           AiRun[]
+  analyticsEvents  AnalyticsEvent[]
+}
+
+model User {
+  id          String    @id @default(cuid())
+  agencyId    String
+  email       String
+  name        String
+  role        UserRole  @default(AGENT)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  agency      Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  ownedLeads  Lead[]    @relation("LeadOwner")
+
+  @@unique([agencyId, email])
+  @@index([agencyId])
+}
+
+model ChannelConnection {
+  id                String      @id @default(cuid())
+  agencyId          String
+  type              ChannelType
+  label             String
+  externalAccountId String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  agency            Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  conversations     Conversation[]
+
+  @@index([agencyId, type])
+}
+
+model Lead {
+  id                String            @id @default(cuid())
+  agencyId          String
+  contactName       String?
+  ownerUserId       String?
+  stage             LeadStage         @default(NEW)
+  sourceChannel     ChannelType
+  sourceCampaign    String?
+  leadScore         Int               @default(0)
+  closeProbability  Int               @default(0)
+  priority          LeadPriority      @default(P3)
+  timelineMonths    Int?
+  seriousness       SeriousnessLevel  @default(LOW)
+  urgency           UrgencyLevel      @default(LOW)
+  lastActivityAt    DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  agency            Agency            @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  owner             User?             @relation("LeadOwner", fields: [ownerUserId], references: [id])
+  profile           LeadProfile?
+  conversations     Conversation[]
+  notes             Note[]
+  tasks             Task[]
+  followUpEvents    FollowUpEvent[]
+  recommendations   PropertyRecommendation[]
+  stageHistory      LeadStageHistory[]
+  aiRuns            AiRun[]
+  analyticsEvents   AnalyticsEvent[]
+
+  @@index([agencyId, stage])
+  @@index([agencyId, priority])
+  @@index([agencyId, lastActivityAt])
+}
+
+model LeadProfile {
+  id                  String           @id @default(cuid())
+  leadId              String           @unique
+  budgetMin           Int?
+  budgetMax           Int?
+  budgetCurrency      String?
+  preferredZones      String[]
+  propertyType        String
+  bedrooms            Int?
+  financingMode       FinancingMode    @default(UNKNOWN)
+  timelineMonths      Int?
+  seriousness         SeriousnessLevel
+  urgency             UrgencyLevel
+  objections          String[]
+  buyingIntentSummary String
+  extractionJson      Json
+  confidenceOverall   Float
+  updatedAt           DateTime         @updatedAt
+
+  lead                Lead             @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id                  String            @id @default(cuid())
+  leadId              String
+  agencyId            String
+  channelConnectionId String?
+  externalThreadId    String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  lead                Lead              @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  channelConnection   ChannelConnection? @relation(fields: [channelConnectionId], references: [id], onDelete: SetNull)
+  messages            Message[]
+
+  @@index([leadId])
+  @@index([agencyId])
+}
+
+model Message {
+  id                 String           @id @default(cuid())
+  conversationId     String
+  agencyId           String
+  direction          MessageDirection
+  senderType         SenderType
+  senderName         String?
+  body               String
+  sentAt             DateTime
+  deliveryStatus     DeliveryStatus
+  createdAt          DateTime         @default(now())
+
+  conversation       Conversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, sentAt])
+  @@index([agencyId, sentAt])
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  leadId    String
+  body      String
+  author    String
+  createdAt DateTime @default(now())
+
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, createdAt])
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  leadId       String
+  type         TaskType
+  status       TaskStatus @default(OPEN)
+  title        String
+  dueAt        DateTime?
+  createdAt    DateTime   @default(now())
+
+  lead         Lead       @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, status])
+}
+
+model FollowUpEvent {
+  id          String              @id @default(cuid())
+  leadId       String
+  status       FollowUpEventStatus
+  title        String
+  detail       String
+  scheduledFor DateTime
+  occurredAt   DateTime?
+  createdAt    DateTime            @default(now())
+
+  lead         Lead                @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, scheduledFor])
+}
+
+model Property {
+  id               String      @id @default(cuid())
+  agencyId         String
+  title            String
+  neighborhood     String
+  price            Int
+  currency         String      @default("USD")
+  bedrooms         Int
+  bathrooms        Int
+  propertyType     String
+  useCase          RecommendationUseCase
+  appreciationNote String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  agency           Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  recommendations  PropertyRecommendation[]
+
+  @@index([agencyId, neighborhood])
+  @@index([agencyId, useCase])
+}
+
+model PropertyRecommendation {
+  id            String    @id @default(cuid())
+  leadId         String
+  propertyId     String
+  rank           Int
+  fitScore       Float
+  reasons        String[]
+  tradeoff       String?
+  strategy       String
+  createdAt      DateTime @default(now())
+
+  lead           Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  property       Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, rank])
+}
+
+model LeadStageHistory {
+  id         String    @id @default(cuid())
+  leadId      String
+  fromStage   LeadStage?
+  toStage     LeadStage
+  reason      String?
+  changedAt   DateTime  @default(now())
+
+  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, changedAt])
+}
+
+model AiRun {
+  id            String      @id @default(cuid())
+  agencyId      String
+  leadId        String?
+  type          AiRunType
+  status        AiRunStatus
+  model         String
+  version       String
+  inputHash     String
+  outputJson    Json
+  confidence    Float?
+  createdAt     DateTime    @default(now())
+
+  agency        Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  lead          Lead?       @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([agencyId, createdAt])
+  @@index([leadId, createdAt])
+}
+
+model AnalyticsEvent {
+  id             String    @id @default(cuid())
+  agencyId       String
+  leadId         String?
+  type           String
+  properties     Json
+  occurredAt     DateTime  @default(now())
+  idempotencyKey String
+
+  agency         Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  lead           Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@unique([agencyId, idempotencyKey])
+  @@index([agencyId, occurredAt])
+  @@index([leadId, occurredAt])
+}

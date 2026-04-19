@@ -1,0 +1,30 @@
+---
+description: Brokerage funnel language, stages, and qualification—always apply in product work
+alwaysApply: true
+---
+
+# Domain: agency sales motion
+
+## Pipeline (typical resale / brokerage)
+
+Adapt labels to market, but keep **one coherent map** across product and CRM:
+
+`New` → `Contacted` → `Qualified` → `Visit scheduled` → `Offer / negotiation` → `Won` | `Lost` | `Nurture`
+
+Rental: swap **Visit** with **Showing**; keep **stage semantics** consistent in code.
+
+## Qualification (reason on every feature)
+
+Capture and refine: **budget** (range + currency + financing posture), **zones / commute**, **property type**, **timeline**, **decision-makers**, **objections**, **urgency**. Combine **stated** data with **behavior** (response speed, depth, ghosting).
+
+## Inventory
+
+- **Agency listings** vs **portal syndication**—be explicit which source a **match** uses; never fabricate availability or price.
+
+## Follow-up
+
+Cadence differs for **hot** vs **nurture**; spammy sequences hurt referrals in tight markets. Handoffs need **CRM notes** and **ownership** changes operators trust.
+
+## Terms (use consistently)
+
+**Lead**, **conversation**, **stage**, **task**, **listing**, **match**, **agency**, **operator** (internal user), **buyer** / **seller** when relevant.

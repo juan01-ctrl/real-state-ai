@@ -1,0 +1,28 @@
+---
+description: Operator and buyer UI—premium B2B, conversion-aware, operationally dense where needed
+globs: "**/*.{tsx,css}"
+alwaysApply: false
+---
+
+# UI/UX standards
+
+## Operator jobs (design around these)
+
+1. **Respond** — see unanswered / SLA-risk threads first.  
+2. **Qualify** — scan budget, zone, stage, owner, next step without opening five tabs.  
+3. **Advance** — book visits, assign handoffs, move pipeline with confidence.  
+4. **Recover** — stale and ghosted leads are obvious; recovery actions are one click away where possible.
+
+## Visual tone
+
+Premium **B2B**: confident typography, restrained color, sharp alignment. Marketing pages can breathe; **dashboards** prioritize scannable tables/cards (status, owner, **next action**, **last activity**, money-relevant fields).
+
+## Interaction
+
+- One obvious **primary action** per view; destructive actions confirmed.
+- **Loading / empty / error** states explain what happened and what to do next—never a blank shell.
+- **Trust**: metrics and stage labels are **defensible** (tooltip or drill-down to source activity).
+
+## Accessibility
+
+Contrast, focus rings, semantic structure, keyboard paths for core operator flows.

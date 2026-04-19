@@ -1,0 +1,28 @@
+---
+description: Model-assisted flows—structure, control, measurement, no hand-wavy “AI” features
+alwaysApply: true
+---
+
+# AI product standards
+
+## Role of the model
+
+Use models for **judgment-heavy** text and **nuanced extraction**; use **code** for **money, eligibility, scoring math, and CRM writes**. Never let free-form text be the only record of budget or stage.
+
+## Structure
+
+- Outputs should map to **validated fields** (currency, zone, timeline buckets)—see lead-qualification skill for shapes.
+- **Recommendations** pair **ranked listing refs** with **short rationale** tied to buyer constraints—not undifferentiated lists.
+
+## Control
+
+- Configurable **policies per agency/channel**: drafts, approvals, tone, when to escalate to a human broker.
+
+## Measurement
+
+- Log retrievable metadata for debugging and regression: **template/version**, **tool calls**, **scores**, not full PII in hot paths.
+- Critical paths need **evaluation hooks** before prompt changes ship: qualification accuracy, match relevance, handoff quality.
+
+## Bar
+
+Ship features that improve **visit booking**, **stage progression**, or **operator time-to-action**—not demos where “the AI replied.”

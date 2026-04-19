@@ -1,0 +1,30 @@
+---
+description: Multi-tenant boundaries, entities, channels, and reliability for this sales platform
+globs: "**/*.{ts,tsx,js,jsx}"
+alwaysApply: false
+---
+
+# Architecture standards
+
+## Boundaries
+
+- **Agency (tenant)** scopes all CRM-ish data: leads, listings references, users, channel accounts, policies.
+- **Channel adapters** (WhatsApp, Meta DM, forms, portals) are thin: verify, normalize, **idempotent ingest**, hand off to domain services—avoid business rules duplicated per channel.
+
+## Core entities (evolve names with the codebase)
+
+`Agency`, `User` (operator), `Lead`, `Conversation`, `Message`, `Listing` (or external listing ref), `Match` / `Recommendation`, `PipelineStage`, `Task`, `ChannelConnection`, `Integration` (CRM).
+
+## APIs and events
+
+- Predictable **error shapes**; version or document breaking changes.
+- Emit **analytics events** with stable names for funnel reporting (e.g. `lead.created`, `message.inbound`, `visit.requested`, `stage.changed`)—design so **lost-opportunity** views don’t require ad-hoc SQL later.
+
+## Async and integrations
+
+- **Queues/workers** for: CRM sync, scoring, embeddings, bulk sends, retries.
+- **Webhooks**: signature verification, persist raw payload, **idempotency** keys on outbound sends and inbound handlers.
+
+## Security
+
+- Secrets only via env; never commit. Minimize PII in logs; redact message bodies in prod unless debugging with guardrails.

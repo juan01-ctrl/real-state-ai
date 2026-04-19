@@ -1,0 +1,159 @@
+.inbox {
+  background: #ffffff;
+  border: 1px solid #dce2ec;
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 78vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 18px 18px 16px;
+}
+
+.kicker {
+  margin: 0;
+  color: #6d7d95;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.header h2 {
+  margin: 6px 0 0;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+
+.headerMeta {
+  margin: 0;
+  color: #667891;
+  font-size: 12px;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  text-decoration: none;
+  color: #111827;
+  padding: 15px 18px 16px;
+  border-top: 1px solid #edf1f7;
+  position: relative;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: transparent;
+}
+
+.row:hover {
+  background: #f8fafc;
+}
+
+.rowActive {
+  background: #f6f8fc;
+}
+
+.rowActive::before {
+  background: #0f172a;
+}
+
+.toneHot::before {
+  background: #8f1d2c;
+}
+
+.toneWarm::before {
+  background: #8b5e08;
+}
+
+.toneCalm::before {
+  background: #6b7280;
+}
+
+.rowMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.rowMain h3 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 580;
+  letter-spacing: -0.015em;
+}
+
+.channelLine {
+  margin: 6px 0 0;
+  color: #61728b;
+  font-size: 12px;
+}
+
+.scorePill {
+  margin: 0;
+  border: 1px solid #dce3ef;
+  border-radius: 999px;
+  padding: 4px 9px;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 610;
+  background: #fafbfd;
+  white-space: nowrap;
+}
+
+.metricsLine {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.metricsLine span {
+  color: #5f6e85;
+  font-size: 12px;
+}
+
+.nextActionLine {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.nextActionLine p {
+  margin: 0;
+  font-size: 13px;
+  color: #1f2937;
+  line-height: 1.45;
+}
+
+.manualReview {
+  color: #334155;
+  font-size: 11px;
+  font-weight: 600;
+  background: #e8edf5;
+  border-radius: 999px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+@media (max-width: 1120px) {
+  .inbox {
+    min-height: auto;
+  }
+}

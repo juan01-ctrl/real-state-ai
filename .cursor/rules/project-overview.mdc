@@ -1,0 +1,34 @@
+---
+description: Product scope, buyers, and outcomes this brokerage sales OS optimizes for
+alwaysApply: true
+---
+
+# Product overview
+
+## Product
+
+Software for **real estate agencies** that turns fragmented inbound (WhatsApp, Instagram, web forms, portals) into **qualified pipeline**, **timely follow-up**, **explained property matches**, and **visible leakage**—so brokers spend time on closings, not triage.
+
+Not a bulk-messaging toy. Not “a chatbot on WhatsApp.” Positioning: **sales infrastructure** that earns trust from **operators** (brokers, coordinators, team leads).
+
+## Outcomes we design for
+
+Prioritize work that moves:
+
+| Outcome | What “good” implies |
+|--------|---------------------|
+| **Lead quality** | Fewer junk leads in human queues; clear budget, zone, intent, timeline. |
+| **Visits booked** | Measurable **tour / visit** scheduling—not just “replied.” |
+| **Close probability** | Stages and signals that correlate with won deals, not vanity opens. |
+| **Follow-up effectiveness** | Right cadence; nothing hot ages in silence; nurture without spam. |
+| **Funnel visibility** | Operators see **stale, ghosted, mispriced, or stuck** deals without exporting spreadsheets. |
+
+## Stack (default)
+
+**Next.js**, **TypeScript**, APIs, **database**, **background jobs** for integrations and scoring, **observability** on channels and model-assisted steps. Typed contracts across client and server.
+
+## Principles
+
+- **Conversion over volume** — KPIs tied to pipeline and revenue, not message count.
+- **Clarity** — Next action is obvious for buyer and operator.
+- **Expertise** — Matches and copy feel like a **senior broker’s judgment**, not a listing dump.

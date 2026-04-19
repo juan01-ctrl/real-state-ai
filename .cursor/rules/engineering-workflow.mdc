@@ -1,0 +1,26 @@
+---
+description: How we change this codebase—inspection, reuse, E2E delivery, agency-grade consistency
+alwaysApply: true
+---
+
+# Engineering workflow
+
+## Before changing code
+
+- **Read** callers, schema, and similar features—no guessing API shapes or tenant boundaries.
+- **Reuse** established patterns: folder layout, error format, **agency/tenant scoping**, channel adapters.
+
+## Build quality
+
+- No **symptom-only** fixes that break pipeline terminology or duplicate entities under different names.
+- Prefer **migrations, types, and checks** that survive the next channel or CRM integration.
+- **Trace the full path**: UI → API → DB → job/webhook → external system → what the operator sees.
+
+## Product-consistent naming
+
+Align strings and fields across **dashboard**, **API**, **events**, and **CRM mapping** (e.g. same stage names for “qualified” and “visit scheduled”). If AI generates text, the **structured state** remains source of truth for reporting.
+
+## Automation and risk
+
+- Outbound or scored actions need **audit trail** (what, when, rule/version)—see `ai-product-standards.mdc`.
+- Respect **rate limits**, **quiet hours**, and **opt-out** at the integration layer—not only in copy.
