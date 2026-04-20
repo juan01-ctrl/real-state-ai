@@ -31,7 +31,7 @@ export function AestheteFooter({ variant, className }: AestheteFooterProps) {
         className ?? ""
       }`}
     >
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 sm:gap-8 md:flex-row">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 sm:gap-8 md:flex-row md:items-center">
         <div className="flex flex-col items-start gap-2">
           <span
             className={`${isEditorial ? "text-2xl italic normal-case text-stone-800" : "text-lg uppercase tracking-widest text-[#313330]"}`}
@@ -45,11 +45,11 @@ export function AestheteFooter({ variant, className }: AestheteFooterProps) {
               : "© 2024 Aesthete AI. El atelier digital para el sector inmobiliario."}
           </p>
         </div>
-        <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 sm:gap-x-8 md:flex-nowrap md:justify-center md:gap-x-8">
           {links.map((item) => (
             <a
               key={item.label}
-              className={`${isEditorial ? "text-[11px] tracking-[0.15em] text-stone-500" : "text-[12px] text-[#313330]/40"} uppercase transition-colors hover:text-[#58624e]`}
+              className={`${isEditorial ? "text-[11px] tracking-[0.15em] text-stone-500" : "text-[12px] text-[#313330]/40"} shrink-0 whitespace-nowrap uppercase transition-colors hover:text-[#58624e]`}
               href={item.href}
               rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
               target={item.href.startsWith("http") ? "_blank" : undefined}

@@ -1,5 +1,6 @@
  "use client";
 
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { useState } from "react";
 
@@ -131,9 +132,12 @@ export default function HomePage() {
             })}
           </div>
           <div className="flex items-center gap-2 sm:gap-4 lg:gap-6">
-            <button className="text-[10px] uppercase tracking-[0.1em] text-[#313330]/60 transition-all duration-300 hover:text-[#58624e] hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 sm:text-[12px]">
+            <Link
+              className="text-[10px] uppercase tracking-[0.1em] text-[#313330]/60 transition-all duration-300 hover:text-[#58624e] hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 sm:text-[12px]"
+              href="/sign-in"
+            >
               Ingresar
-            </button>
+            </Link>
             <button className="bg-primary px-3 py-2 text-[10px] font-medium uppercase tracking-[0.15em] text-on-primary shadow-[0_10px_24px_-14px_rgba(88,98,78,0.75)] transition-all duration-300 hover:bg-[#4d5643] hover:shadow-[0_18px_30px_-16px_rgba(88,98,78,0.9)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-95 sm:px-6 sm:py-2.5 sm:text-[11px]">
               Solicitar acceso
             </button>
@@ -484,18 +488,27 @@ export default function HomePage() {
       <footer className="w-full bg-surface-container py-12 text-[#58624e] sm:py-16 lg:py-20">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-7 px-6 text-center sm:px-6 md:flex-row md:gap-8 md:text-left lg:px-12">
           <div className="font-serif text-[1.45rem] tracking-[0.14em] text-[#313330] sm:text-lg sm:tracking-widest">AESTHETE AI</div>
-          <div className="flex w-full max-w-[18rem] flex-col items-center gap-1 sm:flex sm:w-auto sm:max-w-none sm:flex-wrap sm:flex-row sm:justify-center sm:gap-8 lg:gap-10">
-            <a className="py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest" href="#infraestructura">
+          <div className="flex w-full flex-col items-center gap-2 sm:w-auto sm:flex-row sm:flex-nowrap sm:justify-center sm:gap-6 md:gap-8 lg:gap-10">
+            <a
+              className="whitespace-nowrap py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest"
+              href="#infraestructura"
+            >
               Infraestructura
             </a>
-            <a className="py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest" href="#diferenciacion">
+            <a
+              className="whitespace-nowrap py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest"
+              href="#diferenciacion"
+            >
               Privacidad
             </a>
-            <a className="py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest" href="#diferenciacion">
+            <a
+              className="whitespace-nowrap py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest"
+              href="#diferenciacion"
+            >
               Términos
             </a>
             <a
-              className="py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest"
+              className="whitespace-nowrap py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest"
               href="https://wa.me/5491159570977?text=Hola%2C%20quiero%20contactar%20al%20equipo%20de%20Aesthete%20AI."
               rel="noopener noreferrer"
               target="_blank"
