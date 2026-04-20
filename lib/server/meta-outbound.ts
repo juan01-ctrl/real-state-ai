@@ -4,6 +4,11 @@ export interface GraphErrorBody {
   error?: { message?: string; type?: string; code?: number };
 }
 
+export interface GraphSendResult {
+  messageId: string | null;
+  raw: Record<string, unknown>;
+}
+
 async function graphFetch(url: string, accessToken: string, body: Record<string, unknown>) {
   const res = await fetch(url, {
     method: "POST",
@@ -18,7 +23,18 @@ async function graphFetch(url: string, accessToken: string, body: Record<string,
     const msg = json.error?.message ?? res.statusText;
     throw new Error(`Graph API ${res.status}: ${msg}`);
   }
-  return json;
+  const messageId =
+    typeof (json as { message_id?: unknown }).message_id === "string"
+      ? ((json as { message_id: string }).message_id ?? null)
+      : Array.isArray((json as { messages?: unknown }).messages) &&
+          typeof (json as { messages: Array<{ id?: unknown }> }).messages[0]?.id === "string"
+        ? ((json as { messages: Array<{ id: string }> }).messages[0]?.id ?? null)
+        : null;
+
+  return {
+    messageId,
+    raw: json
+  } satisfies GraphSendResult;
 }
 
 /** WhatsApp Cloud API — envío de texto. `to` sin + (solo dígitos). */

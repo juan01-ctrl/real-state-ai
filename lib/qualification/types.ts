@@ -1,4 +1,10 @@
 export type ChannelType = "WHATSAPP" | "INSTAGRAM" | "WEB_FORM" | "PORTAL";
+export type MatchingMode = "CONSERVADOR" | "AGRESIVO";
+export type OutreachTone =
+  | "Sofisticado y reservado"
+  | "Directo y profesional"
+  | "Cálido y cercano"
+  | "Técnico y preciso";
 
 export type FinancingMode = "cash" | "mortgage" | "pre_approved" | "unknown";
 
@@ -31,6 +37,11 @@ export interface LeadQualificationInput {
   messages: InboundConversationMessage[];
   now?: string;
   manualOverrides?: Partial<LeadProfile>;
+  policy?: {
+    urgencyThreshold?: number;
+    matchingMode?: MatchingMode;
+    outreachTone?: OutreachTone;
+  };
 }
 
 export interface ExtractedField<T> {

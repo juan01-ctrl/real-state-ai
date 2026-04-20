@@ -1,4 +1,4 @@
-import { FollowUpEventStatus, TaskType } from "@prisma/client";
+import { FollowUpEventStatus, TaskStatus, TaskType } from "@prisma/client";
 import { db } from "@/lib/server/db";
 
 interface FollowUpInput {
@@ -6,6 +6,7 @@ interface FollowUpInput {
   urgency: "high" | "medium" | "low";
   recommendedActionType: string;
   requiresManualReview: boolean;
+  outreachTone?: "Sofisticado y reservado" | "Directo y profesional" | "Cálido y cercano" | "Técnico y preciso";
 }
 
 function addHours(base: Date, hours: number) {
@@ -14,8 +15,38 @@ function addHours(base: Date, hours: number) {
 
 export async function createFollowUpPlan(input: FollowUpInput) {
   await db.followUpEvent.deleteMany({ where: { leadId: input.leadId } });
+  await db.task.deleteMany({
+    where: {
+      leadId: input.leadId,
+      status: TaskStatus.OPEN,
+      OR: [
+        { type: TaskType.VISIT_CONFIRM, title: "Confirmar franjas de visita con el comprador" },
+        { type: TaskType.FOLLOW_UP_MESSAGE, title: "Enviar mensaje de seguimiento según intención actual" }
+      ]
+    }
+  });
 
   const now = new Date();
+  const tone = input.outreachTone ?? "Sofisticado y reservado";
+  const detailByTone = {
+    "Sofisticado y reservado": {
+      visit: "Si no hay respuesta, llamar al comprador y cerrar horario",
+      clarify: "Enviar mensaje consultivo si el comprador no responde"
+    },
+    "Directo y profesional": {
+      visit: "Llamar hoy y cerrar franja de visita con hora concreta.",
+      clarify: "Enviar un mensaje breve y pedir confirmación puntual."
+    },
+    "Cálido y cercano": {
+      visit: "Retomar con tono cercano y proponer dos horarios simples de visita.",
+      clarify: "Contactar con mensaje amigable y abrir conversación de necesidades."
+    },
+    "Técnico y preciso": {
+      visit: "Confirmar disponibilidad, dirección y franja exacta de visita.",
+      clarify: "Solicitar datos faltantes con preguntas concretas y ordenadas."
+    }
+  } as const;
+
   const events: Array<{
     status: FollowUpEventStatus;
     title: string;
@@ -45,7 +76,7 @@ export async function createFollowUpPlan(input: FollowUpInput) {
     events.push({
       status: FollowUpEventStatus.SCHEDULED,
       title: "Seguimiento para agendar visita",
-      detail: "Si no hay respuesta, llamar al comprador y cerrar horario",
+      detail: detailByTone[tone].visit,
       scheduledFor: addHours(now, input.urgency === "high" ? 4 : 12)
     });
 
@@ -61,7 +92,7 @@ export async function createFollowUpPlan(input: FollowUpInput) {
     events.push({
       status: FollowUpEventStatus.SCHEDULED,
       title: "Seguimiento para aclarar intención",
-      detail: "Enviar mensaje consultivo si el comprador no responde",
+      detail: detailByTone[tone].clarify,
       scheduledFor: addHours(now, input.urgency === "high" ? 6 : 24)
     });
 

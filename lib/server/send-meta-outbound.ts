@@ -91,15 +91,16 @@ export async function sendMetaOutboundMessage(
   }
 
   try {
+    let sendResult: { messageId: string | null } | null = null;
     if (conn.type === ChannelType.WHATSAPP && thread.kind === "wa") {
-      await sendWhatsAppText({
+      sendResult = await sendWhatsAppText({
         phoneNumberId: phoneOrIgId,
         accessToken,
         toDigits: thread.id,
         body: trimmed
       });
     } else if (conn.type === ChannelType.INSTAGRAM && thread.kind === "ig") {
-      await sendInstagramText({
+      sendResult = await sendInstagramText({
         instagramBusinessAccountId: phoneOrIgId,
         accessToken,
         recipientInstagramScopedId: thread.id,
@@ -112,30 +113,32 @@ export async function sendMetaOutboundMessage(
         message: "El tipo de canal no coincide con el hilo guardado."
       };
     }
+    const sentAt = new Date();
+    const saved = await db.$transaction(async (tx) => {
+      const m = await tx.message.create({
+        data: {
+          conversationId: conv.id,
+          agencyId,
+          externalMessageId: sendResult?.messageId ?? undefined,
+          direction: MessageDirection.OUTBOUND,
+          senderType: SenderType.AGENT,
+          senderName: agentDisplayName,
+          body: trimmed,
+          sentAt,
+          // Meta confirmó recepción del request, no necesariamente entrega al destinatario.
+          deliveryStatus: DeliveryStatus.PENDING_APPROVAL
+        }
+      });
+      await tx.lead.update({
+        where: { id: leadId },
+        data: { lastActivityAt: sentAt }
+      });
+      return m;
+    });
+
+    return { ok: true, messageId: saved.id };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Error al enviar";
     return { ok: false, code: "GRAPH_ERROR", message: msg };
   }
-
-  const saved = await db.$transaction(async (tx) => {
-    const m = await tx.message.create({
-      data: {
-        conversationId: conv.id,
-        agencyId,
-        direction: MessageDirection.OUTBOUND,
-        senderType: SenderType.AGENT,
-        senderName: agentDisplayName,
-        body: trimmed,
-        sentAt: new Date(),
-        deliveryStatus: DeliveryStatus.DELIVERED
-      }
-    });
-    await tx.lead.update({
-      where: { id: leadId },
-      data: { lastActivityAt: new Date() }
-    });
-    return m;
-  });
-
-  return { ok: true, messageId: saved.id };
 }

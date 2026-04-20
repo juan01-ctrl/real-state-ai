@@ -1,6 +1,7 @@
 import {
   ExtractionResult,
   InboundConversationMessage,
+  MatchingMode,
   QualificationAssessment,
   RecommendedPriority,
   ScoreBreakdown,
@@ -115,30 +116,44 @@ function calculateScoreBreakdown(
   return { total: Math.max(0, Math.min(100, total)), components };
 }
 
-function recommendPriority(score: number, urgency: UrgencyLevel): RecommendedPriority {
-  if (score >= 80 || (score >= 72 && urgency === "high")) {
+function recommendPriority(score: number, urgency: UrgencyLevel, matchingMode: MatchingMode): RecommendedPriority {
+  const p1Score = matchingMode === "CONSERVADOR" ? 82 : 74;
+  const p2Score = matchingMode === "CONSERVADOR" ? 62 : 56;
+  const highUrgencyP1Score = matchingMode === "CONSERVADOR" ? 74 : 68;
+
+  if (score >= p1Score || (score >= highUrgencyP1Score && urgency === "high")) {
     return "P1";
   }
 
-  if (score >= 60) {
+  if (score >= p2Score) {
     return "P2";
   }
 
   return "P3";
 }
 
+function urgencyWithPolicy(baseUrgency: UrgencyLevel, score: number, urgencyThreshold: number): UrgencyLevel {
+  const threshold = Math.max(35, Math.min(95, Math.round(urgencyThreshold)));
+  if (score >= threshold) return "high";
+  if (score >= threshold - 10 && baseUrgency === "low") return "medium";
+  return baseUrgency;
+}
+
 export function runScoring(
   extraction: ExtractionResult,
-  messages: InboundConversationMessage[]
+  messages: InboundConversationMessage[],
+  policy?: { urgencyThreshold?: number; matchingMode?: MatchingMode }
 ): Omit<QualificationAssessment, "recommendedNextAction"> {
   const inboundMessages = messages.filter((message) => message.direction === "inbound");
-  const urgency = determineUrgency(extraction.timelineMonths.value, inboundMessages);
+  const baseUrgency = determineUrgency(extraction.timelineMonths.value, inboundMessages);
   const seriousness = determineSeriousness(extraction, inboundMessages);
-  const scoreBreakdown = calculateScoreBreakdown(extraction, urgency, seriousness, inboundMessages);
+  const scoreBreakdown = calculateScoreBreakdown(extraction, baseUrgency, seriousness, inboundMessages);
+  const urgency = urgencyWithPolicy(baseUrgency, scoreBreakdown.total, policy?.urgencyThreshold ?? 75);
+  const matchingMode: MatchingMode = policy?.matchingMode === "AGRESIVO" ? "AGRESIVO" : "CONSERVADOR";
 
   return {
     leadScore: scoreBreakdown.total,
-    recommendedPriority: recommendPriority(scoreBreakdown.total, urgency),
+    recommendedPriority: recommendPriority(scoreBreakdown.total, urgency, matchingMode),
     seriousness,
     urgency,
     scoreBreakdown

@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { ChannelConnectionStatus, ChannelType } from "@prisma/client";
+import { ChannelConnectionStatus, ChannelType, DeliveryStatus } from "@prisma/client";
 import { db } from "@/lib/server/db";
 import type { ChannelType as QualificationChannelType } from "@/lib/qualification/types";
 import { appendInboundTextMessage, ingestLeadAndQualify } from "@/lib/server/lead-intake";
@@ -53,6 +53,7 @@ async function routeInboundText(params: {
   externalThreadId: string;
   body: string;
   sentAtMs: number;
+  externalMessageId?: string | null;
   contactName?: string | null;
 }) {
   const sentAt = new Date(params.sentAtMs);
@@ -72,6 +73,7 @@ async function routeInboundText(params: {
       leadId: existing.leadId,
       body: params.body,
       sentAt,
+      externalMessageId: params.externalMessageId,
       senderName: params.contactName
     });
     return { kind: "appended" as const, leadId: existing.leadId };
@@ -86,7 +88,7 @@ async function routeInboundText(params: {
     externalThreadId: params.externalThreadId,
     messages: [
       {
-        id: randomUUID(),
+        id: params.externalMessageId?.trim() || randomUUID(),
         body: params.body,
         direction: "inbound",
         sentAt: sentAt.toISOString(),
@@ -96,6 +98,14 @@ async function routeInboundText(params: {
   });
 
   return { kind: "created" as const, leadId: result.leadId };
+}
+
+function mapWhatsAppStatus(rawStatus: string): DeliveryStatus | null {
+  const status = rawStatus.toLowerCase();
+  if (status === "read") return DeliveryStatus.READ;
+  if (status === "sent" || status === "delivered") return DeliveryStatus.DELIVERED;
+  if (status === "failed" || status === "undelivered") return DeliveryStatus.FAILED;
+  return null;
 }
 
 /** Procesa cuerpo JSON del webhook de Meta (WhatsApp Cloud API). */
@@ -137,6 +147,7 @@ export async function processWhatsAppBusinessAccountPayload(body: unknown): Prom
       }
       for (const raw of messages) {
         const m = raw as Record<string, unknown>;
+        const externalMessageId = typeof m.id === "string" ? m.id : null;
         const from = typeof m.from === "string" ? m.from : null;
         const ts = parseMetaEpochToMs(m.timestamp);
         if (!from || Number.isNaN(ts)) {
@@ -161,11 +172,35 @@ export async function processWhatsAppBusinessAccountPayload(body: unknown): Prom
             externalThreadId: threadKeyWhatsApp(from),
             body: text.trim(),
             sentAtMs: ts,
+            externalMessageId,
             contactName: nameByFrom.get(from) ?? null
           });
           processed += 1;
         } catch (err) {
           errors.push(err instanceof Error ? err.message : "route_failed");
+        }
+      }
+
+      const statuses = Array.isArray(value.statuses) ? value.statuses : [];
+      for (const rawStatus of statuses) {
+        const s = rawStatus as Record<string, unknown>;
+        const externalMessageId = typeof s.id === "string" ? s.id : null;
+        const mapped = typeof s.status === "string" ? mapWhatsAppStatus(s.status) : null;
+        if (!externalMessageId || !mapped) continue;
+        const updated = await db.message.updateMany({
+          where: {
+            externalMessageId,
+            agencyId: conn.agencyId,
+            conversation: {
+              channelConnectionId: conn.id
+            }
+          },
+          data: {
+            deliveryStatus: mapped
+          }
+        });
+        if (updated.count === 0) {
+          errors.push(`status_without_message:${externalMessageId}`);
         }
       }
     }
@@ -196,6 +231,7 @@ export async function processInstagramMessagingPayload(body: unknown): Promise<{
       const msg = raw as Record<string, unknown>;
       const sender = msg.sender as Record<string, unknown> | undefined;
       const senderId = typeof sender?.id === "string" ? sender.id : null;
+      const externalMessageId = typeof msg.mid === "string" ? msg.mid : typeof msg.id === "string" ? msg.id : null;
       const message = msg.message as Record<string, unknown> | undefined;
       const ts = parseMetaEpochToMs(msg.timestamp);
       if (!senderId || !message || Number.isNaN(ts)) continue;
@@ -212,6 +248,7 @@ export async function processInstagramMessagingPayload(body: unknown): Promise<{
           externalThreadId: threadKeyInstagram(senderId),
           body: text.trim(),
           sentAtMs: ts,
+          externalMessageId,
           contactName: null
         });
         processed += 1;

@@ -6,6 +6,8 @@ import {
   ExtractionResult,
   LeadProfile,
   LeadQualificationInput,
+  MatchingMode,
+  OutreachTone,
   QualificationLog,
   QualificationOutput
 } from "@/lib/qualification/types";
@@ -79,8 +81,23 @@ function buildProfile(extraction: ExtractionResult, score: number): LeadProfile 
   };
 }
 
+function normalizePolicy(policy: LeadQualificationInput["policy"]) {
+  const urgencyThreshold = Math.max(0, Math.min(100, Math.round(policy?.urgencyThreshold ?? 75)));
+  const matchingMode: MatchingMode = policy?.matchingMode === "AGRESIVO" ? "AGRESIVO" : "CONSERVADOR";
+  const outreachTone: OutreachTone =
+    policy?.outreachTone === "Directo y profesional" ||
+    policy?.outreachTone === "Cálido y cercano" ||
+    policy?.outreachTone === "Técnico y preciso" ||
+    policy?.outreachTone === "Sofisticado y reservado"
+      ? policy.outreachTone
+      : "Sofisticado y reservado";
+
+  return { urgencyThreshold, matchingMode, outreachTone };
+}
+
 export function runLeadQualificationPipeline(input: LeadQualificationInput): QualificationOutput {
   const now = input.now ?? new Date().toISOString();
+  const policy = normalizePolicy(input.policy);
   const logs: QualificationLog[] = [
     {
       timestamp: now,
@@ -108,8 +125,14 @@ export function runLeadQualificationPipeline(input: LeadQualificationInput): Qua
     }
   });
 
-  const scoringBase = runScoring(extraction, input.messages);
-  const nextAction = recommendNextAction(extraction, scoringBase);
+  const scoringBase = runScoring(extraction, input.messages, {
+    urgencyThreshold: policy.urgencyThreshold,
+    matchingMode: policy.matchingMode
+  });
+  const nextAction = recommendNextAction(extraction, scoringBase, {
+    matchingMode: policy.matchingMode,
+    outreachTone: policy.outreachTone
+  });
   const confidence = buildConfidenceReport(extraction, logs);
 
   let profile = buildProfile(extraction, scoringBase.leadScore);

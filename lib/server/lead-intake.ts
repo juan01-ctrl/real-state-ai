@@ -1,6 +1,7 @@
 import {
   AiRunStatus,
   AiRunType,
+  ChannelType as PrismaChannelType,
   DeliveryStatus,
   FinancingMode,
   LeadPriority,
@@ -13,7 +14,11 @@ import {
 } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { runLeadQualificationPipeline } from "@/lib/qualification";
-import { ChannelType, InboundConversationMessage, LeadQualificationInput } from "@/lib/qualification/types";
+import {
+  ChannelType as QualificationChannelType,
+  InboundConversationMessage,
+  LeadQualificationInput
+} from "@/lib/qualification/types";
 import { stableHash } from "@/lib/server/hash";
 import { db } from "@/lib/server/db";
 import { createRecommendationsForLead } from "@/lib/server/recommendations";
@@ -21,7 +26,7 @@ import { createFollowUpPlan } from "@/lib/server/follow-up";
 
 export interface LeadIntakeRequest {
   agencyId: string;
-  sourceChannel: ChannelType;
+  sourceChannel: QualificationChannelType;
   sourceCampaign?: string;
   assignedAgentEmail?: string;
   contactName?: string;
@@ -31,6 +36,35 @@ export interface LeadIntakeRequest {
   channelConnectionId?: string | null;
   /** Clave estable por hilo (p. ej. wa:+54911… / ig:psid). */
   externalThreadId?: string | null;
+}
+
+type AgencyPolicy = {
+  urgencyThreshold: number;
+  matchingMode: "CONSERVADOR" | "AGRESIVO";
+  outreachTone: "Sofisticado y reservado" | "Directo y profesional" | "Cálido y cercano" | "Técnico y preciso";
+};
+
+async function getAgencyPolicy(agencyId: string): Promise<AgencyPolicy> {
+  const agency = await db.agency.findUnique({
+    where: { id: agencyId },
+    select: {
+      aiUrgencyThreshold: true,
+      aiMatchingMode: true,
+      aiOutreachTone: true
+    }
+  });
+
+  const urgencyThreshold = Math.max(0, Math.min(100, Math.round(agency?.aiUrgencyThreshold ?? 75)));
+  const matchingMode: AgencyPolicy["matchingMode"] = agency?.aiMatchingMode === "AGRESIVO" ? "AGRESIVO" : "CONSERVADOR";
+  const outreachTone: AgencyPolicy["outreachTone"] =
+    agency?.aiOutreachTone === "Directo y profesional" ||
+    agency?.aiOutreachTone === "Cálido y cercano" ||
+    agency?.aiOutreachTone === "Técnico y preciso" ||
+    agency?.aiOutreachTone === "Sofisticado y reservado"
+      ? agency.aiOutreachTone
+      : "Sofisticado y reservado";
+
+  return { urgencyThreshold, matchingMode, outreachTone };
 }
 
 function toPriority(priority: "P1" | "P2" | "P3"): LeadPriority {
@@ -55,6 +89,28 @@ function toDeliveryStatus(value: "delivered" | "read" | "pending_approval"): Del
   if (value === "read") return DeliveryStatus.READ;
   if (value === "pending_approval") return DeliveryStatus.PENDING_APPROVAL;
   return DeliveryStatus.DELIVERED;
+}
+
+function toQualificationChannel(sourceChannel: PrismaChannelType): QualificationChannelType {
+  if (sourceChannel === "WHATSAPP") return "WHATSAPP";
+  if (sourceChannel === "INSTAGRAM") return "INSTAGRAM";
+  if (sourceChannel === "WEB_FORM") return "WEB_FORM";
+  return "PORTAL";
+}
+
+function stageRank(stage: LeadStage): number {
+  const order: LeadStage[] = [
+    LeadStage.NEW,
+    LeadStage.CONTACTED,
+    LeadStage.QUALIFIED,
+    LeadStage.VISIT_SCHEDULED,
+    LeadStage.OFFER_NEGOTIATION,
+    LeadStage.WON,
+    LeadStage.LOST,
+    LeadStage.NURTURE
+  ];
+  const idx = order.indexOf(stage);
+  return idx >= 0 ? idx : 0;
 }
 
 function toStage(score: number): LeadStage {
@@ -92,16 +148,6 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
   const now = new Date();
   const leadId = randomUUID();
 
-  const qualificationInput: LeadQualificationInput = {
-    agencyId: input.agencyId,
-    leadId,
-    messages: input.messages,
-    now: now.toISOString(),
-    manualOverrides: input.manualOverrides
-  };
-
-  const output = runLeadQualificationPipeline(qualificationInput);
-
   const agency = await db.agency.upsert({
     where: { id: input.agencyId },
     update: {},
@@ -111,6 +157,19 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
       name: `Agencia ${input.agencyId}`
     }
   });
+
+  const policy = await getAgencyPolicy(agency.id);
+
+  const qualificationInput: LeadQualificationInput = {
+    agencyId: input.agencyId,
+    leadId,
+    messages: input.messages,
+    now: now.toISOString(),
+    manualOverrides: input.manualOverrides,
+    policy
+  };
+
+  const output = runLeadQualificationPipeline(qualificationInput);
 
   let ownerUserId: string | null = null;
   if (input.assignedAgentEmail) {
@@ -167,6 +226,7 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
       data: input.messages.map((message) => ({
         conversationId: conversation.id,
         agencyId: agency.id,
+        externalMessageId: message.id,
         direction: message.direction === "inbound" ? MessageDirection.INBOUND : MessageDirection.OUTBOUND,
         senderType: message.direction === "inbound" ? SenderType.CONTACT : SenderType.AGENT,
         senderName: message.direction === "inbound" ? input.contactName ?? "Contacto" : "Agente",
@@ -263,14 +323,16 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
     budgetMin: output.profile.budget?.min ?? null,
     budgetMax: output.profile.budget?.max ?? null,
     bedrooms: output.profile.bedrooms,
-    propertyType: output.profile.propertyType
+    propertyType: output.profile.propertyType,
+    matchingMode: policy.matchingMode
   });
 
   const followUpEvents = await createFollowUpPlan({
     leadId: created.leadId,
     urgency: output.assessment.urgency,
     recommendedActionType: output.assessment.recommendedNextAction.type,
-    requiresManualReview: output.confidence.requiresHumanReview
+    requiresManualReview: output.confidence.requiresHumanReview,
+    outreachTone: policy.outreachTone
   });
 
   await db.aiRun.create({
@@ -348,13 +410,28 @@ export async function appendInboundTextMessage(params: {
   leadId: string;
   body: string;
   sentAt: Date;
+  externalMessageId?: string | null;
   senderName?: string | null;
 }) {
-  await db.$transaction(async (tx) => {
+  const appended = await db.$transaction(async (tx) => {
+    if (params.externalMessageId?.trim()) {
+      const duplicated = await tx.message.findFirst({
+        where: {
+          conversationId: params.conversationId,
+          externalMessageId: params.externalMessageId.trim()
+        },
+        select: { id: true }
+      });
+      if (duplicated) {
+        return false;
+      }
+    }
+
     await tx.message.create({
       data: {
         conversationId: params.conversationId,
         agencyId: params.agencyId,
+        externalMessageId: params.externalMessageId?.trim() || undefined,
         direction: MessageDirection.INBOUND,
         senderType: SenderType.CONTACT,
         senderName: params.senderName?.trim() || null,
@@ -367,6 +444,237 @@ export async function appendInboundTextMessage(params: {
       where: { id: params.leadId },
       data: { lastActivityAt: params.sentAt }
     });
+
+    return true;
+  });
+
+  if (!appended) {
+    return { duplicated: true as const };
+  }
+
+  await rerunLeadIntelligence(params.agencyId, params.leadId);
+  return { duplicated: false as const };
+}
+
+async function rerunLeadIntelligence(agencyId: string, leadId: string) {
+  const lead = await db.lead.findFirst({
+    where: { id: leadId, agencyId },
+    include: {
+      profile: true,
+      conversations: {
+        include: {
+          messages: { orderBy: { sentAt: "asc" } }
+        }
+      }
+    }
+  });
+  if (!lead) return;
+
+  const qualificationMessages: InboundConversationMessage[] = lead.conversations
+    .flatMap((conversation) => conversation.messages)
+    .sort((a, b) => a.sentAt.getTime() - b.sentAt.getTime())
+    .map((message) => ({
+      id: message.externalMessageId ?? message.id,
+      body: message.body,
+      direction: message.direction === MessageDirection.INBOUND ? "inbound" : "outbound",
+      sentAt: message.sentAt.toISOString(),
+      channel: toQualificationChannel(lead.sourceChannel)
+    }));
+
+  if (!qualificationMessages.length) return;
+
+  const policy = await getAgencyPolicy(agencyId);
+
+  const output = runLeadQualificationPipeline({
+    agencyId,
+    leadId,
+    messages: qualificationMessages,
+    now: new Date().toISOString(),
+    policy
+  });
+
+  const inferredStage = toStage(output.assessment.leadScore);
+  const closedStages = new Set<LeadStage>([LeadStage.WON, LeadStage.LOST]);
+  const keepsCurrentStage =
+    stageRank(lead.stage) > stageRank(inferredStage) || closedStages.has(lead.stage);
+  const nextStage = keepsCurrentStage ? lead.stage : inferredStage;
+
+  await db.$transaction(async (tx) => {
+    await tx.lead.update({
+      where: { id: leadId },
+      data: {
+        stage: nextStage,
+        leadScore: output.assessment.leadScore,
+        closeProbability: Math.min(95, Math.max(5, Math.round(output.assessment.leadScore * 0.82))),
+        priority: toPriority(output.assessment.recommendedPriority),
+        timelineMonths: output.profile.timelineMonths,
+        seriousness: toSeriousness(output.profile.seriousness),
+        urgency: toUrgency(output.profile.urgency),
+        lastActivityAt: new Date(qualificationMessages[qualificationMessages.length - 1].sentAt)
+      }
+    });
+
+    if (lead.stage !== nextStage) {
+      await tx.leadStageHistory.create({
+        data: {
+          leadId,
+          fromStage: lead.stage,
+          toStage: nextStage,
+          reason: "Recalificación automática por nuevo mensaje entrante"
+        }
+      });
+    }
+
+    await tx.leadProfile.upsert({
+      where: { leadId },
+      create: {
+        leadId,
+        budgetMin: output.profile.budget?.min,
+        budgetMax: output.profile.budget?.max,
+        budgetCurrency: output.profile.budget?.currency,
+        preferredZones: output.profile.preferredZones,
+        propertyType: output.profile.propertyType,
+        bedrooms: output.profile.bedrooms,
+        financingMode: toFinancingMode(output.profile.financingMode),
+        timelineMonths: output.profile.timelineMonths,
+        seriousness: toSeriousness(output.profile.seriousness),
+        urgency: toUrgency(output.profile.urgency),
+        objections: output.profile.objections,
+        buyingIntentSummary: output.profile.buyingIntentSummary,
+        extractionJson: output.extraction as unknown as Prisma.JsonObject,
+        confidenceOverall: output.confidence.overall
+      },
+      update: {
+        budgetMin: output.profile.budget?.min,
+        budgetMax: output.profile.budget?.max,
+        budgetCurrency: output.profile.budget?.currency,
+        preferredZones: output.profile.preferredZones,
+        propertyType: output.profile.propertyType,
+        bedrooms: output.profile.bedrooms,
+        financingMode: toFinancingMode(output.profile.financingMode),
+        timelineMonths: output.profile.timelineMonths,
+        seriousness: toSeriousness(output.profile.seriousness),
+        urgency: toUrgency(output.profile.urgency),
+        objections: output.profile.objections,
+        buyingIntentSummary: output.profile.buyingIntentSummary,
+        extractionJson: output.extraction as unknown as Prisma.JsonObject,
+        confidenceOverall: output.confidence.overall
+      }
+    });
+
+    if (output.confidence.requiresHumanReview) {
+      const existingManual = await tx.task.findFirst({
+        where: {
+          leadId,
+          type: "MANUAL_REVIEW",
+          status: "OPEN"
+        },
+        select: { id: true }
+      });
+      if (!existingManual) {
+        await tx.task.create({
+          data: {
+            leadId,
+            type: "MANUAL_REVIEW",
+            title: "Revisar salida de calificación por baja confianza"
+          }
+        });
+      }
+    } else {
+      await tx.task.updateMany({
+        where: {
+          leadId,
+          type: "MANUAL_REVIEW",
+          status: "OPEN"
+        },
+        data: { status: "COMPLETED" }
+      });
+    }
+
+    await tx.aiRun.create({
+      data: {
+        agencyId,
+        leadId,
+        type: AiRunType.SCORE_LEAD,
+        status: AiRunStatus.SUCCESS,
+        model: "deterministic-rules",
+        version: output.version,
+        inputHash: stableHash(qualificationMessages),
+        outputJson: output as unknown as Prisma.JsonObject,
+        confidence: output.confidence.overall
+      }
+    });
+
+    await tx.analyticsEvent.create({
+      data: {
+        agencyId,
+        leadId,
+        type: "qualification.updated",
+        properties: {
+          score: output.assessment.leadScore,
+          priority: output.assessment.recommendedPriority,
+          confidence: output.confidence.overall,
+          nextAction: output.assessment.recommendedNextAction.type,
+          reason: "inbound_message_requalification"
+        },
+        idempotencyKey: `qualification-refresh:${leadId}:${stableHash(output.assessment)}`
+      }
+    });
+  });
+
+  const recommendations = await createRecommendationsForLead({
+    agencyId,
+    leadId,
+    preferredZones: output.profile.preferredZones,
+    budgetMin: output.profile.budget?.min ?? null,
+    budgetMax: output.profile.budget?.max ?? null,
+    bedrooms: output.profile.bedrooms,
+    propertyType: output.profile.propertyType,
+    matchingMode: policy.matchingMode
+  });
+
+  const followUpEvents = await createFollowUpPlan({
+    leadId,
+    urgency: output.assessment.urgency,
+    recommendedActionType: output.assessment.recommendedNextAction.type,
+    requiresManualReview: output.confidence.requiresHumanReview,
+    outreachTone: policy.outreachTone
+  });
+
+  await db.aiRun.create({
+    data: {
+      agencyId,
+      leadId,
+      type: AiRunType.RANK_PROPERTIES,
+      status: AiRunStatus.SUCCESS,
+      model: "deterministic-rules",
+      version: "recommendation_v1",
+      inputHash: stableHash({
+        preferredZones: output.profile.preferredZones,
+        budget: output.profile.budget,
+        bedrooms: output.profile.bedrooms
+      }),
+      outputJson: recommendations as unknown as Prisma.JsonObject,
+      confidence: recommendations.length ? recommendations[0].fitScore : 0.3
+    }
+  });
+
+  await db.aiRun.create({
+    data: {
+      agencyId,
+      leadId,
+      type: AiRunType.FOLLOW_UP_PLAN,
+      status: AiRunStatus.SUCCESS,
+      model: "deterministic-rules",
+      version: "followup_v1",
+      inputHash: stableHash({
+        urgency: output.assessment.urgency,
+        action: output.assessment.recommendedNextAction.type,
+        manualReview: output.confidence.requiresHumanReview
+      }),
+      outputJson: followUpEvents as unknown as Prisma.JsonObject,
+      confidence: output.confidence.overall
+    }
   });
 }
 

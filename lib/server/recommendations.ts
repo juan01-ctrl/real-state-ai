@@ -9,6 +9,7 @@ interface RecommendationInput {
   budgetMax: number | null;
   bedrooms: number | null;
   propertyType: string;
+  matchingMode?: "CONSERVADOR" | "AGRESIVO";
 }
 
 function unique<T>(values: T[]): T[] {
@@ -145,6 +146,10 @@ export async function createRecommendationsForLead(input: RecommendationInput) {
     }
   });
 
+  const matchingMode = input.matchingMode === "AGRESIVO" ? "AGRESIVO" : "CONSERVADOR";
+  const minFit = matchingMode === "AGRESIVO" ? 0.48 : 0.62;
+  const shortlistSize = matchingMode === "AGRESIVO" ? 4 : 2;
+
   const ranked = candidates
     .map((property) => {
       const scored = scoreProperty(property, input);
@@ -154,8 +159,9 @@ export async function createRecommendationsForLead(input: RecommendationInput) {
         reasons: scored.reasons
       };
     })
+    .filter((item) => item.fitScore >= minFit)
     .sort((a, b) => b.fitScore - a.fitScore)
-    .slice(0, 3);
+    .slice(0, shortlistSize);
 
   if (!ranked.length) {
     return [];
