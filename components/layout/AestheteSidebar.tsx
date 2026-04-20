@@ -82,7 +82,7 @@ export function AestheteSidebar({ active, agencyId }: AestheteSidebarProps) {
           <MaterialIcon icon="help" />
           <span className="text-[11px] uppercase tracking-[0.1em]">Ayuda</span>
         </a>
-        <Link className="flex items-center gap-3 px-2 text-[#313330]/40 transition-all hover:text-[#58624e]" href="/">
+        <Link className="flex items-center gap-3 px-2 text-[#313330]/40 transition-all hover:text-[#58624e]" href="/sign-out">
           <MaterialIcon icon="logout" />
           <span className="text-[11px] uppercase tracking-[0.1em]">Salir</span>
         </Link>

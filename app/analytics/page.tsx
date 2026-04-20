@@ -1,11 +1,7 @@
 import { redirect } from "next/navigation";
+import { requireSessionContext } from "@/lib/server/auth-session";
 
-interface AnalyticsRedirectPageProps {
-  searchParams: Promise<{ agencyId?: string }>;
-}
-
-export default async function AnalyticsRedirectPage({ searchParams }: AnalyticsRedirectPageProps) {
-  const params = await searchParams;
-  const agencyId = params.agencyId ?? "agency_demo_001";
+export default async function AnalyticsRedirectPage() {
+  const { agencyId } = await requireSessionContext({ redirectTo: "/sign-in" });
   redirect(`/insights?agencyId=${agencyId}`);
 }

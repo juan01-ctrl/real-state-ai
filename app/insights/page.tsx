@@ -1,14 +1,10 @@
 import { StrategicInsightsView } from "@/components/analytics/StrategicInsightsView";
-import { getExecutiveAnalytics } from "@/lib/server/read-models/analytics";
+import { requireSessionContext } from "@/lib/server/auth-session";
+import { getStrategicInsightsModel } from "@/lib/server/read-models/strategic-insights";
 
-interface InsightsPageProps {
-  searchParams: Promise<{ agencyId?: string }>;
-}
+export default async function InsightsPage() {
+  const { agencyId } = await requireSessionContext({ redirectTo: "/sign-in" });
+  const insights = await getStrategicInsightsModel(agencyId);
 
-export default async function InsightsPage({ searchParams }: InsightsPageProps) {
-  const params = await searchParams;
-  const agencyId = params.agencyId ?? "agency_demo_001";
-  const model = await getExecutiveAnalytics(agencyId);
-
-  return <StrategicInsightsView agencyId={agencyId} model={model} />;
+  return <StrategicInsightsView agencyId={agencyId} insights={insights} />;
 }

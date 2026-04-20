@@ -2,51 +2,50 @@ import Link from "next/link";
 import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
 import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
 import { AestheteFooter } from "@/components/layout/AestheteFooter";
-import { ExecutiveAnalyticsModel } from "@/lib/server/read-models/analytics";
-import { displayChannel } from "@/lib/i18n/present";
+import { displayChannel, displayLeadStage } from "@/lib/i18n/present";
+import type { StrategicInsightsModel } from "@/lib/server/read-models/strategic-insights";
 
 interface StrategicInsightsViewProps {
   agencyId: string;
-  model: ExecutiveAnalyticsModel;
+  insights: StrategicInsightsModel;
 }
 
-function compactMoney(value: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "USD",
-    notation: "compact",
-    maximumFractionDigits: 1
-  }).format(value);
+function formatDelayMinutes(m: number | null) {
+  if (m == null) return "Sin datos";
+  if (m < 60) return `${Math.round(m)} min`;
+  const h = Math.floor(m / 60);
+  const min = Math.round(m % 60);
+  if (min === 0) return `${h} h`;
+  return `${h} h ${min} min`;
 }
 
-function estimateMissedCommission(model: ExecutiveAnalyticsModel) {
-  const lostHighIntent = Math.max(model.headline.staleHighIntentLeads, model.riskQueue.length);
-  const estimatedDealValue = 250000;
-  const commissionRate = 0.03;
-  return lostHighIntent * estimatedDealValue * commissionRate;
+function leadHref(agencyId: string, leadId: string) {
+  return `/leads/${leadId}?agencyId=${agencyId}`;
 }
 
-function buildLagLine(model: ExecutiveAnalyticsModel) {
-  if (!model.riskQueue.length) {
-    return "Timing estable vs. referencia de 20 min.";
-  }
-
-  const avgSilence =
-    model.riskQueue.reduce((acc, item) => acc + item.silenceHours, 0) / model.riskQueue.length;
-  const lagHours = Math.max(0.3, avgSilence / 4);
-  return `Demora promedio: ${lagHours.toFixed(1)} h vs. referencia de 20 min.`;
+function KpiCard({
+  label,
+  value,
+  hint
+}: {
+  label: string;
+  value: string;
+  hint: string;
+}) {
+  return (
+    <article className="rounded-xl border border-[#e9e8e4] bg-white p-6 shadow-[0_16px_40px_-18px_rgba(49,51,48,0.08)]">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#5e5f5c]">{label}</p>
+      <p className="mt-3 text-3xl font-light tabular-nums text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
+        {value}
+      </p>
+      <p className="mt-2 text-xs leading-relaxed text-[#5e5f5c]">{hint}</p>
+    </article>
+  );
 }
 
-export function StrategicInsightsView({ agencyId, model }: StrategicInsightsViewProps) {
-  const topZone = model.zones[0]?.zone ?? "Palermo";
-  const topChannel = model.channels[0];
-  const secondChannel = model.channels[1];
-  const thirdChannel = model.channels[2];
-  const weakestChannel = model.channels[model.channels.length - 1];
-
-  const highIntentLost = Math.max(model.headline.staleHighIntentLeads, model.riskQueue.length);
-  const missedCommissions = estimateMissedCommission(model);
-  const lagLine = buildLagLine(model);
+export function StrategicInsightsView({ agencyId, insights }: StrategicInsightsViewProps) {
+  const topLoss = insights.lossReasons.buckets[0];
+  const maxLossCount = insights.lossReasons.buckets[0]?.count ?? 1;
 
   return (
     <main className="aesthete-page min-h-screen bg-[#fbf9f6] text-[#313330]">
@@ -56,135 +55,187 @@ export function StrategicInsightsView({ agencyId, model }: StrategicInsightsView
         <AestheteTopBar />
 
         <div className="max-w-[1200px] px-4 py-10 sm:px-8 sm:py-12 lg:px-12">
-          <section className="mb-16 sm:mb-20 lg:mb-24">
-            <p className="mb-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Alerta de rendimiento prioritaria</p>
-            <h1 className="max-w-4xl text-4xl font-light leading-[1.1] tracking-tight text-[#313330] sm:text-5xl md:text-6xl" style={{ fontFamily: "'Noto Serif', serif" }}>
-              Estás perdiendo a tus compradores más fuertes porque{" "}
-              <span className="font-normal italic">el follow-up llega demasiado tarde.</span>
+          <header className="mb-10 border-b border-[#e9e8e4] pb-8">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Inteligencia operativa</p>
+            <h1 className="text-3xl font-light tracking-tight text-[#313330] sm:text-4xl" style={{ fontFamily: "'Noto Serif', serif" }}>
+              Señales estratégicas
             </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#5e5f5c]">
+              Indicadores calculados sobre datos de la agencia. Las tablas amplían cada señal; al pie detallamos definiciones y límites.
+            </p>
+          </header>
+
+          <section className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <KpiCard
+              label="LOST de alta intención"
+              value={String(insights.lostHighIntent.count)}
+              hint={`Score ≥ 70 o probabilidad de cierre ≥ 70%. Listado: ${Math.min(8, insights.lostHighIntent.sample.length)} recientes.`}
+            />
+            <KpiCard
+              label="Demora media de respuesta"
+              value={formatDelayMinutes(insights.responseDelay.averageMinutes)}
+              hint={insights.responseDelay.methodNote}
+            />
+            <KpiCard
+              label="Pipeline sin seguimiento a tiempo"
+              value={String(insights.waitingTooLong.count)}
+              hint={insights.waitingTooLong.definitionNote}
+            />
           </section>
 
-          <section className="mb-16 grid grid-cols-1 items-center gap-10 sm:mb-20 sm:gap-12 lg:mb-24 lg:grid-cols-12">
-            <div className="space-y-8 lg:col-span-5">
-              <div className="space-y-2">
-                <span className="block text-7xl font-light text-[#707A65]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                  {highIntentLost}
-                </span>
-                <p className="text-sm font-medium uppercase tracking-wide text-[#5e5f5c]">Leads de alta intención perdidos</p>
-              </div>
-              <div className="h-px w-24 bg-[#58624e]/20" />
-              <div className="space-y-1">
-                <span className="block text-4xl font-light text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                  {compactMoney(missedCommissions)}
-                </span>
-                <p className="text-xs uppercase tracking-wider text-[#5e5f5c]">Comisiones estimadas no capturadas</p>
-              </div>
+          {(insights.lostHighIntent.sample.length > 0 || insights.waitingTooLong.sample.length > 0) && (
+            <section className="mb-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {insights.lostHighIntent.sample.length > 0 ? (
+                <div className="rounded-xl border border-[#e9e8e4] bg-white p-6">
+                  <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5e5f5c]">Ejemplos · LOST alta intención</h2>
+                  <ul className="mt-4 divide-y divide-[#f0efec]">
+                    {insights.lostHighIntent.sample.map((row) => (
+                      <li key={row.leadId} className="flex flex-wrap items-baseline justify-between gap-2 py-3 first:pt-0">
+                        <Link
+                          className="text-sm font-medium text-[#313330] underline-offset-4 hover:underline"
+                          href={leadHref(agencyId, row.leadId)}
+                        >
+                          {row.name}
+                        </Link>
+                        <span className="text-xs tabular-nums text-[#5e5f5c]">
+                          score {row.leadScore} · {displayChannel(row.sourceChannel)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {insights.waitingTooLong.sample.length > 0 ? (
+                <div className="rounded-xl border border-[#e9e8e4] bg-white p-6">
+                  <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5e5f5c]">Prioridad · sin actividad reciente</h2>
+                  <ul className="mt-4 divide-y divide-[#f0efec]">
+                    {insights.waitingTooLong.sample.map((row) => (
+                      <li key={row.leadId} className="flex flex-wrap items-baseline justify-between gap-2 py-3 first:pt-0">
+                        <Link
+                          className="text-sm font-medium text-[#313330] underline-offset-4 hover:underline"
+                          href={leadHref(agencyId, row.leadId)}
+                        >
+                          {row.name}
+                        </Link>
+                        <span className="text-xs tabular-nums text-[#5e5f5c]">
+                          ~{row.silenceHours} h · score {row.leadScore}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </section>
+          )}
+
+          <section className="mb-12 grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <div className="rounded-xl border border-[#e9e8e4] bg-[#fafaf8] p-6 sm:p-8">
+              <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5e5f5c]">Motivos de pérdida (historial)</h2>
+              <p className="mt-2 text-xs text-[#5e5f5c]">{insights.lossReasons.methodNote}</p>
+              {insights.lossReasons.buckets.length === 0 ? (
+                <p className="mt-6 text-sm text-[#5e5f5c]">Todavía no hay motivos agrupables en el historial.</p>
+              ) : (
+                <ul className="mt-6 space-y-4">
+                  {insights.lossReasons.buckets.map((b) => (
+                    <li key={b.reason}>
+                      <div className="mb-1 flex justify-between gap-3 text-sm">
+                        <span className="font-medium leading-snug text-[#313330]">{b.reason}</span>
+                        <span className="shrink-0 tabular-nums text-xs text-[#5e5f5c]">
+                          {b.count} ({b.sharePercent}%)
+                        </span>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-[#e3e3de]">
+                        <div
+                          className="h-full rounded-full bg-[#58624e]/70"
+                          style={{ width: `${Math.max(6, (b.count / maxLossCount) * 100)}%` }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {topLoss ? (
+                <p className="mt-6 text-xs text-[#5e5f5c]">
+                  Motivo más frecuente: <span className="font-medium text-[#313330]">{topLoss.reason}</span> ({topLoss.sharePercent}% de los eventos con texto).
+                </p>
+              ) : null}
             </div>
 
-            <div className="relative flex h-[300px] items-center justify-center overflow-hidden rounded-xl bg-[#f5f3f0] sm:h-[360px] lg:col-span-7 lg:h-[400px]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(88,98,78,0.18),_transparent_65%)] opacity-50" />
-              <div className="relative flex h-full w-full items-end justify-around px-8 pb-12">
-                <div className="h-[60%] w-16 cursor-help rounded-t-full bg-[#e3e3de] transition-all hover:h-[65%]" title="Oportunidad activa" />
-                <div className="relative h-[85%] w-16 rounded-t-full bg-[#58624e]/40">
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap text-lg italic" style={{ fontFamily: "'Noto Serif', serif" }}>
-                    La brecha
-                  </div>
+            <div className="rounded-xl border border-[#e9e8e4] bg-white p-6 sm:p-8">
+              <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5e5f5c]">Rendimiento por fuente</h2>
+              <p className="mt-2 text-xs text-[#5e5f5c]">
+                Calificación = leads en etapa calificada o posterior / total del canal (mismo criterio en todo el producto).
+              </p>
+              {insights.sourcePerformance.length === 0 ? (
+                <p className="mt-6 text-sm text-[#5e5f5c]">No hay leads por canal todavía.</p>
+              ) : (
+                <div className="mt-6 overflow-x-auto">
+                  <table className="w-full min-w-[320px] text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-[#e9e8e4] text-[10px] font-semibold uppercase tracking-wider text-[#5e5f5c]">
+                        <th className="pb-3 pr-3 font-semibold">Canal</th>
+                        <th className="pb-3 pr-3 font-semibold">Leads</th>
+                        <th className="pb-3 pr-3 font-semibold">Calif.</th>
+                        <th className="pb-3 pr-3 font-semibold">Tasa</th>
+                        <th className="pb-3 font-semibold">Score Ø</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#f0efec]">
+                      {insights.sourcePerformance.map((row) => (
+                        <tr key={row.channel}>
+                          <td className="py-3 pr-3 font-medium text-[#313330]">{row.label}</td>
+                          <td className="py-3 pr-3 tabular-nums text-[#5e5f5c]">{row.leadCount}</td>
+                          <td className="py-3 pr-3 tabular-nums text-[#5e5f5c]">{row.qualifiedCount}</td>
+                          <td className="py-3 pr-3 tabular-nums text-[#5e5f5c]">{row.qualifiedRate}%</td>
+                          <td className="py-3 tabular-nums text-[#5e5f5c]">{row.avgScore}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-                <div className="h-[40%] w-16 rounded-t-full bg-[#e3e3de]" />
-                <div className="h-[55%] w-16 rounded-t-full bg-[#e3e3de]" />
-              </div>
+              )}
             </div>
           </section>
 
-          <section className="mb-16 sm:mb-20 lg:mb-24">
-            <h3 className="mb-12 border-b border-[#e9e8e4] pb-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#5e5f5c]">
-              Puntos críticos de fricción
-            </h3>
-            <div className="grid grid-cols-1 gap-16 md:grid-cols-3">
-              <div className="space-y-4">
-                <h4 className="text-xl text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                  Tiempo de respuesta demasiado lento
-                </h4>
-                <p className="text-sm font-light leading-relaxed text-[#5e5f5c]">
-                  {lagLine} Los clientes de mayor ticket se desconectan tras 45 minutos sin respuesta.
-                </p>
-              </div>
-              <div className="space-y-4">
-                <h4 className="text-xl text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                  Propiedad equivocada recomendada
-                </h4>
-                <p className="text-sm font-light leading-relaxed text-[#5e5f5c]">
-                  Una tasa calificada del {model.headline.qualifiedRate.toFixed(1)}% sugiere que la lógica de matching
-                  actual no prioriza la urgencia con la precisión necesaria.
-                </p>
-              </div>
-              <div className="space-y-4">
-                <h4 className="text-xl text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                  Comprador sin nuevo contacto
-                </h4>
-                <p className="text-sm font-light leading-relaxed text-[#5e5f5c]">
-                  {model.riskQueue.length} leads calificados sin actividad en el último ciclo. Representan valor
-                  significativo de pipeline.
-                </p>
-              </div>
+          <section className="mb-12 rounded-xl border border-[#e9e8e4] bg-white p-6 sm:p-8">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5e5f5c]">Embudo (snapshot actual)</h2>
+            <p className="mt-2 max-w-3xl text-xs leading-relaxed text-[#5e5f5c]">
+              Conteos por etapa hoy. El % respecto de la etapa anterior es una foto instantánea, no una cohorte en el tiempo: útil para ver dónde está el stock, no para medir conversión real de entradas del mes.
+            </p>
+            <div className="mt-6 overflow-x-auto">
+              <table className="w-full min-w-[480px] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-[#e9e8e4] text-[10px] font-semibold uppercase tracking-wider text-[#5e5f5c]">
+                    <th className="pb-3 pr-3 font-semibold">Etapa</th>
+                    <th className="pb-3 pr-3 font-semibold">Leads</th>
+                    <th className="pb-3 font-semibold">vs. anterior</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#f0efec]">
+                  {insights.stageConversion.map((row) => (
+                    <tr key={row.stage}>
+                      <td className="py-3 pr-3 font-medium text-[#313330]">{displayLeadStage(row.stage)}</td>
+                      <td className="py-3 pr-3 tabular-nums text-[#5e5f5c]">{row.count}</td>
+                      <td className="py-3 tabular-nums text-[#5e5f5c]">
+                        {row.conversionFromPrevious == null ? "—" : `${row.conversionFromPrevious}%`}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </section>
 
-          <section className="grid grid-cols-1 items-stretch gap-10 sm:gap-12 lg:grid-cols-2">
-            <div className="space-y-8 rounded-xl bg-[#f5f3f0] p-7 sm:p-10">
-              <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5e5f5c]">Integridad por fuente</h3>
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Referidos</span>
-                  <div className="mx-6 h-px flex-1 bg-[#58624e]/40" />
-                  <span className="text-[#58624e]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                    Élite
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[#5e5f5c]">{topChannel ? displayChannel(topChannel.channel) : "WhatsApp"}</span>
-                  <div className="mx-6 h-px flex-1 bg-[#e3e3de]" />
-                  <span className="text-xs uppercase tracking-widest text-[#5e5f5c]">Alta</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[#5e5f5c]">{secondChannel ? displayChannel(secondChannel.channel) : "Instagram"}</span>
-                  <div className="mx-6 h-px flex-1 bg-[#e3e3de]" />
-                  <span className="text-xs uppercase tracking-widest text-[#5e5f5c]">Media</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[#5e5f5c]">{thirdChannel ? displayChannel(thirdChannel.channel) : "Portales"}</span>
-                  <div className="mx-6 h-px flex-1 bg-[#e3e3de]" />
-                  <span className="text-xs uppercase tracking-widest text-[#5e5f5c]">Volátil</span>
-                </div>
-                {weakestChannel ? (
-                  <p className="pt-2 text-[11px] uppercase tracking-[0.14em] text-[#5e5f5c]">
-                    Menor integridad: {displayChannel(weakestChannel.channel)}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="relative flex flex-col justify-between overflow-hidden rounded-xl bg-[#313330] p-7 text-[#fbf9f6] sm:p-10">
-              <img
-                alt="Visual del barrio"
-                className="absolute inset-0 h-full w-full object-cover opacity-20"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVialbTxB4JPBG1kGhrQarNLNIi9XtjZSxCTbhTip415j3IXO0XVg0Vqz_fSYhNbsbPnla4W3DZe-oioStPbW3iUGvCOVpwUbuj3ItqDb1AplphYgyS_z-5sJn8Mz8BrojEHHp3aVgaEZ3jG3knSq2d5lxPdgx4X91OS0NSDmdwnCl1x9tZm9oTfNgeiO6vuIIfUIrEGOKwASBFFREhM-PLs3Rh7KKANmHQmOGmy9Y4Y9lW6v5TEiqLA5PaULohfwcBBiCwihxEA3B"
-              />
-              <div className="relative">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#fbf9f6]/60">Inteligencia de ubicación</span>
-                <h4 className="mt-4 max-w-xs text-3xl leading-snug" style={{ fontFamily: "'Noto Serif', serif" }}>
-                  Eficiencia de mercado · {topZone}
-                </h4>
-              </div>
-              <div className="relative mt-12">
-                <p className="text-lg font-light leading-relaxed">
-                  Quienes buscan en {topZone} convierten{" "}
-                  <span className="font-normal italic text-[#dce6cd] underline underline-offset-4">2,3× más</span> cuando
-                  el contacto ocurre en menos de 2 horas.
-                </p>
-              </div>
-            </div>
-          </section>
+          <details className="rounded-xl border border-[#e3e3de] bg-[#fafaf8] p-5 text-sm">
+            <summary className="cursor-pointer text-[11px] font-bold uppercase tracking-[0.2em] text-[#5e5f5c]">
+              Metodología y límites
+            </summary>
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-[#5e5f5c]">
+              {insights.methodology.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </details>
         </div>
 
         <AestheteFooter className="mt-20 sm:mt-24" variant="editorial" />

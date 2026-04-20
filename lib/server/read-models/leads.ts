@@ -50,6 +50,7 @@ export interface LeadDetailModel {
   silenceHours: number | null;
   sourceChannel: string;
   sourceCampaign: string | null;
+  ownerUserId: string | null;
   ownerName: string | null;
   profile: {
     budgetMin: number | null;
@@ -215,9 +216,9 @@ function parseDetailNextAction(outputJson: unknown): LeadDetailModel["nextAction
   };
 }
 
-export async function getLeadDetail(leadId: string): Promise<LeadDetailModel | null> {
-  const lead = await db.lead.findUnique({
-    where: { id: leadId },
+export async function getLeadDetail(leadId: string, agencyId: string): Promise<LeadDetailModel | null> {
+  const lead = await db.lead.findFirst({
+    where: { id: leadId, agencyId },
     include: {
       owner: true,
       profile: true,
@@ -259,6 +260,7 @@ export async function getLeadDetail(leadId: string): Promise<LeadDetailModel | n
     silenceHours: hoursSince(lead.lastActivityAt),
     sourceChannel: lead.sourceChannel,
     sourceCampaign: lead.sourceCampaign,
+    ownerUserId: lead.ownerUserId ?? null,
     ownerName: lead.owner?.name ?? null,
     profile: lead.profile
       ? {

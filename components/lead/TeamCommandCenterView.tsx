@@ -1,88 +1,128 @@
 import Link from "next/link";
+import { TaskType } from "@prisma/client";
 import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
 import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
 import { AestheteFooter } from "@/components/layout/AestheteFooter";
-import { LeadInboxItem } from "@/lib/server/read-models/leads";
-import { ExecutiveAnalyticsModel } from "@/lib/server/read-models/analytics";
-import { displayChannel } from "@/lib/i18n/present";
-import { formatCurrencyUSD } from "@/lib/formatters";
+import { formatRelativeHours } from "@/lib/formatters";
+import type { TeamCommandCenterModel, TeamUrgentItem } from "@/lib/server/read-models/team-command-center";
 
 interface TeamCommandCenterViewProps {
   agencyId: string;
-  leads: LeadInboxItem[];
-  analytics: ExecutiveAnalyticsModel;
+  team: TeamCommandCenterModel;
 }
 
-type UrgentCardTone = "immediate" | "hot" | "market";
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((chunk) => chunk[0]?.toUpperCase() ?? "")
-    .join("");
+function taskTypeLabel(t: string) {
+  const map: Record<string, string> = {
+    [TaskType.CALL]: "Llamada",
+    [TaskType.FOLLOW_UP_MESSAGE]: "Mensaje",
+    [TaskType.VISIT_CONFIRM]: "Visita",
+    [TaskType.MANUAL_REVIEW]: "Revisión"
+  };
+  return map[t] ?? t;
 }
 
-function budgetLine(lead: LeadInboxItem) {
-  if (lead.budgetMin != null && lead.budgetMax != null) {
-    return `${formatCurrencyUSD(lead.budgetMin)} - ${formatCurrencyUSD(lead.budgetMax)}`;
-  }
-  if (lead.budgetMin != null) return `Desde ${formatCurrencyUSD(lead.budgetMin)}`;
-  if (lead.budgetMax != null) return `Hasta ${formatCurrencyUSD(lead.budgetMax)}`;
-  return "Presupuesto sin definir";
+function urgentTone(item: TeamUrgentItem): "now" | "today" | "risk" {
+  if (item.kind === "stale") return "risk";
+  if (item.kind === "followup") return "today";
+  if (item.subline.startsWith("Vencida")) return "now";
+  return "today";
 }
 
-function urgencyTone(lead: LeadInboxItem): UrgentCardTone {
-  if ((lead.silenceHours ?? 0) >= 36) return "immediate";
-  if (lead.closeProbability >= 80) return "hot";
-  return "market";
+function UrgentCard({ item, agencyId }: { item: TeamUrgentItem; agencyId: string }) {
+  const tone = urgentTone(item);
+  const border =
+    tone === "now"
+      ? "border-[#a73b21]/25 bg-white"
+      : tone === "risk"
+        ? "border-[#686028]/20 bg-[#fafaf8]"
+        : "border-[#58624e]/15 bg-white";
+
+  return (
+    <article
+      className={`group rounded-lg border p-5 shadow-[0_16px_40px_-14px_rgba(49,51,48,0.06)] transition-all hover:border-[#58624e]/25 sm:p-6 ${border}`}
+    >
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <span
+          className={`text-[9px] font-bold uppercase tracking-[0.14em] ${
+            tone === "now" ? "text-[#a73b21]" : tone === "risk" ? "text-[#686028]" : "text-[#58624e]"
+          }`}
+        >
+          {item.kind === "task"
+            ? "Tarea"
+            : item.kind === "followup"
+              ? "Seguimiento"
+              : "Riesgo de enfriamiento"}
+        </span>
+        <span className="material-symbols-outlined text-[20px] text-stone-300">
+          {tone === "now" ? "alarm" : tone === "risk" ? "thermostat" : "event"}
+        </span>
+      </div>
+      <h4 className="mb-1 text-lg text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
+        {item.fullName}
+      </h4>
+      <p className="mb-4 text-xs text-stone-500">
+        {item.zone}
+        {item.ownerLabel ? ` · ${item.ownerLabel}` : ""}
+      </p>
+      <div className="mb-4 rounded-md bg-[#f5f3f0] px-3 py-3">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">Acción</p>
+        <p className="mt-1 text-sm font-medium leading-snug text-[#313330]">{item.headline}</p>
+        <p className="mt-1 text-xs text-stone-500">{item.subline}</p>
+      </div>
+      <Link
+        className="inline-flex items-center text-[10px] font-bold uppercase tracking-[0.12em] text-[#58624e]"
+        href={`/leads/${item.leadId}?agencyId=${agencyId}`}
+      >
+        Abrir lead
+        <span className="material-symbols-outlined ml-1 text-[16px]">chevron_right</span>
+      </Link>
+    </article>
+  );
 }
 
-function toneLabel(tone: UrgentCardTone) {
-  if (tone === "immediate") return "Acción inmediata";
-  if (tone === "hot") return "Prospecto caliente";
-  return "Cambio de mercado";
+function LeadRowLink({
+  row,
+  agencyId,
+  showSilence
+}: {
+  row: { leadId: string; fullName: string; zone: string; score: number; closeProbability: number; silenceHours: number; ownerLabel: string | null; stageLabel: string };
+  agencyId: string;
+  showSilence?: boolean;
+}) {
+  return (
+    <Link
+      className="group flex items-center justify-between gap-4 rounded-lg border border-transparent px-3 py-3 transition-colors hover:border-stone-200 hover:bg-white"
+      href={`/leads/${row.leadId}?agencyId=${agencyId}`}
+    >
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium text-[#313330]">{row.fullName}</p>
+        <p className="mt-0.5 truncate text-xs text-stone-500">
+          {row.zone} · {row.stageLabel}
+          {row.ownerLabel ? ` · ${row.ownerLabel}` : ""}
+        </p>
+      </div>
+      <div className="flex flex-shrink-0 flex-col items-end gap-0.5 text-right">
+        <span className="text-xs tabular-nums text-[#58624e]">{row.closeProbability}%</span>
+        {showSilence ? (
+          <span className="text-[10px] uppercase tracking-wider text-stone-400">
+            {formatRelativeHours(row.silenceHours)} sin actividad
+          </span>
+        ) : (
+          <span className="text-[10px] uppercase tracking-wider text-stone-400">score {row.score}</span>
+        )}
+      </div>
+      <span className="material-symbols-outlined text-stone-300 transition-colors group-hover:text-[#58624e]">
+        chevron_right
+      </span>
+    </Link>
+  );
 }
 
-function toneIcon(tone: UrgentCardTone) {
-  if (tone === "immediate") return "bolt";
-  if (tone === "hot") return "star";
-  return "trending_down";
-}
+export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewProps) {
+  const { headline, urgentFollowUps, unassignedHighValue, atRisk, visitsBookedToday, workloadByMember, openTasksByOwner, insightHint } =
+    team;
 
-function toneClass(tone: UrgentCardTone) {
-  if (tone === "immediate") return "text-[#a73b21] border-[#a73b21]/20";
-  if (tone === "hot") return "text-[#58624e] border-[#58624e]/20";
-  return "text-[#686028] border-[#686028]/20";
-}
-
-function buildUrgentCards(leads: LeadInboxItem[]) {
-  const sorted = [...leads].sort((a, b) => {
-    const silenceA = a.silenceHours ?? 0;
-    const silenceB = b.silenceHours ?? 0;
-    return b.closeProbability + silenceB - (a.closeProbability + silenceA);
-  });
-  return sorted.slice(0, 3);
-}
-
-function pct(value: number) {
-  return `${Math.round(value)}%`;
-}
-
-export function TeamCommandCenterView({ agencyId, leads, analytics }: TeamCommandCenterViewProps) {
-  const urgentCards = buildUrgentCards(leads);
-  const stagnantLeads = [...leads]
-    .filter((lead) => (lead.silenceHours ?? 0) >= 24)
-    .sort((a, b) => (b.silenceHours ?? 0) - (a.silenceHours ?? 0))
-    .slice(0, 2);
-
-  const confirmedLeads = [...leads].sort((a, b) => b.closeProbability - a.closeProbability).slice(0, 2);
-  const riskLead = analytics.riskQueue[0];
-  const topPerformers = analytics.channels.slice(0, 2);
-  const monthlyGoal = Math.max(5600000, analytics.headline.activePipeline * 700000);
-  const monthlyCurrent = Math.round((monthlyGoal * Math.max(55, analytics.headline.qualifiedRate)) / 100);
-  const monthlyProgress = Math.min(96, Math.max(30, Math.round((monthlyCurrent / monthlyGoal) * 100)));
+  const maxLoad = Math.max(1, ...workloadByMember.map((w) => w.activeLeads));
 
   return (
     <main className="aesthete-page min-h-screen bg-[#fbf9f6] font-body text-[#313330]">
@@ -92,262 +132,215 @@ export function TeamCommandCenterView({ agencyId, leads, analytics }: TeamComman
         <AestheteTopBar />
 
         <div className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-8 sm:pb-20 lg:px-10">
+          <header className="mb-10 border-b border-stone-200/80 pb-8 sm:mb-12">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Hoy</p>
+            <h1 className="text-2xl text-[#313330] sm:text-3xl" style={{ fontFamily: "'Noto Serif', serif" }}>
+              Centro de comando comercial
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-500">
+              Prioridades reales del pipeline: seguimientos, riesgo, visitas y carga por persona. Todo desde datos de
+              la agencia.
+            </p>
+
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              {[
+                { label: "Seguimientos urgentes", value: headline.urgentCount },
+                { label: "Tareas abiertas", value: headline.openTasks },
+                { label: "Visitas agendadas hoy", value: headline.visitsToday },
+                { label: "Sin asignar (valor)", value: headline.unassignedHighValue },
+                { label: "En riesgo (score+silencio)", value: headline.atRisk }
+              ].map((kpi) => (
+                <div
+                  key={kpi.label}
+                  className="rounded-lg border border-stone-200/60 bg-white px-4 py-3 text-center shadow-[0_8px_24px_-12px_rgba(49,51,48,0.06)]"
+                >
+                  <p className="text-2xl tabular-nums text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
+                    {kpi.value}
+                  </p>
+                  <p className="mt-1 text-[9px] font-medium uppercase leading-tight tracking-[0.12em] text-stone-400">
+                    {kpi.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </header>
+
+          {/* 1. Urgent follow-ups */}
           <section className="mb-14 sm:mb-16">
-            <div className="mb-6 flex items-baseline justify-between">
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Inteligencia urgente</h3>
-              <div className="mx-6 h-px flex-1 bg-stone-200/60" />
+            <div className="mb-6 flex flex-wrap items-baseline justify-between gap-4">
+              <div>
+                <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Seguimientos urgentes</h2>
+                <p className="mt-1 text-xs text-stone-400">Tareas vencidas o para hoy, recordatorios del día y leads calientes sin movimiento.</p>
+              </div>
               <Link
                 className="text-[10px] uppercase tracking-[0.1em] text-stone-400 transition-colors hover:text-[#58624e]"
                 href={`/leads?agencyId=${agencyId}`}
               >
-                Ver toda la prioridad
+                Ir a bandeja
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
-              {urgentCards.map((lead) => {
-                const tone = urgencyTone(lead);
-                return (
-                  <article
-                    key={lead.id}
-                    className="group rounded-lg border border-transparent bg-white p-6 shadow-[0_20px_50px_-12px_rgba(49,51,48,0.04)] transition-all hover:border-[#58624e]/10 sm:p-8"
-                  >
-                    <div className="mb-6 flex items-start justify-between">
-                      <span className={`border-b pb-1 text-[9px] font-bold uppercase tracking-widest ${toneClass(tone)}`}>
-                        {toneLabel(tone)}
-                      </span>
-                      <span className="material-symbols-outlined text-stone-300 transition-colors group-hover:text-[#58624e]">
-                        {toneIcon(tone)}
-                      </span>
-                    </div>
-                    <h4 className="mb-2 text-xl text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                      {lead.fullName}
-                    </h4>
-                    <p className="mb-6 text-sm leading-relaxed text-stone-500">
-                      {lead.preferredZones[0] ?? "Zona premium"} • {budgetLine(lead)}
-                    </p>
-                    <div className="mb-6 rounded bg-[#f5f3f0] p-4">
-                      <p className="mb-2 text-[11px] uppercase tracking-wider text-stone-400">Recomendado</p>
-                      <p className="text-sm italic text-[#313330]">
-                        &quot;{lead.recommendedNextAction?.title ?? "Definir próximo movimiento para recuperar timing comercial."}&quot;
-                      </p>
-                    </div>
-                    <Link className="flex items-center text-[10px] font-bold uppercase tracking-[0.1em] text-[#58624e]" href={`/leads/${lead.id}?agencyId=${agencyId}`}>
-                      Abrir lead <span className="material-symbols-outlined ml-2 text-[14px]">chevron_right</span>
+            {urgentFollowUps.length ? (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {urgentFollowUps.map((item) => (
+                  <UrgentCard agencyId={agencyId} item={item} key={`${item.kind}-${item.id}`} />
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-lg border border-dashed border-stone-200 bg-white/80 px-6 py-10 text-center text-sm text-stone-500">
+                No hay seguimientos urgentes según tareas, recordatorios y silencio. Revisá la bandeja para leads nuevos.
+              </p>
+            )}
+          </section>
+
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12">
+            {/* 2 & 3 Unassigned + At risk */}
+            <div className="space-y-10">
+              <section>
+                <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">
+                  Leads de alto valor sin responsable
+                </h2>
+                <p className="mb-4 text-xs text-stone-400">Sin owner, con probabilidad/score/prioridad altos.</p>
+                <div className="divide-y divide-stone-100 rounded-lg border border-stone-200/60 bg-white">
+                  {unassignedHighValue.length ? (
+                    unassignedHighValue.map((row) => (
+                      <LeadRowLink agencyId={agencyId} key={row.leadId} row={row} showSilence={false} />
+                    ))
+                  ) : (
+                    <p className="px-4 py-8 text-center text-sm text-stone-500">Ninguno en este momento.</p>
+                  )}
+                </div>
+              </section>
+
+              <section>
+                <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Leads en riesgo</h2>
+                <p className="mb-4 text-xs text-stone-400">Score ≥ 65 y más de 24h sin actividad (pipeline activo).</p>
+                <div className="divide-y divide-stone-100 rounded-lg border border-stone-200/60 bg-white">
+                  {atRisk.length ? (
+                    atRisk.map((row) => <LeadRowLink agencyId={agencyId} key={row.leadId} row={row} showSilence />)
+                  ) : (
+                    <p className="px-4 py-8 text-center text-sm text-stone-500">No hay señales de riesgo con estos criterios.</p>
+                  )}
+                </div>
+              </section>
+            </div>
+
+            {/* 4 Visits today */}
+            <section>
+              <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">
+                Visitas agendadas hoy
+              </h2>
+              <p className="mb-4 text-xs text-stone-400">Transiciones a «Visita agendada» registradas hoy (historial de etapas).</p>
+              <div className="divide-y divide-stone-100 rounded-lg border border-stone-200/60 bg-white">
+                {visitsBookedToday.length ? (
+                  visitsBookedToday.map((v) => (
+                    <Link
+                      className="group flex items-center justify-between gap-3 px-4 py-4 transition-colors hover:bg-[#fafaf8]"
+                      href={`/leads/${v.leadId}?agencyId=${agencyId}`}
+                      key={v.leadId}
+                    >
+                      <div>
+                        <p className="font-medium text-[#313330]">{v.fullName}</p>
+                        <p className="mt-0.5 text-xs text-stone-500">
+                          {v.zone}
+                          {v.ownerLabel ? ` · ${v.ownerLabel}` : ""}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] uppercase tracking-wider text-stone-400">
+                          {new Date(v.bookedAt).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                        <span className="material-symbols-outlined text-stone-300 group-hover:text-[#58624e]">
+                          chevron_right
+                        </span>
+                      </div>
                     </Link>
-                  </article>
-                );
-              })}
+                  ))
+                ) : (
+                  <p className="px-4 py-10 text-center text-sm text-stone-500">
+                    Hoy todavía no se registró ningún pase a visita agendada.
+                  </p>
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* 5 Workload */}
+          <section className="mt-14 border-t border-stone-200/80 pt-12 sm:mt-16">
+            <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">
+              Carga por persona
+            </h2>
+            <p className="mb-6 text-xs text-stone-400">Leads activos asignados (excluye ganados/perdidos).</p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {workloadByMember.length ? (
+                workloadByMember.map((w) => (
+                  <div className="rounded-lg border border-stone-200/60 bg-white px-4 py-4" key={w.userId}>
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-sm font-medium text-[#313330]">{w.name}</span>
+                      <span className="text-xs tabular-nums text-stone-500">{w.activeLeads} activos</span>
+                    </div>
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#efeeea]">
+                      <div
+                        className="h-full rounded-full bg-[#58624e]/80 transition-all"
+                        style={{ width: `${Math.min(100, Math.round((w.activeLeads / maxLoad) * 100))}%` }}
+                      />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="col-span-full text-sm text-stone-500">No hay leads asignados o el equipo aún no tiene ownership cargado.</p>
+              )}
             </div>
           </section>
 
-          <div className="flex flex-col gap-12 sm:gap-16 lg:flex-row">
-            <section className="flex-grow">
-              <div className="mb-8 sm:mb-10">
-                <h3 className="mb-2 text-2xl text-[#313330] sm:text-3xl" style={{ fontFamily: "'Noto Serif', serif" }}>
-                  Movimiento diario
-                </h3>
-                <p className="text-sm tracking-wide text-stone-400">
-                  Un panorama curado de gestión activa y cambios de alto valor.
-                </p>
-              </div>
-
-              <div className="space-y-10 sm:space-y-12">
-                <div className="relative border-l border-stone-200 pl-8">
-                  <div className="absolute -left-1.5 top-0 h-3 w-3 rounded-full bg-[#58624e]" />
-                  <span className="mb-4 block text-[10px] uppercase tracking-[0.2em] text-stone-400">
-                    Estancamiento de alto valor
-                  </span>
-                  <div className="space-y-6">
-                    {stagnantLeads.length ? (
-                      stagnantLeads.map((lead) => (
-                        <Link
-                          key={lead.id}
-                          className="group flex items-center justify-between"
-                          href={`/leads/${lead.id}?agencyId=${agencyId}`}
-                        >
-                          <div className="flex items-center space-x-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#efeeea] text-lg italic text-[#58624e]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                              {initials(lead.fullName)}
+          {/* 6 Open tasks by owner */}
+          <section className="mt-12 pb-8 sm:mt-14">
+            <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">
+              Tareas abiertas por responsable del lead
+            </h2>
+            <p className="mb-6 text-xs text-stone-400">
+              Agrupado por el owner del lead (las tareas heredan la cuenta del negocio).
+            </p>
+            <div className="grid gap-8 lg:grid-cols-2">
+              {openTasksByOwner.some((g) => g.tasks.length > 0) ? (
+                openTasksByOwner
+                  .filter((g) => g.tasks.length > 0)
+                  .map((group) => (
+                    <div className="rounded-lg border border-stone-200/60 bg-white p-5" key={group.userId ?? "unassigned"}>
+                      <p className="mb-4 text-sm font-medium text-[#313330]">{group.name}</p>
+                      <ul className="space-y-3">
+                        {group.tasks.map((t) => (
+                          <li className="flex flex-col gap-1 border-b border-stone-100 pb-3 last:border-0 last:pb-0" key={t.taskId}>
+                            <div className="flex items-start justify-between gap-2">
+                              <Link className="text-sm font-medium text-[#313330] hover:text-[#58624e]" href={`/leads/${t.leadId}?agencyId=${agencyId}`}>
+                                {t.title}
+                              </Link>
+                              <span className="flex-shrink-0 text-[9px] uppercase tracking-wider text-stone-400">
+                                {taskTypeLabel(t.type)}
+                              </span>
                             </div>
-                            <div>
-                              <h5 className="text-base font-medium text-[#313330]">{lead.fullName}</h5>
-                              <p className="text-xs text-stone-400">
-                                Puntuación {lead.score} • {lead.silenceHours != null ? `${lead.silenceHours}h sin contacto` : "sin actividad"}
-                              </p>
-                            </div>
-                          </div>
-                          <span className="material-symbols-outlined text-stone-200 transition-colors group-hover:text-[#58624e]">
-                            arrow_forward_ios
-                          </span>
-                        </Link>
-                      ))
-                    ) : (
-                      <p className="text-sm text-stone-500">No hay estancamientos críticos en este momento.</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="relative border-l border-stone-200 pl-8">
-                  <div className="absolute -left-1.5 top-0 h-3 w-3 rounded-full bg-stone-300" />
-                  <span className="mb-6 block text-[10px] uppercase tracking-[0.2em] text-stone-400">
-                    Encuentros confirmados
-                  </span>
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8">
-                    {confirmedLeads.map((lead, index) => (
-                      <article key={lead.id} className="group cursor-pointer overflow-hidden">
-                        <div className="mb-4 aspect-[16/9] overflow-hidden rounded-sm bg-stone-200">
-                          <img
-                            alt="Propiedad"
-                            className="h-full w-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0"
-                            src={
-                              index === 0
-                                ? "https://lh3.googleusercontent.com/aida-public/AB6AXuBwv_-WSJcEpFbVnHO2RHbER8bD1l8Pba9C2RY2ase9eIZYPG46VxczHkOtrFkPthNIBkLWF-TuwOQlYFUKW85oXmnFNFxKkaRvYYiybevdoaBTnUvkRx0PXfVBABEn6f1N9Tu5zoX2JwYII5mjhnV4_4BlW2GyNs9Wf4-fhQ2BenI9jGwfewp6lpdty6bTHl5HbjfcKslucLcn6P4K9SFOin-FyExZbAN6hiOAxA0yy23uVEvCwtwFRfBXKCir5zFRWWaJuS_sFLT3"
-                                : "https://lh3.googleusercontent.com/aida-public/AB6AXuA_39Uf8TuHfmqjOJnvnxLwnP9Jms4ZNrAngbG8di8JXoAqEw-45Vy3QKz6zzmm-had-PaJOpWl7jGn74FHXuOBmS6xRhpJ4EwiySRbwL3tAFRbq4jm2vzK3E7adwJen3XYxcxS1bGELzzpuQVKuKtzEtXBGXjyjCKhzurMW43ilQqytF2bebmPyfaUDjmTkVM6mDVGfHRjbKGCAdWVGef0zr9xbPVCR6-po8XxDVQjNRQUF7853BmwHYZWgVEKZ9z2M2YqC2RFYXSC"
-                            }
-                          />
-                        </div>
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <p className="text-lg italic text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                              {lead.preferredZones[0] ?? "Visita premium"}
-                            </p>
-                            <p className="mt-1 text-[11px] uppercase tracking-widest text-stone-400">
-                              {lead.closeProbability >= 80 ? "Visita privada" : "Recorrido final"}
-                            </p>
-                          </div>
-                          <span
-                            className={`rounded px-2 py-1 text-[9px] uppercase tracking-tight ${
-                              lead.closeProbability >= 80
-                                ? "bg-[#dce6cd] text-[#4b5542]"
-                                : "bg-[#e3e3de] text-[#5e5f5c]"
-                            }`}
-                          >
-                            {lead.closeProbability >= 80 ? "VIP" : "Pendiente"}
-                          </span>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="relative border-l border-stone-200 pl-8">
-                  <div className="absolute -left-1.5 top-0 h-3 w-3 rounded-full bg-[#a73b21]/40" />
-                  <span className="mb-4 block text-[10px] uppercase tracking-[0.2em] text-stone-400">
-                    Preservación requerida
-                  </span>
-                  <div className="flex flex-col gap-4 rounded-lg border border-[#a73b21]/5 bg-[#fd795a]/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                    <div>
-                      <h5 className="text-lg text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                        {riskLead ? `Negocio de ${riskLead.name}` : "Negocio de pipeline en riesgo"}
-                      </h5>
-                      <p className="mt-1 text-sm text-stone-500">
-                        La probabilidad cayó <span className="font-semibold text-[#a73b21]">24%</span> por timing y
-                        desajuste de valuación.
-                      </p>
+                            <p className="text-xs text-stone-500">Lead: {t.leadName}</p>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <button className="w-full rounded-full border border-stone-200 bg-white px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors hover:bg-stone-50 sm:w-auto">
-                      Intervenir
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </section>
+                  ))
+              ) : (
+                <p className="text-sm text-stone-500">No hay tareas abiertas en el pipeline.</p>
+              )}
+            </div>
+          </section>
 
-            <aside className="w-full lg:w-80">
-              <div className="lg:sticky lg:top-32">
-                <div className="mb-10">
-                  <h3 className="mb-4 text-xl italic text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                    Momentum de la agencia
-                  </h3>
-                  <div className="h-1 w-12 bg-[#58624e] opacity-30" />
-                </div>
-
-                <div className="mb-8 rounded-2xl bg-[#efeeea] p-8 text-center">
-                  <div className="relative mb-6 inline-flex items-center justify-center">
-                    <svg className="h-32 w-32" viewBox="0 0 128 128">
-                      <circle cx="64" cy="64" r="58" fill="transparent" stroke="currentColor" strokeWidth="4" className="text-stone-200" />
-                      <circle
-                        cx="64"
-                        cy="64"
-                        r="58"
-                        fill="transparent"
-                        stroke="currentColor"
-                        strokeDasharray="364"
-                        strokeDashoffset={364 - (364 * monthlyProgress) / 100}
-                        strokeLinecap="round"
-                        strokeWidth="4"
-                        className="text-[#58624e]"
-                      />
-                    </svg>
-                    <span className="absolute text-2xl italic text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                      {monthlyProgress}%
-                    </span>
-                  </div>
-                  <p className="mb-1 text-[10px] uppercase tracking-[0.2em] text-stone-500">Objetivo mensual</p>
-                  <p className="text-sm font-medium text-[#313330]">
-                    {compactMoney(monthlyCurrent)} / {compactMoney(monthlyGoal)}
-                  </p>
-                </div>
-
-                <div className="space-y-6">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#58624e]">Mejor rendimiento</p>
-                  {topPerformers.length ? (
-                    topPerformers.map((channel, index) => (
-                      <div key={channel.channel} className="flex items-center space-x-4">
-                        <div className="h-10 w-10 overflow-hidden rounded-full bg-stone-200">
-                          <img
-                            alt="Miembro del equipo"
-                            className="h-full w-full object-cover grayscale"
-                            src={
-                              index === 0
-                                ? "https://lh3.googleusercontent.com/aida-public/AB6AXuD0AsS27dvRVfZq6no_AzLxS9Xl0jRPszkz4Q7wnL5fTxlqJzKyDnpjA-JIkhI9NITDLPWo-K6E8wYiIfKLF1eQzMp8DGq85o-5j6CrLpmpJtX3PHvklKV1IG75z9dHUjM0eZCFPxVGHnP1DcUmbMVw26D0Pg74rtwIeWGVgEjbqIUX80rFXpO8Zmvo1UFvnJfTiSi7BSc8QtoLQofdwFWihG3mQRjKkmAjIIsEuegX_Tr1ZEXqWD9bLt_JmrjykIgJrQck1NjZG28C"
-                                : "https://lh3.googleusercontent.com/aida-public/AB6AXuD2z004VGjgNFarvzXurZklO3GG4cX_KKW1l7CqXcZCs7KZq77Lqi1dzmfa1BmjcsWpVyl4A1EUyD10y3K9XyUhC67NRVAlGOsFSFnNbFc34RFy9vHYa2I7QxlZOYePTCggWbFxS7sIZhtsi6XEA4PM6ovbHc7wklM3B0xT8DniHxLF177ZYV8P9h1TYHiGfXvJsvTEsubutSMfH5r6qzXnEnOwld1p2dozmYHYBvZCNLaHQowpq16d8fyJZu12dDzfdQC-16vzUvwx"
-                            }
-                          />
-                        </div>
-                        <div className="flex-grow">
-                          <div className="flex justify-between">
-                            <p className="text-sm font-medium text-[#313330]">{displayChannel(channel.channel)}</p>
-                            <span className="text-[10px] text-stone-400">{Math.round(channel.leadCount / 2)} cierres</span>
-                          </div>
-                          <div className="mt-1 h-[2px] w-full bg-stone-200">
-                            <div className="h-[2px] bg-[#58624e]" style={{ width: pct(channel.qualifiedRate) }} />
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-stone-500">Todavía no hay datos de rendimiento.</p>
-                  )}
-                </div>
-
-                <div className="mt-12 rounded-sm border-l-2 border-[#58624e] bg-white p-6 shadow-[0_20px_50px_-12px_rgba(49,51,48,0.04)]">
-                  <span className="material-symbols-outlined mb-3 text-sm text-[#58624e]">auto_awesome</span>
-                  <p className="text-sm italic leading-relaxed text-stone-600">
-                    &quot;El mercado se está moviendo hacia activos de resguardo de largo plazo. Conviene pivotear tus
-                    leads top hacia propiedades off-market en {analytics.zones[0]?.zone ?? "zonas de alta intención"}.&quot;
-                  </p>
-                  <p className="mt-4 text-[9px] uppercase tracking-widest text-stone-400">
-                    — Motor de inteligencia
-                  </p>
-                </div>
-              </div>
+          {insightHint ? (
+            <aside className="mt-4 rounded-sm border-l-2 border-[#58624e] bg-white p-6 shadow-[0_12px_32px_-16px_rgba(49,51,48,0.08)]">
+              <span className="material-symbols-outlined mb-2 text-sm text-[#58624e]">priority_high</span>
+              <p className="text-sm italic leading-relaxed text-stone-600">&quot;{insightHint}&quot;</p>
             </aside>
-          </div>
+          ) : null}
         </div>
 
         <AestheteFooter className="mt-16 sm:mt-20" variant="editorial" />
       </div>
     </main>
   );
-}
-
-function compactMoney(value: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "USD",
-    notation: "compact",
-    maximumFractionDigits: 1
-  }).format(value);
 }

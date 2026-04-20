@@ -332,9 +332,9 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
   return created;
 }
 
-export async function getLeadSnapshot(leadId: string) {
-  return db.lead.findUnique({
-    where: { id: leadId },
+export async function getLeadSnapshot(leadId: string, agencyId?: string) {
+  return db.lead.findFirst({
+    where: agencyId ? { id: leadId, agencyId } : { id: leadId },
     include: {
       profile: true,
       recommendations: {

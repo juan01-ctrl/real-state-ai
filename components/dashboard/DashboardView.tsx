@@ -75,14 +75,14 @@ function MorningBriefing() {
   );
 }
 
-function PriorityIntelligence() {
+function PriorityIntelligence({ agencyId }: { agencyId: string }) {
   return (
     <section className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-[11px] uppercase tracking-[0.1em] text-[#5e5f5c]">Inteligencia prioritaria</h2>
         <Link
           className="text-[11px] uppercase tracking-[0.1em] text-[#58624e] transition-all hover:underline"
-          href="/leads?agencyId=agency_demo_001"
+          href={`/leads?agencyId=${agencyId}`}
         >
           Ver todos los leads activos
         </Link>
@@ -192,15 +192,19 @@ function KpiStrip() {
   );
 }
 
-export function DashboardView() {
+interface DashboardViewProps {
+  agencyId: string;
+}
+
+export function DashboardView({ agencyId }: DashboardViewProps) {
   return (
     <div className="min-h-screen bg-[#fbf9f6] text-[#313330]" style={{ fontFamily: "Inter, sans-serif" }}>
-      <AestheteSidebar active="Tablero" agencyId="agency_demo_001" />
+      <AestheteSidebar active="Tablero" agencyId={agencyId} />
       <main className="min-h-screen lg:ml-64">
         <AestheteTopBar />
         <div className="mx-auto w-full max-w-7xl space-y-14 px-4 py-10 sm:space-y-16 sm:px-8 sm:py-12 lg:px-12">
           <MorningBriefing />
-          <PriorityIntelligence />
+          <PriorityIntelligence agencyId={agencyId} />
           <LossInsightAndActivity />
           <KpiStrip />
         </div>

@@ -1,15 +1,15 @@
 import { LeadIntelligenceDossierView } from "@/components/leads/LeadIntelligenceDossierView";
+import { requireSessionContext } from "@/lib/server/auth-session";
 import { getLeadDetail } from "@/lib/server/read-models/leads";
+import { getAgencyOperators } from "@/lib/server/read-models/operators";
 
 interface LeadDetailPageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ agencyId?: string }>;
 }
 
-export default async function LeadDetailPage({ params, searchParams }: LeadDetailPageProps) {
-  const [{ id }, query] = await Promise.all([params, searchParams]);
-  const agencyId = query.agencyId ?? "agency_demo_001";
-  const leadDetail = await getLeadDetail(id);
+export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
+  const [{ id }, { agencyId }] = await Promise.all([params, requireSessionContext({ redirectTo: "/sign-in" })]);
+  const [leadDetail, operators] = await Promise.all([getLeadDetail(id, agencyId), getAgencyOperators(agencyId)]);
 
-  return <LeadIntelligenceDossierView agencyId={agencyId} lead={leadDetail} />;
+  return <LeadIntelligenceDossierView agencyId={agencyId} lead={leadDetail} operators={operators} />;
 }

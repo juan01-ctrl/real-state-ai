@@ -1,12 +1,8 @@
 import { StrategicOpportunitiesView } from "@/components/opportunities/StrategicOpportunitiesView";
+import { requireSessionContext } from "@/lib/server/auth-session";
 
-interface OpportunitiesPageProps {
-  searchParams: Promise<{ agencyId?: string }>;
-}
-
-export default async function OpportunitiesPage({ searchParams }: OpportunitiesPageProps) {
-  const params = await searchParams;
-  const agencyId = params.agencyId ?? "agency_demo_001";
+export default async function OpportunitiesPage() {
+  const { agencyId } = await requireSessionContext({ redirectTo: "/sign-in" });
 
   return <StrategicOpportunitiesView agencyId={agencyId} />;
 }

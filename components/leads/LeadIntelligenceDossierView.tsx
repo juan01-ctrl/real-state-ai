@@ -3,13 +3,16 @@ import { notFound } from "next/navigation";
 import { AestheteFooter } from "@/components/layout/AestheteFooter";
 import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
 import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
-import { LeadDetailModel } from "@/lib/server/read-models/leads";
+import { LeadOperationsPanel } from "@/components/leads/LeadOperationsPanel";
+import type { AgencyOperator } from "@/lib/server/read-models/operators";
+import type { LeadDetailModel } from "@/lib/server/read-models/leads";
 import { formatCurrencyUSD, formatDateTime, formatRelativeHours } from "@/lib/formatters";
 import { displayFinancingMode, displayMessageDirection, displayPropertyType } from "@/lib/i18n/present";
 
 interface LeadIntelligenceDossierViewProps {
   agencyId: string;
   lead: LeadDetailModel | null;
+  operators: AgencyOperator[];
 }
 
 const dossierImages = [
@@ -56,7 +59,7 @@ function generatedOutreach(lead: LeadDetailModel) {
   return "Vi tu actividad reciente sobre esta oportunidad. Puedo coordinar una visita privada mañana si querés evaluarla con todo el contexto.";
 }
 
-export function LeadIntelligenceDossierView({ agencyId, lead }: LeadIntelligenceDossierViewProps) {
+export function LeadIntelligenceDossierView({ agencyId, lead, operators }: LeadIntelligenceDossierViewProps) {
   if (!lead) notFound();
 
   const matches = lead.recommendations.slice(0, 2);
@@ -97,7 +100,7 @@ export function LeadIntelligenceDossierView({ agencyId, lead }: LeadIntelligence
                 <p className="text-sm font-medium">{sourceLabel(lead)}</p>
               </div>
               <div className="text-right">
-                <p className="mb-1 text-[10px] uppercase tracking-widest text-on-surface-variant">Urgency</p>
+                <p className="mb-1 text-[10px] uppercase tracking-widest text-on-surface-variant">Urgencia</p>
                 <p className="flex items-center justify-end gap-1 text-sm font-medium text-error">
                   <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
                     priority_high
@@ -118,6 +121,10 @@ export function LeadIntelligenceDossierView({ agencyId, lead }: LeadIntelligence
         </header>
 
         <div className="grid grid-cols-1 gap-10 px-4 pb-20 pt-8 sm:px-8 lg:grid-cols-12 lg:gap-12 lg:px-12">
+          <div className="lg:col-span-12">
+            <LeadOperationsPanel lead={lead} leadId={lead.id} operators={operators} variant="dossier" />
+          </div>
+
           <div className="space-y-14 lg:col-span-7">
             <section>
               <h3 className="mb-8 flex items-center gap-3 text-[12px] uppercase tracking-[0.2em] text-on-surface-variant">

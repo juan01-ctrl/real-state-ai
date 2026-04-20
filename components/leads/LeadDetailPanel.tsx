@@ -1,7 +1,10 @@
-import { LeadDetailModel } from "@/lib/server/read-models/leads";
+import { LeadOperationsPanel } from "@/components/leads/LeadOperationsPanel";
 import { formatRelativeHours } from "@/lib/formatters";
+import type { AgencyOperator } from "@/lib/server/read-models/operators";
+import type { LeadDetailModel } from "@/lib/server/read-models/leads";
 
 interface LeadDetailPanelProps {
+  operators: AgencyOperator[];
   lead: LeadDetailModel | null;
 }
 
@@ -65,13 +68,15 @@ function isDesktopPanel() {
   return "hidden xl:block";
 }
 
-function PanelContent({ lead }: { lead: LeadDetailModel }) {
+function PanelContent({ lead, operators }: { lead: LeadDetailModel; operators: AgencyOperator[] }) {
   const topRecommendation = lead.recommendations[0];
   const signals = whyThisLeadMatters(lead);
   const kpi = getHeroKpi(lead);
 
   return (
     <div className="space-y-8 sm:space-y-10">
+      <LeadOperationsPanel lead={lead} leadId={lead.id} operators={operators} variant="panel" />
+
       <div className="text-center">
         <div className="mx-auto mb-6 h-24 w-24 rounded-full bg-white p-1 shadow-sm">
           <div className="h-full w-full overflow-hidden rounded-full">
@@ -162,7 +167,7 @@ function PanelContent({ lead }: { lead: LeadDetailModel }) {
   );
 }
 
-export function LeadDetailPanel({ lead }: LeadDetailPanelProps) {
+export function LeadDetailPanel({ lead, operators }: LeadDetailPanelProps) {
   if (!lead) {
     return (
       <div className="rounded-xl bg-white p-6 sm:p-8">
@@ -180,7 +185,7 @@ export function LeadDetailPanel({ lead }: LeadDetailPanelProps) {
   return (
     <>
       <div className={isDesktopPanel()}>
-        <PanelContent lead={lead} />
+        <PanelContent lead={lead} operators={operators} />
       </div>
       <div className={`${isMobilePanel()} rounded-xl bg-[#f5f3f0] p-5 sm:p-6`}>
         <div className="mb-4 flex items-center justify-between border-b border-stone-200 pb-4">

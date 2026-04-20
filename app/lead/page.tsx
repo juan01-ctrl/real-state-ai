@@ -1,11 +1,7 @@
 import { redirect } from "next/navigation";
+import { requireSessionContext } from "@/lib/server/auth-session";
 
-interface LeadCommandCenterPageProps {
-  searchParams: Promise<{ agencyId?: string }>;
-}
-
-export default async function LeadCommandCenterPage({ searchParams }: LeadCommandCenterPageProps) {
-  const params = await searchParams;
-  const agencyId = params.agencyId ?? "agency_demo_001";
+export default async function LeadCommandCenterPage() {
+  const { agencyId } = await requireSessionContext({ redirectTo: "/sign-in" });
   redirect(`/team?agencyId=${agencyId}`);
 }

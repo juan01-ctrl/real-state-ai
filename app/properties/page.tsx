@@ -1,12 +1,8 @@
 import { PropertyAdvisorIntelligenceView } from "@/components/properties/PropertyAdvisorIntelligenceView";
+import { requireSessionContext } from "@/lib/server/auth-session";
 
-interface PropertiesPageProps {
-  searchParams: Promise<{ agencyId?: string }>;
-}
-
-export default async function PropertiesPage({ searchParams }: PropertiesPageProps) {
-  const params = await searchParams;
-  const agencyId = params.agencyId ?? "agency_demo_001";
+export default async function PropertiesPage() {
+  const { agencyId } = await requireSessionContext({ redirectTo: "/sign-in" });
 
   return <PropertyAdvisorIntelligenceView agencyId={agencyId} />;
 }

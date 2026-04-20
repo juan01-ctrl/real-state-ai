@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ingestLeadAndQualify } from "@/lib/server/lead-intake";
 import { sampleInboundConversation } from "@/lib/qualification";
+import { requireSessionContext } from "@/lib/server/auth-session";
 
 function shiftHours(isoDate: string, deltaHours: number): string {
   const shifted = new Date(new Date(isoDate).getTime() + deltaHours * 60 * 60 * 1000);
@@ -8,10 +9,11 @@ function shiftHours(isoDate: string, deltaHours: number): string {
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json().catch(() => ({}));
-  const agencyId: string = body.agencyId ?? "agency_demo_001";
+  try {
+    const { agencyId } = await requireSessionContext();
+    await request.json().catch(() => ({}));
 
-  const datasets = [
+    const datasets = [
     {
       sourceChannel: "WHATSAPP" as const,
       sourceCampaign: "Meta Ads | Palermo",
@@ -249,18 +251,44 @@ export async function POST(request: NextRequest) {
     }
   ];
 
-  const created = [];
-  for (const dataset of datasets) {
-    const result = await ingestLeadAndQualify({
-      agencyId,
-      sourceChannel: dataset.sourceChannel,
-      sourceCampaign: dataset.sourceCampaign,
-      assignedAgentEmail: dataset.assignedAgentEmail,
-      contactName: dataset.contactName,
-      messages: dataset.messages
-    });
-    created.push(result);
-  }
+    const created = [];
+    for (const dataset of datasets) {
+      const result = await ingestLeadAndQualify({
+        agencyId,
+        sourceChannel: dataset.sourceChannel,
+        sourceCampaign: dataset.sourceCampaign,
+        assignedAgentEmail: dataset.assignedAgentEmail,
+        contactName: dataset.contactName,
+        messages: dataset.messages
+      });
+      created.push(result);
+    }
 
-  return NextResponse.json({ ok: true, createdCount: created.length, created }, { status: 201 });
+    return NextResponse.json({ ok: true, createdCount: created.length, created }, { status: 201 });
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === "UNAUTHORIZED") {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Sesión inválida o expirada"
+          }
+        },
+        { status: 401 }
+      );
+    }
+
+    const message = error instanceof Error ? error.message : "Error al generar leads demo";
+    return NextResponse.json(
+      {
+        ok: false,
+        error: {
+          code: "DEMO_GENERATION_FAILED",
+          message
+        }
+      },
+      { status: 400 }
+    );
+  }
 }
