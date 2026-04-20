@@ -5,11 +5,11 @@ interface MetaOutboundPayload {
   draftMessageId?: string;
 }
 
-function parseMetaPayload(payload: Prisma.JsonValue): MetaOutboundPayload | null {
+function parseMetaPayload(payload: Prisma.JsonValue): { draftMessageId: string } | null {
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
   const candidate = payload as MetaOutboundPayload;
   if (!candidate.draftMessageId || typeof candidate.draftMessageId !== "string") return null;
-  return candidate;
+  return { draftMessageId: candidate.draftMessageId };
 }
 
 export async function runCriticalJobHandler(job: {

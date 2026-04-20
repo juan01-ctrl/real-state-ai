@@ -8,7 +8,7 @@ export async function logAuditEvent(input: {
   resource: string;
   resourceId?: string | null;
   summary?: string;
-  metadata?: Prisma.JsonValue;
+  metadata?: Prisma.InputJsonValue;
 }) {
   try {
     await db.auditLog.create({

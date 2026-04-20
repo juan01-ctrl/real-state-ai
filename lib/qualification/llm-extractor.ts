@@ -204,7 +204,8 @@ export async function maybeEnrichExtractionWithLlm(params: {
     if (
       zones &&
       Array.isArray(zones.value) &&
-      (merged.preferredZones.value.length === 0 || zones.confidence > merged.preferredZones.confidence + 0.1)
+      ((merged.preferredZones.value?.length ?? 0) === 0 ||
+        zones.confidence > merged.preferredZones.confidence + 0.1)
     ) {
       merged.preferredZones = { ...zones, value: zones.value.filter(Boolean) };
       applied = true;
@@ -258,7 +259,7 @@ export async function maybeEnrichExtractionWithLlm(params: {
       sourceMessageIds
     );
     if (objections && Array.isArray(objections.value) && objections.value.length > 0) {
-      const union = new Set<string>([...merged.objections.value, ...objections.value]);
+      const union = new Set<string>([...(merged.objections.value ?? []), ...objections.value]);
       merged.objections = {
         value: Array.from(union),
         confidence: Math.max(merged.objections.confidence, objections.confidence),

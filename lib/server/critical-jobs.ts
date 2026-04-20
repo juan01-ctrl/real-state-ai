@@ -7,7 +7,7 @@ const BASE_RETRY_DELAY_MS = 30_000;
 export async function enqueueCriticalJob(input: {
   agencyId: string;
   type: string;
-  payload: Prisma.JsonValue;
+  payload: Prisma.InputJsonValue;
   idempotencyKey?: string;
   maxAttempts?: number;
 }) {

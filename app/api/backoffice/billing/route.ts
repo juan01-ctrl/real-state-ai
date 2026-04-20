@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { logAuditEvent } from "@/lib/server/audit";
 import { requirePermission } from "@/lib/server/auth-session";
@@ -86,7 +87,7 @@ export async function PATCH(request: NextRequest) {
       resource: "AgencySubscription",
       resourceId: updated.id,
       summary: "Plan y límites actualizados",
-      metadata: data
+      metadata: JSON.parse(JSON.stringify(data)) as Prisma.InputJsonValue
     });
 
     return NextResponse.json({
