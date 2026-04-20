@@ -9,7 +9,8 @@ interface DashboardViewProps {
   model: DashboardModel;
 }
 
-function MorningBriefing({ model }: { model: DashboardModel["briefing"] }) {
+function MorningBriefing({ dataAsOf, model }: { dataAsOf: string; model: DashboardModel["briefing"] }) {
+  const asOfLabel = new Date(dataAsOf).toLocaleString("es-AR", { dateStyle: "medium", timeStyle: "short" });
   return (
     <section className="flex flex-col justify-between gap-6 border-b border-[#b2b2ae]/10 pb-10 md:flex-row md:items-end md:gap-8 md:pb-12">
       <div className="max-w-2xl">
@@ -18,6 +19,7 @@ function MorningBriefing({ model }: { model: DashboardModel["briefing"] }) {
           {model.headline}
         </h1>
         <p className="mt-4 max-w-lg text-base leading-relaxed text-[#5e5f5c] sm:text-lg">{model.subline}</p>
+        <p className="mt-3 text-xs text-[#5e5f5c]/90">Datos calculados al momento de cargar el tablero: {asOfLabel}.</p>
       </div>
       <Link
         className="inline-flex items-center justify-center bg-[#58624e] px-6 py-3 text-[11px] uppercase tracking-[0.1em] text-[#f2fde3] transition-colors hover:bg-[#4d5643] sm:px-8 sm:py-4"
@@ -168,9 +170,9 @@ export function DashboardView({ agencyId, model }: DashboardViewProps) {
     <div className="min-h-screen bg-[#fbf9f6] text-[#313330]" style={{ fontFamily: "Inter, sans-serif" }}>
       <AestheteSidebar active="Tablero" agencyId={agencyId} />
       <main className="min-h-screen lg:ml-64">
-        <AestheteTopBar />
+        <AestheteTopBar agencyId={agencyId} />
         <div className="mx-auto w-full max-w-7xl space-y-14 px-4 py-10 sm:space-y-16 sm:px-8 sm:py-12 lg:px-12">
-          <MorningBriefing model={model.briefing} />
+          <MorningBriefing dataAsOf={model.dataAsOf} model={model.briefing} />
           <PriorityIntelligence agencyId={agencyId} priorityLeads={model.priorityLeads} />
           <LossInsightAndActivity
             activity={model.activity}

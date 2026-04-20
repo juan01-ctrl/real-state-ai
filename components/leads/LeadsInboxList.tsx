@@ -131,8 +131,8 @@ export function LeadsInboxList({ items, agencyId, selectedLeadId }: LeadsInboxLi
   };
 
   return (
-    <div>
-      <div className="mb-8 flex flex-wrap items-center gap-x-5 gap-y-2 overflow-x-auto pb-2 sm:mb-10 sm:gap-6">
+    <div className="min-w-0">
+      <div className="mb-8 flex flex-wrap items-center gap-x-5 gap-y-2 pb-2 sm:mb-10 sm:gap-6">
         {INBOX_TABS.map((t) => {
           const active = tab === t.id;
           return (
@@ -186,7 +186,7 @@ export function LeadsInboxList({ items, agencyId, selectedLeadId }: LeadsInboxLi
           return (
             <article
               key={item.id}
-              className={`group flex flex-col justify-between gap-4 rounded-xl border-l-2 p-4 transition-all sm:p-6 lg:flex-row lg:items-center ${
+              className={`group flex min-w-0 flex-col justify-between gap-4 rounded-xl border-l-2 p-4 transition-all sm:p-6 lg:flex-row lg:items-center ${
                 isActive
                   ? "border-[#58624e] bg-white shadow-sm"
                   : "border-transparent hover:bg-[#f5f3f0]"
@@ -201,9 +201,12 @@ export function LeadsInboxList({ items, agencyId, selectedLeadId }: LeadsInboxLi
               role="button"
               tabIndex={0}
             >
-              <div className="grid flex-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:items-center">
-                <div>
-                  <h3 className="text-base text-[#313330] sm:text-lg" style={{ fontFamily: "'Noto Serif', serif" }}>
+              <div className="grid min-w-0 flex-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:items-center">
+                <div className="min-w-0">
+                  <h3
+                    className="break-words text-base text-[#313330] sm:text-lg"
+                    style={{ fontFamily: "'Noto Serif', serif" }}
+                  >
                     {item.fullName}
                   </h3>
                   <p className="mt-1 text-[11px] uppercase tracking-wider text-stone-400">{buildArea(item)}</p>

@@ -47,6 +47,8 @@ export interface WaitingLeadRow {
 }
 
 export interface StrategicInsightsModel {
+  /** Momento en que se calculó el modelo (ISO). */
+  generatedAt: string;
   lostHighIntent: {
     count: number;
     sample: LostHighIntentRow[];
@@ -294,6 +296,7 @@ export const getStrategicInsightsModel = cache(async (agencyId: string): Promise
   ];
 
   return {
+    generatedAt: new Date().toISOString(),
     lostHighIntent: {
       count: lostLeads,
       sample: lostSamples.map((l) => ({

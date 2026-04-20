@@ -104,6 +104,8 @@ export interface DashboardBriefing {
 }
 
 export interface DashboardModel {
+  /** Momento de generación del tablero (ISO). */
+  dataAsOf: string;
   briefing: DashboardBriefing;
   priorityLeads: DashboardPriorityLead[];
   lossHeadline: string;
@@ -291,6 +293,7 @@ export const getDashboardModel = cache(async (agencyId: string): Promise<Dashboa
   ];
 
   return {
+    dataAsOf: new Date().toISOString(),
     briefing,
     priorityLeads,
     lossHeadline,

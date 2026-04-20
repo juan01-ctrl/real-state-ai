@@ -24,6 +24,14 @@ export interface PropertyCardModel {
   imageAlt: string;
   details: [string, string, string];
   icons: [string, string, string];
+  /** Valores crudos para formularios de edición */
+  priceValue: number;
+  currencyCode: string;
+  bedrooms: number;
+  bathrooms: number;
+  propertyType: string;
+  useCase: string;
+  appreciationNote: string | null;
 }
 
 export interface PropertiesPageModel {
@@ -78,7 +86,14 @@ export const getPropertiesPageModel = cache(async (agencyId: string): Promise<Pr
       imageUrl: null,
       imageAlt: `${p.title}, ${p.neighborhood}`,
       details,
-      icons
+      icons,
+      priceValue: p.price,
+      currencyCode: p.currency,
+      bedrooms: p.bedrooms,
+      bathrooms: p.bathrooms,
+      propertyType: p.propertyType,
+      useCase: p.useCase,
+      appreciationNote: p.appreciationNote
     };
   });
 

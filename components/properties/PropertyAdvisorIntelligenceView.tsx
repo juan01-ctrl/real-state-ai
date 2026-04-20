@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AestheteFooter } from "@/components/layout/AestheteFooter";
 import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
 import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
+import { PropertyInventorySection } from "@/components/properties/PropertyInventorySection";
 import type { PropertiesPageModel } from "@/lib/server/read-models/properties-page";
 
 interface PropertyAdvisorIntelligenceViewProps {
@@ -21,50 +22,6 @@ function AgencyInventoryCard({ model }: { model: PropertiesPageModel }) {
         <Link className="text-[11px] font-medium uppercase tracking-widest text-primary underline" href="/leads">
           Ir a la bandeja de leads
         </Link>
-      </div>
-    </article>
-  );
-}
-
-function FeaturedPropertyCard({ card }: { card: PropertiesPageModel["properties"][number] }) {
-  return (
-    <article className="group overflow-hidden rounded-xl bg-surface-container-lowest transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10">
-      <div className="relative h-64 overflow-hidden sm:h-72 lg:h-80">
-        {card.imageUrl ? (
-          <img alt={card.imageAlt} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" src={card.imageUrl} />
-        ) : (
-          <div
-            aria-hidden
-            className="flex h-full w-full items-center justify-center bg-gradient-to-br from-stone-200 via-stone-100 to-[#efeeea] text-4xl text-stone-400 serif"
-          >
-            {card.title.slice(0, 1)}
-          </div>
-        )}
-        <div className="absolute right-4 top-4 sm:right-6 sm:top-6">
-          <div className="rounded-lg bg-white/90 px-4 py-3 text-center shadow-sm backdrop-blur">
-            <span className="block text-[9px] font-bold uppercase tracking-[0.1em] text-primary">Match medio</span>
-            <span className="block text-3xl serif text-on-surface">{card.scoreLabel}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="p-6 sm:p-8">
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">{card.zone}</p>
-            <h4 className="mt-1 text-2xl serif text-on-surface">{card.title}</h4>
-          </div>
-          <p className="text-2xl serif text-on-surface">{card.price}</p>
-        </div>
-
-        <div className="flex flex-col gap-4 border-t border-stone-100 pt-6 text-[11px] uppercase tracking-widest sm:flex-row sm:gap-8">
-          {card.details.map((detail, index) => (
-            <div className="flex items-center gap-2" key={`${card.id}-${detail}`}>
-              <span className="material-symbols-outlined text-stone-400">{card.icons[index]}</span>
-              <span>{detail}</span>
-            </div>
-          ))}
-        </div>
       </div>
     </article>
   );
@@ -118,7 +75,7 @@ export function PropertyAdvisorIntelligenceView({ agencyId, model }: PropertyAdv
       <AestheteSidebar active="Propiedades" agencyId={agencyId} />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar />
+        <AestheteTopBar agencyId={agencyId} />
 
         <section className="mx-auto w-full max-w-[1440px] px-4 py-8 sm:px-8 sm:py-12 lg:px-12">
           <header className="mb-10 sm:mb-14 lg:mb-16">
@@ -131,14 +88,8 @@ export function PropertyAdvisorIntelligenceView({ agencyId, model }: PropertyAdv
               <AgencyInventoryCard model={model} />
             </section>
 
-            <section className="space-y-8 sm:space-y-10 lg:col-span-6">
-              {model.properties.length === 0 ? (
-                <p className="text-sm text-on-surface/80">
-                  Todavía no hay propiedades cargadas. Sumá registros en la base para alimentar recomendaciones y reportes.
-                </p>
-              ) : (
-                model.properties.map((property) => <FeaturedPropertyCard card={property} key={property.id} />)
-              )}
+            <section className="lg:col-span-6">
+              <PropertyInventorySection properties={model.properties} />
             </section>
 
             <aside className="space-y-6 lg:col-span-3 lg:space-y-8">

@@ -5,11 +5,7 @@ import { useRouter } from "next/navigation";
 import styles from "./create-demo-button.module.css";
 import { Button } from "@/components/ui/button";
 
-interface CreateDemoLeadsButtonProps {
-  agencyId: string;
-}
-
-export function CreateDemoLeadsButton({ agencyId }: CreateDemoLeadsButtonProps) {
+export function CreateDemoLeadsButton() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -24,7 +20,7 @@ export function CreateDemoLeadsButton({ agencyId }: CreateDemoLeadsButtonProps) 
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ agencyId })
+        body: JSON.stringify({})
       });
 
       if (!response.ok) {

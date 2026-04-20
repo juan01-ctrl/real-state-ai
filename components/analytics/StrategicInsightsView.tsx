@@ -52,7 +52,7 @@ export function StrategicInsightsView({ agencyId, insights }: StrategicInsightsV
       <AestheteSidebar active="Analítica" agencyId={agencyId} />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar />
+        <AestheteTopBar agencyId={agencyId} />
 
         <div className="max-w-[1200px] px-4 py-10 sm:px-8 sm:py-12 lg:px-12">
           <header className="mb-10 border-b border-[#e9e8e4] pb-8">
@@ -62,6 +62,11 @@ export function StrategicInsightsView({ agencyId, insights }: StrategicInsightsV
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#5e5f5c]">
               Indicadores calculados sobre datos de la agencia. Las tablas amplían cada señal; al pie detallamos definiciones y límites.
+            </p>
+            <p className="mt-2 text-xs text-[#5e5f5c]/90">
+              Cálculo:{" "}
+              {new Date(insights.generatedAt).toLocaleString("es-AR", { dateStyle: "medium", timeStyle: "short" })}. Vista actual
+              sin exportación ni selector de rango de fechas.
             </p>
           </header>
 
@@ -198,7 +203,7 @@ export function StrategicInsightsView({ agencyId, insights }: StrategicInsightsV
           </section>
 
           <section className="mb-12 rounded-xl border border-[#e9e8e4] bg-white p-6 sm:p-8">
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5e5f5c]">Embudo (snapshot actual)</h2>
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5e5f5c]">Embudo actual</h2>
             <p className="mt-2 max-w-3xl text-xs leading-relaxed text-[#5e5f5c]">
               Conteos por etapa hoy. El % respecto de la etapa anterior es una foto instantánea, no una cohorte en el tiempo: útil para ver dónde está el stock, no para medir conversión real de entradas del mes.
             </p>

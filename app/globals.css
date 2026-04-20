@@ -233,3 +233,41 @@ button {
   border-color: #58624e;
   box-shadow: 0 0 0 1px rgb(88 98 78 / 0.24), 0 6px 14px rgb(88 98 78 / 0.2);
 }
+
+.aesthete-range-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  accent-color: transparent;
+  outline: none;
+}
+
+.aesthete-range-slider::-webkit-slider-runnable-track {
+  height: 1px;
+  background: transparent;
+}
+
+.aesthete-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.aesthete-range-slider::-moz-range-track {
+  height: 1px;
+  border: 0;
+  background: transparent;
+}
+
+.aesthete-range-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  box-shadow: none;
+}

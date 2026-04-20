@@ -1,8 +1,13 @@
 /**
- * Crea un operador con email+contraseña en la agencia demo (mismos datos que el seed).
- * Uso:
- *   npm run create-account -- --email demo@tu-dominio.com --password 'TuPass123!' --name "Nombre"
- *   CREATE_ACCOUNT_PASSWORD='TuPass123!' npm run create-account
+ * Crea un operador con email+contraseña.
+ *
+ * Por defecto usa la agencia demo (`agency_demo_001`), que puede tener leads de prueba si alguien
+ * generó datos demo. Para una cuenta en un tenant vacío (solo filas Agency + User + Account):
+ *
+ *   npm run create-account -- --new-agency --email ops@tu-dominio.com --password 'TuPass123!' --name "Nombre"
+ *   CREATE_ACCOUNT_NEW_AGENCY=1 CREATE_ACCOUNT_PASSWORD='...' npm run create-account
+ *
+ * Opcional: `--agency-name "Mi inmobiliaria"` y/o `--agency-id agency_mi_id` (con --new-agency no puede ser agency_demo_001).
  *
  * Requiere DATABASE_URL y el mismo algoritmo de hash que Better Auth (@better-auth/utils/password).
  */
@@ -18,17 +23,33 @@ function parseArg(name: string): string | undefined {
   return process.argv[idx + 1];
 }
 
-async function ensureAgency(agencyId: string) {
+function wantsNewAgency(): boolean {
+  return (
+    process.argv.includes("--new-agency") ||
+    process.env.CREATE_ACCOUNT_NEW_AGENCY === "1" ||
+    process.env.CREATE_ACCOUNT_NEW_AGENCY === "true"
+  );
+}
+
+async function ensureAgency(
+  agencyId: string,
+  options?: { displayName?: string; timezone?: string }
+) {
+  const slug = agencyId
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
   await db.agency.upsert({
     where: { id: agencyId },
     update: {},
     create: {
       id: agencyId,
-      name: agencyId === DEFAULT_AGENCY_ID ? "Agencia Demo" : `Agencia ${agencyId}`,
-      slug: agencyId
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "")
+      name:
+        options?.displayName ??
+        (agencyId === DEFAULT_AGENCY_ID ? "Agencia Demo" : `Agencia ${agencyId}`),
+      slug: slug || `agencia-${agencyId.slice(0, 12)}`,
+      timezone: options?.timezone ?? "America/Argentina/Buenos_Aires"
     }
   });
 }
@@ -38,7 +59,26 @@ async function main() {
     parseArg("--email") ?? process.env.CREATE_ACCOUNT_EMAIL ?? "demo.operator@aesthete.local";
   const password = parseArg("--password") ?? process.env.CREATE_ACCOUNT_PASSWORD;
   const name = parseArg("--name") ?? process.env.CREATE_ACCOUNT_NAME ?? "Operador demo";
-  const agencyId = parseArg("--agency-id") ?? process.env.CREATE_ACCOUNT_AGENCY_ID ?? DEFAULT_AGENCY_ID;
+  const newAgency = wantsNewAgency();
+  const explicitAgencyId = parseArg("--agency-id") ?? process.env.CREATE_ACCOUNT_AGENCY_ID;
+
+  let agencyId: string;
+  if (newAgency) {
+    agencyId = explicitAgencyId ?? `agency_${randomUUID()}`;
+    if (agencyId === DEFAULT_AGENCY_ID) {
+      console.error(
+        "Con --new-agency no podés usar agency_demo_001. Omití --agency-id para generar un id nuevo, o elegí otro id."
+      );
+      process.exit(1);
+    }
+  } else {
+    agencyId = explicitAgencyId ?? DEFAULT_AGENCY_ID;
+  }
+
+  const agencyDisplayName =
+    parseArg("--agency-name") ??
+    process.env.CREATE_ACCOUNT_AGENCY_NAME ??
+    (newAgency ? "Agencia nueva" : undefined);
 
   if (!password || password.length < 8) {
     console.error(
@@ -59,7 +99,10 @@ async function main() {
     process.exit(1);
   }
 
-  await ensureAgency(agencyId);
+  await ensureAgency(agencyId, {
+    displayName: agencyDisplayName,
+    timezone: "America/Argentina/Buenos_Aires"
+  });
   const hashed = await hashPassword(password);
 
   const user = await db.user.create({
@@ -85,7 +128,12 @@ async function main() {
   });
 
   console.log("Usuario creado.");
-  console.log(`  Agencia: ${agencyId} (${agencyId === DEFAULT_AGENCY_ID ? "demo / seed" : "custom"})`);
+  const agencyNote = newAgency
+    ? "tenant nuevo (sin leads ni datos demo por defecto)"
+    : agencyId === DEFAULT_AGENCY_ID
+      ? "demo / puede compartir datos con otros usuarios demo"
+      : "custom";
+  console.log(`  Agencia: ${agencyId} (${agencyNote})`);
   console.log(`  Email:   ${email}`);
   console.log(`  Nombre:  ${user.name}`);
   console.log(`  Id:      ${user.id}`);

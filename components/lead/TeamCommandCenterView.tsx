@@ -119,8 +119,22 @@ function LeadRowLink({
 }
 
 export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewProps) {
-  const { headline, urgentFollowUps, unassignedHighValue, atRisk, visitsBookedToday, workloadByMember, openTasksByOwner, insightHint } =
+  const {
+    snapshotAt,
+    headline,
+    urgentFollowUps,
+    unassignedHighValue,
+    atRisk,
+    visitsBookedToday,
+    workloadByMember,
+    openTasksByOwner,
+    insightHint
+  } =
     team;
+  const snapshotAtLabel = new Date(snapshotAt).toLocaleString("es-AR", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
 
   const maxLoad = Math.max(1, ...workloadByMember.map((w) => w.activeLeads));
 
@@ -129,11 +143,21 @@ export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewP
       <AestheteSidebar active="Equipo" agencyId={agencyId} />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar />
+        <AestheteTopBar agencyId={agencyId} />
 
         <div className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-8 sm:pb-20 lg:px-10">
+          <div className="mb-8 rounded-lg border border-[#dce6cd] bg-[#f5f3f0] px-4 py-4 sm:px-6 sm:py-5">
+            <p className="text-sm text-[#313330]">
+              Para <strong>dar de alta o editar miembros</strong> del equipo (roles, invitaciones), usá{" "}
+              <Link className="font-medium text-[#58624e] underline underline-offset-2" href={`/settings?agencyId=${agencyId}#equipo`}>
+                Configuración → Equipo activo
+              </Link>
+              .
+            </p>
+          </div>
+
           <header className="mb-10 border-b border-stone-200/80 pb-8 sm:mb-12">
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Hoy</p>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Datos actualizados</p>
             <h1 className="text-2xl text-[#313330] sm:text-3xl" style={{ fontFamily: "'Noto Serif', serif" }}>
               Centro de comando comercial
             </h1>
@@ -141,6 +165,7 @@ export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewP
               Prioridades reales del pipeline: seguimientos, riesgo, visitas y carga por persona. Todo desde datos de
               la agencia.
             </p>
+            <p className="mt-2 text-xs uppercase tracking-[0.14em] text-stone-400">{snapshotAtLabel}</p>
 
             <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {[

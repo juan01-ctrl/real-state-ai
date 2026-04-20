@@ -1,29 +1,9 @@
 import Link from "next/link";
-
-type SidebarItem = {
-  icon: string;
-  label: "Tablero" | "Leads" | "Oportunidades" | "Analítica" | "Propiedades" | "Equipo" | "Configuración";
-  href: string;
-};
+import { AESTHETE_NAV_ITEMS, aestheteNavHref, type AestheteNavLabel } from "@/lib/nav/aesthete-app-nav";
 
 interface AestheteSidebarProps {
-  active: SidebarItem["label"];
+  active: AestheteNavLabel;
   agencyId?: string;
-}
-
-const baseItems: SidebarItem[] = [
-  { icon: "dashboard", label: "Tablero", href: "/dashboard" },
-  { icon: "person_search", label: "Leads", href: "/leads" },
-  { icon: "analytics", label: "Oportunidades", href: "/opportunities" },
-  { icon: "insights", label: "Analítica", href: "/insights" },
-  { icon: "domain", label: "Propiedades", href: "/properties" },
-  { icon: "group", label: "Equipo", href: "/team" },
-  { icon: "settings", label: "Configuración", href: "/settings" }
-];
-
-function withAgency(href: string, agencyId?: string) {
-  if (!agencyId || href === "#" || href === "/dashboard") return href;
-  return `${href}?agencyId=${agencyId}`;
 }
 
 function MaterialIcon({ icon, className = "" }: { icon: string; className?: string }) {
@@ -51,9 +31,9 @@ export function AestheteSidebar({ active, agencyId }: AestheteSidebarProps) {
       </div>
 
       <nav className="flex-1 space-y-2">
-        {baseItems.map((item) => {
+        {AESTHETE_NAV_ITEMS.map((item) => {
           const isActive = item.label === active;
-          const href = withAgency(item.href, agencyId);
+          const href = aestheteNavHref(item.href, agencyId);
 
           return (
             <Link

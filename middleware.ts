@@ -11,7 +11,8 @@ const PROTECTED_PREFIXES = [
   "/properties",
   "/opportunities",
   "/settings",
-  "/api/leads"
+  "/api/leads",
+  "/api/properties"
 ];
 
 function isProtectedPath(pathname: string) {

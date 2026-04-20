@@ -1,25 +1,19 @@
 import { cache } from "react";
-import {
-  FollowUpEventStatus,
-  LeadPriority,
-  LeadStage,
-  Prisma,
-  TaskStatus
-} from "@prisma/client";
+import { FollowUpEventStatus, LeadPriority, LeadStage, Prisma, TaskStatus } from "@prisma/client";
 import { db } from "@/lib/server/db";
 import { displayLeadStage } from "@/lib/i18n/present";
 
 const CLOSED: LeadStage[] = [LeadStage.WON, LeadStage.LOST];
 
-function hoursSince(date: Date | null): number {
+function hoursSince(date: Date | null, nowMs: number): number {
   if (!date) return 999;
-  return Math.max(0, Math.round((Date.now() - date.getTime()) / 1000 / 60 / 60));
+  return Math.max(0, Math.round((nowMs - date.getTime()) / 1000 / 60 / 60));
 }
 
-function dayBounds() {
-  const start = new Date();
+function dayBounds(base: Date) {
+  const start = new Date(base);
   start.setHours(0, 0, 0, 0);
-  const end = new Date();
+  const end = new Date(base);
   end.setHours(23, 59, 59, 999);
   return { start, end };
 }
@@ -76,6 +70,7 @@ export interface TeamTaskGroup {
 }
 
 export interface TeamCommandCenterModel {
+  snapshotAt: string;
   headline: {
     urgentCount: number;
     visitsToday: number;
@@ -101,12 +96,17 @@ function zoneOf(zones: string[]) {
 }
 
 export const getTeamCommandCenterModel = cache(async (agencyId: string): Promise<TeamCommandCenterModel> => {
-  const { start: dayStart, end: dayEnd } = dayBounds();
+  const nowRows = await db.$queryRaw<Array<{ now: Date }>>`SELECT NOW() AS now`;
+  const dbNow = nowRows[0]?.now ?? new Date();
+  const nowMs = dbNow.getTime();
+  const { start: dayStart, end: dayEnd } = dayBounds(dbNow);
 
   const activeLeadWhere: Prisma.LeadWhereInput = {
     agencyId,
     stage: { notIn: CLOSED }
   };
+
+  const dayAgo = new Date(nowMs - 24 * 60 * 60 * 1000);
 
   const [openTasksRaw, followUpsToday, visitHistory, allAgents, unassignedCandidates, atRiskCandidates, workloadGroups] =
     await Promise.all([
@@ -180,20 +180,17 @@ export const getTeamCommandCenterModel = cache(async (agencyId: string): Promise
         orderBy: [{ closeProbability: "desc" }, { leadScore: "desc" }],
         take: 12
       }),
-      (() => {
-        const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        return db.lead.findMany({
-          where: {
-            agencyId,
-            stage: { notIn: CLOSED },
-            leadScore: { gte: 65 },
-            OR: [{ lastActivityAt: { lt: dayAgo } }, { lastActivityAt: null }]
-          },
-          include: { profile: true, owner: true },
-          orderBy: { lastActivityAt: "asc" },
-          take: 40
-        });
-      })(),
+      db.lead.findMany({
+        where: {
+          agencyId,
+          stage: { notIn: CLOSED },
+          leadScore: { gte: 65 },
+          OR: [{ lastActivityAt: { lt: dayAgo } }, { lastActivityAt: null }]
+        },
+        include: { profile: true, owner: true },
+        orderBy: { lastActivityAt: "asc" },
+        take: 40
+      }),
       db.lead.groupBy({
         by: ["ownerUserId"],
         where: {
@@ -206,13 +203,10 @@ export const getTeamCommandCenterModel = cache(async (agencyId: string): Promise
     ]);
 
   const atRisk = atRiskCandidates
-    .map((lead) => {
-      const silenceHours = hoursSince(lead.lastActivityAt);
-      return {
-        lead,
-        silenceHours
-      };
-    })
+    .map((lead) => ({
+      lead,
+      silenceHours: hoursSince(lead.lastActivityAt, nowMs)
+    }))
     .filter(({ silenceHours }) => silenceHours >= 24)
     .sort((a, b) => b.silenceHours - a.silenceHours)
     .slice(0, 10)
@@ -234,7 +228,7 @@ export const getTeamCommandCenterModel = cache(async (agencyId: string): Promise
     stageLabel: displayLeadStage(lead.stage),
     score: lead.leadScore,
     closeProbability: lead.closeProbability,
-    silenceHours: hoursSince(lead.lastActivityAt),
+    silenceHours: hoursSince(lead.lastActivityAt, nowMs),
     ownerLabel: null
   }));
 
@@ -273,7 +267,6 @@ export const getTeamCommandCenterModel = cache(async (agencyId: string): Promise
   }
 
   const openTasksByOwner: TeamTaskGroup[] = [];
-
   const sortedKeys = [...tasksByOwner.keys()].sort((a, b) => {
     if (a === null) return 1;
     if (b === null) return -1;
@@ -295,21 +288,17 @@ export const getTeamCommandCenterModel = cache(async (agencyId: string): Promise
     });
   }
 
-  /** Urgent merge: tasks (overdue / due hoy), follow-ups hoy, stale high-value */
   const urgent: TeamUrgentItem[] = [];
   const urgentLeadIds = new Set<string>();
 
-  const now = Date.now();
-
   for (const t of openTasksRaw) {
     const due = t.dueAt;
-    const overdue = due != null && due.getTime() < now;
-    const dueToday =
-      due != null && due.getTime() >= dayStart.getTime() && due.getTime() <= dayEnd.getTime();
+    const overdue = due != null && due.getTime() < nowMs;
+    const dueToday = due != null && due.getTime() >= dayStart.getTime() && due.getTime() <= dayEnd.getTime();
     if (!overdue && !dueToday && due != null) continue;
 
     const l = t.lead;
-    const silenceHours = hoursSince(l.lastActivityAt);
+    const silenceHours = hoursSince(l.lastActivityAt, nowMs);
     const sk = overdue ? 0 : dueToday ? 1 : 4;
     urgent.push({
       kind: "task",
@@ -326,7 +315,9 @@ export const getTeamCommandCenterModel = cache(async (agencyId: string): Promise
           : "Sin fecha · priorizar",
       sortKey: sk
     });
-    urgentLeadIds.add(l.id);
+    if (silenceHours >= 0) {
+      urgentLeadIds.add(l.id);
+    }
   }
 
   for (const ev of followUpsToday) {
@@ -348,7 +339,7 @@ export const getTeamCommandCenterModel = cache(async (agencyId: string): Promise
 
   for (const lead of atRiskCandidates) {
     if (urgentLeadIds.has(lead.id)) continue;
-    const silenceHours = hoursSince(lead.lastActivityAt);
+    const silenceHours = hoursSince(lead.lastActivityAt, nowMs);
     if (lead.leadScore < 72 || silenceHours < 36) continue;
     urgent.push({
       kind: "stale",
@@ -377,6 +368,7 @@ export const getTeamCommandCenterModel = cache(async (agencyId: string): Promise
   }
 
   return {
+    snapshotAt: dbNow.toISOString(),
     headline: {
       urgentCount: urgentTotal,
       visitsToday: visitsBookedToday.length,

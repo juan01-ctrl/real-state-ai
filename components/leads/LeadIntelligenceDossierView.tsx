@@ -76,7 +76,7 @@ export function LeadIntelligenceDossierView({ agencyId, lead, operators }: LeadI
       <AestheteSidebar active="Leads" agencyId={agencyId} />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar title="Dossier de inteligencia del lead" />
+        <AestheteTopBar agencyId={agencyId} title="Dossier de inteligencia del lead" />
 
         <header className="sticky top-[76px] z-30 bg-[#fbf9f6]/80 px-4 py-6 backdrop-blur-xl sm:px-8 lg:px-12">
           <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">

@@ -123,6 +123,9 @@ model Agency {
   name      String
   slug      String   @unique
   timezone  String   @default("UTC")
+  aiUrgencyThreshold Int @default(75)
+  aiMatchingMode String  @default("CONSERVADOR")
+  aiOutreachTone String  @default("Sofisticado y reservado")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
