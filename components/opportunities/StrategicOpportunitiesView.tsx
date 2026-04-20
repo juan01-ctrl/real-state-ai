@@ -5,17 +5,10 @@ import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
 import type { OpportunitiesModel } from "@/lib/server/read-models/opportunities";
 
 interface StrategicOpportunitiesViewProps {
-  agencyId: string;
   model: OpportunitiesModel;
 }
 
-function OpportunityCard({
-  item,
-  agencyId
-}: {
-  item: OpportunitiesModel["opportunities"][number];
-  agencyId: string;
-}) {
+function OpportunityCard({ item }: { item: OpportunitiesModel["opportunities"][number] }) {
   return (
     <article className="group border-b border-on-surface/5 bg-surface-container-lowest p-6 transition-all duration-500 hover:shadow-[0_20px_40px_rgba(49,51,48,0.03)] sm:p-8">
       <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-start">
@@ -55,7 +48,7 @@ function OpportunityCard({
           <span className="text-2xl serif">{item.value}</span>
           <Link
             className="border-b border-primary/20 pb-1 text-[10px] uppercase tracking-[0.1em] text-primary transition-all hover:border-primary"
-            href={`/leads/${item.id}?agencyId=${agencyId}`}
+            href={`/leads/${item.id}`}
           >
             {item.actionLabel}
           </Link>
@@ -88,7 +81,7 @@ function PipelineVelocity({ pipeline }: { pipeline: OpportunitiesModel["pipeline
   );
 }
 
-function IntelligencePanel({ agencyId, model }: { agencyId: string; model: OpportunitiesModel }) {
+function IntelligencePanel({ model }: { model: OpportunitiesModel }) {
   return (
     <aside className="space-y-10">
       <div className="space-y-10 bg-surface-container p-6 sm:p-8">
@@ -111,7 +104,7 @@ function IntelligencePanel({ agencyId, model }: { agencyId: string; model: Oppor
               </div>
               <Link
                 className="block text-center text-[10px] uppercase tracking-[0.1em] text-primary underline"
-                href={`/leads/${model.attention.leadId}?agencyId=${agencyId}`}
+                href={`/leads/${model.attention.leadId}`}
               >
                 Abrir ficha del lead
               </Link>
@@ -133,7 +126,7 @@ function IntelligencePanel({ agencyId, model }: { agencyId: string; model: Oppor
             </div>
             <Link
               className="block w-full bg-on-surface py-3 text-center text-[9px] uppercase tracking-[0.1em] text-surface transition-all hover:bg-primary"
-              href={`/leads/${model.bestNext.leadId}?agencyId=${agencyId}`}
+              href={`/leads/${model.bestNext.leadId}`}
             >
               Abrir lead
             </Link>
@@ -151,7 +144,7 @@ function IntelligencePanel({ agencyId, model }: { agencyId: string; model: Oppor
 
       <Link
         className="flex h-48 w-full flex-col justify-end bg-gradient-to-t from-surface-container to-surface-container-high p-6 text-on-surface no-underline transition hover:opacity-95"
-        href={`/properties?agencyId=${agencyId}`}
+        href={`/properties`}
       >
         <p className="text-[10px] uppercase tracking-[0.1em] text-on-surface/70">Inventario</p>
         <p className="mt-1 serif text-lg">Revisá propiedades cargadas</p>
@@ -160,13 +153,13 @@ function IntelligencePanel({ agencyId, model }: { agencyId: string; model: Oppor
   );
 }
 
-export function StrategicOpportunitiesView({ agencyId, model }: StrategicOpportunitiesViewProps) {
+export function StrategicOpportunitiesView({ model }: StrategicOpportunitiesViewProps) {
   return (
     <main className="aesthete-page min-h-screen bg-surface text-on-surface">
-      <AestheteSidebar active="Oportunidades" agencyId={agencyId} />
+      <AestheteSidebar active="Oportunidades" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar agencyId={agencyId} />
+        <AestheteTopBar />
 
         <div className="mx-auto flex max-w-[1600px] flex-col gap-10 px-4 py-8 sm:px-8 sm:py-10 lg:flex-row lg:gap-12 lg:px-12">
           <div className="flex-1 space-y-12">
@@ -175,7 +168,7 @@ export function StrategicOpportunitiesView({ agencyId, model }: StrategicOpportu
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-on-surface/75">
                 Esta vista es un <strong>lente sobre tu pipeline</strong>: no crea entidades aparte; las oportunidades son leads en etapas avanzadas.
                 Para mover etapas y tareas, operá desde la{" "}
-                <Link className="font-medium text-primary underline underline-offset-2" href={`/leads?agencyId=${agencyId}`}>
+                <Link className="font-medium text-primary underline underline-offset-2" href={`/leads`}>
                   bandeja
                 </Link>{" "}
                 o la ficha de cada lead.
@@ -189,7 +182,7 @@ export function StrategicOpportunitiesView({ agencyId, model }: StrategicOpportu
                   ordenados por probabilidad de cierre.
                 </p>
               ) : (
-                model.opportunities.map((item) => <OpportunityCard agencyId={agencyId} item={item} key={item.id} />)
+                model.opportunities.map((item) => <OpportunityCard item={item} key={item.id} />)
               )}
             </section>
 
@@ -197,7 +190,7 @@ export function StrategicOpportunitiesView({ agencyId, model }: StrategicOpportu
           </div>
 
           <div className="w-full lg:w-80">
-            <IntelligencePanel agencyId={agencyId} model={model} />
+            <IntelligencePanel model={model} />
           </div>
         </div>
 

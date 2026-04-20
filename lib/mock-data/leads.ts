@@ -66,7 +66,7 @@ export const leadRecords: LeadRecord[] = [
         channel: "WhatsApp",
         body: "I can lock two visit slots for Saturday at 11:00 and 13:00. Which one works for you and your partner?",
         sentAt: "2026-04-18T18:21:00Z",
-        deliveryStatus: "pending_approval"
+        deliveryStatus: "not_sent"
       }
     ],
     nextAction: {

@@ -5,7 +5,6 @@ import { AestheteFooter } from "@/components/layout/AestheteFooter";
 import type { DashboardModel } from "@/lib/server/read-models/dashboard";
 
 interface DashboardViewProps {
-  agencyId: string;
   model: DashboardModel;
 }
 
@@ -31,20 +30,14 @@ function MorningBriefing({ dataAsOf, model }: { dataAsOf: string; model: Dashboa
   );
 }
 
-function PriorityIntelligence({
-  agencyId,
-  priorityLeads
-}: {
-  agencyId: string;
-  priorityLeads: DashboardModel["priorityLeads"];
-}) {
+function PriorityIntelligence({ priorityLeads }: { priorityLeads: DashboardModel["priorityLeads"] }) {
   return (
     <section className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-[11px] uppercase tracking-[0.1em] text-[#5e5f5c]">Inteligencia prioritaria</h2>
         <Link
           className="text-[11px] uppercase tracking-[0.1em] text-[#58624e] transition-all hover:underline"
-          href={`/leads?agencyId=${agencyId}`}
+          href={`/leads`}
         >
           Ver todos los leads activos
         </Link>
@@ -143,7 +136,7 @@ function LossInsightAndActivity({
   );
 }
 
-function KpiStrip({ agencyId, kpis }: { agencyId: string; kpis: DashboardModel["kpis"] }) {
+function KpiStrip({ kpis }: { kpis: DashboardModel["kpis"] }) {
   return (
     <div className="space-y-4">
       <section className="flex flex-col justify-between gap-10 bg-[#313330] p-8 text-[#fbf9f6] sm:p-10 md:flex-row md:flex-wrap md:gap-12">
@@ -157,7 +150,7 @@ function KpiStrip({ agencyId, kpis }: { agencyId: string; kpis: DashboardModel["
         ))}
       </section>
       <p className="text-right text-xs text-[#5e5f5c]">
-        <Link className="font-medium text-[#58624e] underline-offset-4 hover:underline" href={`/insights?agencyId=${agencyId}`}>
+        <Link className="font-medium text-[#58624e] underline-offset-4 hover:underline" href={`/insights`}>
           Ver analítica operativa completa
         </Link>
       </p>
@@ -165,21 +158,21 @@ function KpiStrip({ agencyId, kpis }: { agencyId: string; kpis: DashboardModel["
   );
 }
 
-export function DashboardView({ agencyId, model }: DashboardViewProps) {
+export function DashboardView({ model }: DashboardViewProps) {
   return (
     <div className="min-h-screen bg-[#fbf9f6] text-[#313330]" style={{ fontFamily: "Inter, sans-serif" }}>
-      <AestheteSidebar active="Tablero" agencyId={agencyId} />
+      <AestheteSidebar active="Tablero" />
       <main className="min-h-screen lg:ml-64">
-        <AestheteTopBar agencyId={agencyId} />
+        <AestheteTopBar />
         <div className="mx-auto w-full max-w-7xl space-y-14 px-4 py-10 sm:space-y-16 sm:px-8 sm:py-12 lg:px-12">
           <MorningBriefing dataAsOf={model.dataAsOf} model={model.briefing} />
-          <PriorityIntelligence agencyId={agencyId} priorityLeads={model.priorityLeads} />
+          <PriorityIntelligence priorityLeads={model.priorityLeads} />
           <LossInsightAndActivity
             activity={model.activity}
             lossColumns={model.lossColumns}
             lossHeadline={model.lossHeadline}
           />
-          <KpiStrip agencyId={agencyId} kpis={model.kpis} />
+          <KpiStrip kpis={model.kpis} />
         </div>
         <AestheteFooter variant="atelier" />
       </main>

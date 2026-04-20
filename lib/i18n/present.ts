@@ -51,9 +51,9 @@ export function displayMessageDirection(d: MessageDirection | string): string {
 
 export function displayDeliveryStatus(s: DeliveryStatus | string): string {
   const map: Record<string, string> = {
+    NOT_SENT: "No enviado",
     DELIVERED: "Entregado",
     READ: "Leído",
-    PENDING_APPROVAL: "Pendiente de aprobación",
     FAILED: "Fallido"
   };
   return map[s] ?? String(s);

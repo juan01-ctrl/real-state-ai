@@ -6,7 +6,6 @@ import { PropertyInventorySection } from "@/components/properties/PropertyInvent
 import type { PropertiesPageModel } from "@/lib/server/read-models/properties-page";
 
 interface PropertyAdvisorIntelligenceViewProps {
-  agencyId: string;
   model: PropertiesPageModel;
 }
 
@@ -69,13 +68,13 @@ function RelatedIntelligenceCard({ rows }: { rows: PropertiesPageModel["relatedR
   );
 }
 
-export function PropertyAdvisorIntelligenceView({ agencyId, model }: PropertyAdvisorIntelligenceViewProps) {
+export function PropertyAdvisorIntelligenceView({ model }: PropertyAdvisorIntelligenceViewProps) {
   return (
     <main className="aesthete-page min-h-screen bg-background text-on-background">
-      <AestheteSidebar active="Propiedades" agencyId={agencyId} />
+      <AestheteSidebar active="Propiedades" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar agencyId={agencyId} />
+        <AestheteTopBar />
 
         <section className="mx-auto w-full max-w-[1440px] px-4 py-8 sm:px-8 sm:py-12 lg:px-12">
           <header className="mb-10 sm:mb-14 lg:mb-16">

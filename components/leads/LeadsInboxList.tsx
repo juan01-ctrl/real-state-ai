@@ -10,7 +10,6 @@ import { displayChannel } from "@/lib/i18n/present";
 
 interface LeadsInboxListProps {
   items: LeadInboxItem[];
-  agencyId: string;
   selectedLeadId: string | null;
 }
 
@@ -53,6 +52,8 @@ function matchesTab(item: LeadInboxItem, tab: (typeof INBOX_TABS)[number]["id"])
       return isCreatedToday(item.createdAt);
     case "seguimiento":
       return (
+        item.messaging.pendingApprovalCount > 0 ||
+        item.messaging.failedCount > 0 ||
         item.hasManualReviewTask ||
         (item.silenceHours ?? 0) >= 24 ||
         ((item.stage === LeadStage.NEW || item.stage === LeadStage.CONTACTED) && (item.silenceHours ?? 0) >= 8)
@@ -101,12 +102,14 @@ function buildLastActive(item: LeadInboxItem) {
 }
 
 function buildActionLabel(item: LeadInboxItem) {
+  if (item.messaging.failedCount > 0) return "Reenviar";
+  if (item.messaging.pendingApprovalCount > 0) return "Aprobar mensaje";
   if ((item.silenceHours ?? 0) >= 48) return "Reactivar";
   if (item.closeProbability >= 85) return "Agendar visita";
   return item.recommendedNextAction?.title ? "Ver acción" : "Definir acción";
 }
 
-export function LeadsInboxList({ items, agencyId, selectedLeadId }: LeadsInboxListProps) {
+export function LeadsInboxList({ items, selectedLeadId }: LeadsInboxListProps) {
   const router = useRouter();
   const [tab, setTab] = useState<(typeof INBOX_TABS)[number]["id"]>("todos");
   const [source, setSource] = useState<"all" | ChannelType>("all");
@@ -123,11 +126,11 @@ export function LeadsInboxList({ items, agencyId, selectedLeadId }: LeadsInboxLi
     if (selectedLeadId == null) return;
     const stillVisible = filtered.some((i) => i.id === selectedLeadId);
     if (stillVisible || filtered.length === 0) return;
-    router.replace(`/leads?agencyId=${agencyId}&leadId=${filtered[0].id}`);
-  }, [tab, source, selectedLeadId, filtered, agencyId, router]);
+    router.replace(`/leads?leadId=${filtered[0].id}`);
+  }, [tab, source, selectedLeadId, filtered, router]);
 
   const handleRowClick = (leadId: string) => {
-    router.push(`/leads?agencyId=${agencyId}&leadId=${leadId}`);
+    router.push(`/leads?leadId=${leadId}`);
   };
 
   return (
@@ -255,6 +258,18 @@ export function LeadsInboxList({ items, agencyId, selectedLeadId }: LeadsInboxLi
                     {priority.label}
                   </span>
                   <p className="mt-1 text-[10px] uppercase tracking-wider text-stone-400">{buildLastActive(item)}</p>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {item.messaging.pendingApprovalCount > 0 ? (
+                      <span className="rounded bg-[#58624e]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#58624e]">
+                        {item.messaging.pendingApprovalCount} pendiente
+                      </span>
+                    ) : null}
+                    {item.messaging.failedCount > 0 ? (
+                      <span className="rounded bg-[#fd795a]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#a73b21]">
+                        {item.messaging.failedCount} fallido
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               </div>
 
@@ -271,7 +286,7 @@ export function LeadsInboxList({ items, agencyId, selectedLeadId }: LeadsInboxLi
                 <Link
                   aria-label={`Abrir dossier de ${item.fullName}`}
                   className="flex h-8 w-8 items-center justify-center rounded-full text-stone-300 transition-colors hover:text-[#58624e]"
-                  href={`/leads/${item.id}?agencyId=${agencyId}`}
+                  href={`/leads/${item.id}`}
                   onClick={(event) => {
                     event.stopPropagation();
                   }}

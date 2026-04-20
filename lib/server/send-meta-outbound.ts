@@ -1,4 +1,4 @@
-import { ChannelType, DeliveryStatus, MessageDirection, SenderType } from "@prisma/client";
+import { ChannelType, DeliveryStatus, MessageApprovalStatus, MessageDirection, SenderType } from "@prisma/client";
 import { db } from "@/lib/server/db";
 import { decryptMetaAccessToken } from "@/lib/server/meta-token-crypto";
 import { sendInstagramText, sendWhatsAppText } from "@/lib/server/meta-outbound";
@@ -21,20 +21,47 @@ export type SendMetaOutboundResult =
       message: string;
     };
 
-/**
- * Envía texto por WhatsApp o Instagram y persiste el mensaje saliente en la conversación.
- */
-export async function sendMetaOutboundMessage(
-  leadId: string,
-  agencyId: string,
-  text: string,
-  agentDisplayName: string
-): Promise<SendMetaOutboundResult> {
-  const trimmed = text.trim();
-  if (!trimmed) {
-    return { ok: false, code: "GRAPH_ERROR", message: "El mensaje está vacío" };
-  }
+export type ApproveMetaOutboundResult =
+  | { ok: true; messageId: string }
+  | {
+      ok: false;
+      code:
+        | "NOT_FOUND"
+        | "NO_META_THREAD"
+        | "NO_TOKEN"
+        | "GRAPH_ERROR"
+        | "ENCRYPTION_NOT_CONFIGURED"
+        | "INVALID_DRAFT_STATE";
+      message: string;
+    };
 
+export type DiscardMetaOutboundResult =
+  | { ok: true }
+  | {
+      ok: false;
+      code: "NOT_FOUND" | "INVALID_DRAFT_STATE";
+      message: string;
+    };
+
+type LeadMetaContext =
+  | {
+      ok: true;
+      leadId: string;
+      convId: string;
+      conn: {
+        type: ChannelType;
+        externalAccountId: string | null;
+        accessTokenEnc: string | null;
+      };
+      externalThreadId: string;
+    }
+  | {
+      ok: false;
+      code: "NOT_FOUND" | "NO_META_THREAD";
+      message: string;
+    };
+
+async function getLeadMetaContext(leadId: string, agencyId: string): Promise<LeadMetaContext> {
   const lead = await db.lead.findFirst({
     where: { id: leadId, agencyId },
     include: {
@@ -60,6 +87,100 @@ export async function sendMetaOutboundMessage(
     };
   }
 
+  return {
+    ok: true,
+    leadId: lead.id,
+    convId: conv.id,
+    conn: {
+      type: conv.channelConnection.type,
+      externalAccountId: conv.channelConnection.externalAccountId,
+      accessTokenEnc: conv.channelConnection.accessTokenEnc
+    },
+    externalThreadId: conv.externalThreadId
+  };
+}
+
+/**
+ * Envía texto por WhatsApp o Instagram y persiste el mensaje saliente en la conversación.
+ */
+export async function sendMetaOutboundMessage(
+  leadId: string,
+  agencyId: string,
+  text: string,
+  agentDisplayName: string
+): Promise<SendMetaOutboundResult> {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return { ok: false, code: "GRAPH_ERROR", message: "El mensaje está vacío" };
+  }
+
+  const ctx = await getLeadMetaContext(leadId, agencyId);
+  if (!ctx.ok) {
+    return ctx;
+  }
+
+  try {
+    const saved = await db.message.create({
+      data: {
+        conversationId: ctx.convId,
+        agencyId,
+        direction: MessageDirection.OUTBOUND,
+        senderType: SenderType.AGENT,
+        senderName: agentDisplayName,
+        body: trimmed,
+        sentAt: new Date(),
+        // Estado inicial como borrador pendiente de aprobación humana.
+        approvalStatus: MessageApprovalStatus.PENDING,
+        deliveryStatus: DeliveryStatus.NOT_SENT
+      }
+    });
+
+    return { ok: true, messageId: saved.id };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Error al enviar";
+    return { ok: false, code: "GRAPH_ERROR", message: msg };
+  }
+}
+
+export async function approveMetaOutboundDraft(
+  leadId: string,
+  draftMessageId: string,
+  agencyId: string,
+  approverName: string
+): Promise<ApproveMetaOutboundResult> {
+  const draft = await db.message.findFirst({
+    where: {
+      id: draftMessageId,
+      agencyId,
+      direction: MessageDirection.OUTBOUND,
+      conversation: { leadId }
+    },
+    include: {
+      conversation: {
+        include: {
+          channelConnection: true
+        }
+      }
+    }
+  });
+  if (!draft) {
+    return { ok: false, code: "NOT_FOUND", message: "Borrador no encontrado." };
+  }
+  if (draft.approvalStatus !== MessageApprovalStatus.PENDING) {
+    return {
+      ok: false,
+      code: "INVALID_DRAFT_STATE",
+      message: "Solo se pueden aprobar mensajes pendientes."
+    };
+  }
+  const conv = draft.conversation;
+  if (!conv?.externalThreadId || !conv.channelConnection) {
+    return {
+      ok: false,
+      code: "NO_META_THREAD",
+      message: "Este lead no tiene un hilo de WhatsApp o Instagram vinculado."
+    };
+  }
   const conn = conv.channelConnection;
   if (!conn.accessTokenEnc) {
     return {
@@ -68,7 +189,6 @@ export async function sendMetaOutboundMessage(
       message: "Falta el token de acceso de Meta en Configuración para este canal."
     };
   }
-
   let accessToken: string;
   try {
     accessToken = decryptMetaAccessToken(conn.accessTokenEnc);
@@ -97,14 +217,14 @@ export async function sendMetaOutboundMessage(
         phoneNumberId: phoneOrIgId,
         accessToken,
         toDigits: thread.id,
-        body: trimmed
+        body: draft.body
       });
     } else if (conn.type === ChannelType.INSTAGRAM && thread.kind === "ig") {
       sendResult = await sendInstagramText({
         instagramBusinessAccountId: phoneOrIgId,
         accessToken,
         recipientInstagramScopedId: thread.id,
-        body: trimmed
+        body: draft.body
       });
     } else {
       return {
@@ -114,31 +234,63 @@ export async function sendMetaOutboundMessage(
       };
     }
     const sentAt = new Date();
-    const saved = await db.$transaction(async (tx) => {
-      const m = await tx.message.create({
+    await db.$transaction(async (tx) => {
+      await tx.message.update({
+        where: { id: draft.id },
         data: {
-          conversationId: conv.id,
-          agencyId,
           externalMessageId: sendResult?.messageId ?? undefined,
-          direction: MessageDirection.OUTBOUND,
-          senderType: SenderType.AGENT,
-          senderName: agentDisplayName,
-          body: trimmed,
+          senderName: approverName,
           sentAt,
-          // Meta confirmó recepción del request, no necesariamente entrega al destinatario.
-          deliveryStatus: DeliveryStatus.PENDING_APPROVAL
+          approvalStatus: MessageApprovalStatus.APPROVED,
+          // Meta aceptó el envío; quedará READ/FAILED por webhook cuando aplique.
+          deliveryStatus: DeliveryStatus.DELIVERED
         }
       });
       await tx.lead.update({
         where: { id: leadId },
         data: { lastActivityAt: sentAt }
       });
-      return m;
     });
-
-    return { ok: true, messageId: saved.id };
+    return { ok: true, messageId: draft.id };
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Error al enviar";
+    await db.message.update({
+      where: { id: draft.id },
+      data: { deliveryStatus: DeliveryStatus.FAILED }
+    });
     return { ok: false, code: "GRAPH_ERROR", message: msg };
   }
+}
+
+export async function discardMetaOutboundDraft(
+  leadId: string,
+  draftMessageId: string,
+  agencyId: string
+): Promise<DiscardMetaOutboundResult> {
+  const draft = await db.message.findFirst({
+      where: {
+        id: draftMessageId,
+        agencyId,
+        direction: MessageDirection.OUTBOUND,
+        conversation: { leadId }
+      },
+    select: { id: true, approvalStatus: true }
+  });
+  if (!draft) {
+    return { ok: false, code: "NOT_FOUND", message: "Borrador no encontrado." };
+  }
+  if (draft.approvalStatus !== MessageApprovalStatus.PENDING) {
+    return {
+      ok: false,
+      code: "INVALID_DRAFT_STATE",
+      message: "Solo se pueden descartar mensajes pendientes."
+    };
+  }
+  await db.message.update({
+    where: { id: draft.id },
+    data: {
+      approvalStatus: MessageApprovalStatus.REJECTED
+    }
+  });
+  return { ok: true };
 }

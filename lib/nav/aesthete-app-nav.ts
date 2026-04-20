@@ -13,8 +13,6 @@ export const AESTHETE_NAV_ITEMS = [
 
 export type AestheteNavLabel = (typeof AESTHETE_NAV_ITEMS)[number]["label"];
 
-export function aestheteNavHref(href: string, agencyId?: string | null): string {
-  const id = agencyId?.trim();
-  if (!id || href === "/dashboard") return href;
-  return `${href}?agencyId=${encodeURIComponent(id)}`;
+export function aestheteNavHref(href: string): string {
+  return href;
 }

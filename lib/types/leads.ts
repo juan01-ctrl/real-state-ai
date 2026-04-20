@@ -62,7 +62,7 @@ export interface ConversationMessage {
   channel: ChannelSource;
   body: string;
   sentAt: string;
-  deliveryStatus: "delivered" | "read" | "pending_approval";
+  deliveryStatus: "delivered" | "read" | "not_sent";
 }
 
 export interface RecommendedNextAction {

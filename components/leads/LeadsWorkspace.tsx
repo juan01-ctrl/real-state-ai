@@ -8,20 +8,19 @@ import type { AgencyOperator } from "@/lib/server/read-models/operators";
 import type { LeadDetailModel, LeadInboxItem } from "@/lib/server/read-models/leads";
 
 interface LeadsWorkspaceProps {
-  agencyId: string;
   inboxItems: LeadInboxItem[];
   selectedLeadId: string | null;
   leadDetail: LeadDetailModel | null;
   operators: AgencyOperator[];
 }
 
-export function LeadsWorkspace({ agencyId, inboxItems, selectedLeadId, leadDetail, operators }: LeadsWorkspaceProps) {
+export function LeadsWorkspace({ inboxItems, selectedLeadId, leadDetail, operators }: LeadsWorkspaceProps) {
   return (
     <main className="aesthete-page min-h-screen overflow-x-hidden bg-[#fbf9f6] font-body text-[#313330] antialiased">
-      <AestheteSidebar active="Leads" agencyId={agencyId} />
+      <AestheteSidebar active="Leads" />
 
       <div className="min-h-screen min-w-0 lg:ml-64">
-        <AestheteTopBar agencyId={agencyId} />
+        <AestheteTopBar />
 
         <div className="flex min-h-[calc(100vh-72px)] min-w-0 overflow-hidden">
           <section className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden border-r border-transparent px-4 py-6 sm:px-8 sm:py-8 lg:px-10">
@@ -31,7 +30,7 @@ export function LeadsWorkspace({ agencyId, inboxItems, selectedLeadId, leadDetai
               </p>
               <CreateDemoLeadsButton />
             </div>
-            <LeadsInboxList items={inboxItems} agencyId={agencyId} selectedLeadId={selectedLeadId} />
+            <LeadsInboxList items={inboxItems} selectedLeadId={selectedLeadId} />
             <div className="mt-8 xl:hidden">
               <LeadDetailPanel lead={leadDetail} operators={operators} />
             </div>

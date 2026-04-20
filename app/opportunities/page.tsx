@@ -6,5 +6,5 @@ export default async function OpportunitiesPage() {
   const { agencyId } = await requireSessionContext({ redirectTo: "/sign-in" });
   const model = await getOpportunitiesModel(agencyId);
 
-  return <StrategicOpportunitiesView agencyId={agencyId} model={model} />;
+  return <StrategicOpportunitiesView model={model} />;
 }

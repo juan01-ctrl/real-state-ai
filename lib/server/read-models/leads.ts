@@ -1,4 +1,4 @@
-import { LeadPriority, LeadStage, TaskStatus } from "@prisma/client";
+import { DeliveryStatus, LeadPriority, LeadStage, MessageApprovalStatus, MessageDirection, TaskStatus } from "@prisma/client";
 import { db } from "@/lib/server/db";
 import {
   formatBuyingIntentSummaryEs,
@@ -34,6 +34,11 @@ export interface LeadInboxItem {
   preferredZones: string[];
   timelineMonths: number | null;
   hasManualReviewTask: boolean;
+  messaging: {
+    pendingApprovalCount: number;
+    failedCount: number;
+    lastOutboundStatus: string | null;
+  };
   recommendedNextAction: {
     type: string;
     title: string;
@@ -74,6 +79,7 @@ export interface LeadDetailModel {
     direction: string;
     senderName: string | null;
     sentAt: string;
+    approvalStatus: string;
     deliveryStatus: string;
   }[];
   nextAction: {
@@ -81,6 +87,15 @@ export interface LeadDetailModel {
     title: string;
     detail: string;
     why: string[];
+  } | null;
+  scoreBreakdown: {
+    total: number;
+    components: {
+      name: string;
+      score: number;
+      max: number;
+      reason: string;
+    }[];
   } | null;
   stageHistory: {
     fromStage: string | null;
@@ -129,6 +144,15 @@ export interface LeadDetailModel {
     channelLabel: string;
     channelType: string;
     missingTokenHint?: string;
+    pendingApprovalCount: number;
+    failedCount: number;
+    lastOutboundStatus: string | null;
+    pendingDrafts: {
+      id: string;
+      body: string;
+      sentAt: string;
+      senderName: string | null;
+    }[];
   } | null;
 }
 
@@ -173,12 +197,26 @@ export async function getLeadInboxItems(agencyId: string): Promise<LeadInboxItem
       aiRuns: {
         take: 1,
         orderBy: { createdAt: "desc" }
+      },
+      conversations: {
+        include: {
+          messages: {
+            where: { direction: MessageDirection.OUTBOUND },
+            orderBy: { sentAt: "desc" },
+            take: 20
+          }
+        }
       }
     }
   });
 
   return leads.map((lead) => {
     const manualReview = lead.tasks.some((task) => task.type === "MANUAL_REVIEW");
+    const outbound = lead.conversations.flatMap((conversation) => conversation.messages);
+    const pendingApprovalCount = outbound.filter((message) => message.approvalStatus === MessageApprovalStatus.PENDING).length;
+    const failedCount = outbound.filter((message) => message.deliveryStatus === DeliveryStatus.FAILED).length;
+    const lastApprovedOutbound = outbound.find((message) => message.approvalStatus === MessageApprovalStatus.APPROVED) ?? null;
+    const lastOutboundStatus = lastApprovedOutbound?.deliveryStatus ?? null;
     return {
       id: lead.id,
       createdAt: lead.createdAt.toISOString(),
@@ -197,6 +235,11 @@ export async function getLeadInboxItems(agencyId: string): Promise<LeadInboxItem
       preferredZones: lead.profile?.preferredZones ?? [],
       timelineMonths: lead.profile?.timelineMonths ?? null,
       hasManualReviewTask: manualReview,
+      messaging: {
+        pendingApprovalCount,
+        failedCount,
+        lastOutboundStatus
+      },
       recommendedNextAction: parseNextAction(lead.aiRuns[0]?.outputJson)
     };
   });
@@ -223,6 +266,33 @@ function parseDetailNextAction(outputJson: unknown): LeadDetailModel["nextAction
     detail: normalizeNextActionDetail(detail),
     why: why.map(normalizeNextActionWhyLine)
   };
+}
+
+function parseScoreBreakdown(outputJson: unknown): LeadDetailModel["scoreBreakdown"] {
+  if (!outputJson || typeof outputJson !== "object") return null;
+  const root = outputJson as Record<string, unknown>;
+  const assessment = root.assessment as Record<string, unknown> | undefined;
+  const scoreBreakdown = assessment?.scoreBreakdown as Record<string, unknown> | undefined;
+  if (!scoreBreakdown) return null;
+
+  const totalRaw = scoreBreakdown.total;
+  const total = typeof totalRaw === "number" ? Math.max(0, Math.min(100, Math.round(totalRaw))) : null;
+  const componentsRaw = Array.isArray(scoreBreakdown.components) ? scoreBreakdown.components : [];
+  const components = componentsRaw
+    .map((component) => {
+      if (!component || typeof component !== "object") return null;
+      const c = component as Record<string, unknown>;
+      const name = typeof c.name === "string" ? c.name : "component";
+      const score = typeof c.score === "number" ? c.score : null;
+      const max = typeof c.max === "number" ? c.max : null;
+      const reason = typeof c.reason === "string" ? c.reason : "";
+      if (score == null || max == null) return null;
+      return { name, score, max, reason };
+    })
+    .filter((component): component is NonNullable<typeof component> => component !== null);
+
+  if (total == null) return null;
+  return { total, components };
 }
 
 export async function getLeadDetail(leadId: string, agencyId: string): Promise<LeadDetailModel | null> {
@@ -302,9 +372,11 @@ export async function getLeadDetail(leadId: string, agencyId: string): Promise<L
       direction: message.direction,
       senderName: message.senderName,
       sentAt: message.sentAt.toISOString(),
+      approvalStatus: message.approvalStatus,
       deliveryStatus: message.deliveryStatus
     })),
     nextAction: parseDetailNextAction(lead.aiRuns[0]?.outputJson),
+    scoreBreakdown: parseScoreBreakdown(lead.aiRuns[0]?.outputJson),
     stageHistory: lead.stageHistory.map((entry) => ({
       fromStage: entry.fromStage,
       toStage: entry.toStage,
@@ -356,13 +428,35 @@ export async function getLeadDetail(leadId: string, agencyId: string): Promise<L
       if (!conv?.channelConnection) return null;
       const conn = conv.channelConnection;
       const hasToken = Boolean(conn.accessTokenEnc);
+      const outbound = messages.filter((message) => message.direction === MessageDirection.OUTBOUND);
+      const pendingApprovalCount = outbound.filter((message) => message.approvalStatus === MessageApprovalStatus.PENDING).length;
+      const failedCount = outbound.filter((message) => message.deliveryStatus === DeliveryStatus.FAILED).length;
+      const lastApprovedOutbound =
+        outbound
+          .slice()
+          .reverse()
+          .find((message) => message.approvalStatus === MessageApprovalStatus.APPROVED) ?? null;
+      const lastOutboundStatus = lastApprovedOutbound?.deliveryStatus ?? null;
       return {
         canSend: hasToken,
         channelLabel: conn.label,
         channelType: conn.type,
         missingTokenHint: hasToken
           ? undefined
-          : "Configurá el token de acceso (Graph API) en Configuración → WhatsApp e Instagram para responder desde acá."
+          : "Configurá el token de acceso (Graph API) en Configuración → WhatsApp e Instagram para responder desde acá.",
+        pendingApprovalCount,
+        failedCount,
+        lastOutboundStatus,
+        pendingDrafts: outbound
+          .filter((message) => message.approvalStatus === MessageApprovalStatus.PENDING)
+          .slice()
+          .reverse()
+          .map((message) => ({
+            id: message.id,
+            body: normalizeMessageBody(message.body),
+            sentAt: message.sentAt.toISOString(),
+            senderName: message.senderName
+          }))
       };
     })()
   };

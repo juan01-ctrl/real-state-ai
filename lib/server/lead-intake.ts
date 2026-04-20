@@ -6,6 +6,7 @@ import {
   FinancingMode,
   LeadPriority,
   LeadStage,
+  MessageApprovalStatus,
   MessageDirection,
   Prisma,
   SenderType,
@@ -85,9 +86,8 @@ function toSeriousness(value: "high" | "medium" | "low"): SeriousnessLevel {
   return SeriousnessLevel.LOW;
 }
 
-function toDeliveryStatus(value: "delivered" | "read" | "pending_approval"): DeliveryStatus {
+function toDeliveryStatus(value: "delivered" | "read"): DeliveryStatus {
   if (value === "read") return DeliveryStatus.READ;
-  if (value === "pending_approval") return DeliveryStatus.PENDING_APPROVAL;
   return DeliveryStatus.DELIVERED;
 }
 
@@ -232,6 +232,7 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
         senderName: message.direction === "inbound" ? input.contactName ?? "Contacto" : "Agente",
         body: message.body,
         sentAt: new Date(message.sentAt),
+        approvalStatus: MessageApprovalStatus.APPROVED,
         deliveryStatus: toDeliveryStatus(message.direction === "inbound" ? "read" : "delivered")
       }))
     });
@@ -437,6 +438,7 @@ export async function appendInboundTextMessage(params: {
         senderName: params.senderName?.trim() || null,
         body: params.body,
         sentAt: params.sentAt,
+        approvalStatus: MessageApprovalStatus.APPROVED,
         deliveryStatus: DeliveryStatus.DELIVERED
       }
     });

@@ -7,8 +7,6 @@ import { AESTHETE_NAV_ITEMS, aestheteNavHref, type AestheteNavLabel } from "@/li
 
 interface AestheteTopBarProps {
   title?: string;
-  /** Para armar enlaces del menú móvil con el mismo `agencyId` que el sidebar. */
-  agencyId?: string;
 }
 
 const avatarSrc =
@@ -38,7 +36,7 @@ function activeLabelForPath(pathname: string): AestheteNavLabel | null {
   return null;
 }
 
-export function AestheteTopBar({ title, agencyId }: AestheteTopBarProps) {
+export function AestheteTopBar({ title }: AestheteTopBarProps) {
   const pathname = usePathname();
   const resolvedTitle = title ?? inferTitle(pathname ?? "");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -102,7 +100,7 @@ export function AestheteTopBar({ title, agencyId }: AestheteTopBarProps) {
             <p className="mb-6 text-[10px] uppercase tracking-widest text-[#58624e]">Menú</p>
             <ul className="flex flex-1 flex-col gap-1">
               {AESTHETE_NAV_ITEMS.map((item) => {
-                const href = aestheteNavHref(item.href, agencyId);
+                const href = aestheteNavHref(item.href);
                 const isActive = activeNav === item.label;
                 return (
                   <li key={item.href}>

@@ -3,7 +3,6 @@ import { AESTHETE_NAV_ITEMS, aestheteNavHref, type AestheteNavLabel } from "@/li
 
 interface AestheteSidebarProps {
   active: AestheteNavLabel;
-  agencyId?: string;
 }
 
 function MaterialIcon({ icon, className = "" }: { icon: string; className?: string }) {
@@ -20,7 +19,7 @@ function MaterialIcon({ icon, className = "" }: { icon: string; className?: stri
   );
 }
 
-export function AestheteSidebar({ active, agencyId }: AestheteSidebarProps) {
+export function AestheteSidebar({ active }: AestheteSidebarProps) {
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-full w-64 flex-col space-y-8 bg-[#efeeea] px-6 py-10 lg:flex">
       <div className="mb-6 flex flex-col">
@@ -33,7 +32,7 @@ export function AestheteSidebar({ active, agencyId }: AestheteSidebarProps) {
       <nav className="flex-1 space-y-2">
         {AESTHETE_NAV_ITEMS.map((item) => {
           const isActive = item.label === active;
-          const href = aestheteNavHref(item.href, agencyId);
+          const href = aestheteNavHref(item.href);
 
           return (
             <Link

@@ -6,5 +6,5 @@ export default async function TeamCommandCenterPage() {
   const { agencyId } = await requireSessionContext({ redirectTo: "/sign-in" });
   const team = await getTeamCommandCenterModel(agencyId);
 
-  return <TeamCommandCenterView agencyId={agencyId} team={team} />;
+  return <TeamCommandCenterView team={team} />;
 }

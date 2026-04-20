@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { ChannelType, LeadStage, MessageDirection } from "@prisma/client";
+import { ChannelType, DeliveryStatus, LeadStage, MessageApprovalStatus, MessageDirection } from "@prisma/client";
 import { db } from "@/lib/server/db";
 import { displayChannel } from "@/lib/i18n/present";
 
@@ -71,6 +71,13 @@ export interface StrategicInsightsModel {
   };
   sourcePerformance: SourcePerformanceRow[];
   stageConversion: StageConversionRow[];
+  operationalMessaging: {
+    pendingDrafts: number;
+    pendingOver24h: number;
+    failedOutbound: number;
+    rejectedDrafts: number;
+    methodNote: string;
+  };
   methodology: string[];
 }
 
@@ -156,7 +163,19 @@ export const getStrategicInsightsModel = cache(async (agencyId: string): Promise
     ]
   };
 
-  const [lostLeads, lostSamples, waitingCount, staleLeads, messagesForDelay, lossHistoryRows, allLeadsForFunnelAndSources] =
+  const [
+    lostLeads,
+    lostSamples,
+    waitingCount,
+    staleLeads,
+    messagesForDelay,
+    lossHistoryRows,
+    allLeadsForFunnelAndSources,
+    pendingDrafts,
+    pendingOver24h,
+    failedOutbound,
+    rejectedDrafts
+  ] =
     await Promise.all([
       db.lead.count({
         where: {
@@ -214,6 +233,36 @@ export const getStrategicInsightsModel = cache(async (agencyId: string): Promise
       db.lead.findMany({
         where: { agencyId },
         select: { stage: true, sourceChannel: true, leadScore: true }
+      }),
+      db.message.count({
+        where: {
+          agencyId,
+          direction: MessageDirection.OUTBOUND,
+          approvalStatus: MessageApprovalStatus.PENDING
+        }
+      }),
+      db.message.count({
+        where: {
+          agencyId,
+          direction: MessageDirection.OUTBOUND,
+          approvalStatus: MessageApprovalStatus.PENDING,
+          sentAt: { lt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+        }
+      }),
+      db.message.count({
+        where: {
+          agencyId,
+          direction: MessageDirection.OUTBOUND,
+          approvalStatus: MessageApprovalStatus.APPROVED,
+          deliveryStatus: DeliveryStatus.FAILED
+        }
+      }),
+      db.message.count({
+        where: {
+          agencyId,
+          direction: MessageDirection.OUTBOUND,
+          approvalStatus: MessageApprovalStatus.REJECTED
+        }
       })
     ]);
 
@@ -293,6 +342,8 @@ export const getStrategicInsightsModel = cache(async (agencyId: string): Promise
     `Motivos de pérdida: agrupación de textos en LeadStageHistory al pasar a LOST (puede haber "Sin motivo" si no se cargó razón).`,
     `Fuentes: tasas de calificación = leads en etapas calificadas+ / total por canal (mismo criterio que el tablero).`,
     `Conversión entre etapas: conteo actual por etapa; % = etapa / etapa anterior en el orden del embudo (interpretación: snapshot, no cohorte temporal).`
+    ,
+    "Deuda operativa de mensajería: borradores pendientes/rechazados y envíos fallidos sobre mensajes salientes."
   ];
 
   return {
@@ -330,6 +381,14 @@ export const getStrategicInsightsModel = cache(async (agencyId: string): Promise
     },
     sourcePerformance,
     stageConversion,
+    operationalMessaging: {
+      pendingDrafts,
+      pendingOver24h,
+      failedOutbound,
+      rejectedDrafts,
+      methodNote:
+        "Pendientes = aprobación editorial PENDING. Fallidos = aprobación APPROVED con delivery FAILED. En cola >24h = pendientes antiguos."
+    },
     methodology
   };
 });

@@ -50,10 +50,16 @@ enum SenderType {
 }
 
 enum DeliveryStatus {
+  NOT_SENT
   DELIVERED
   READ
-  PENDING_APPROVAL
   FAILED
+}
+
+enum MessageApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum FinancingMode {
@@ -303,6 +309,7 @@ model Message {
   senderName         String?
   body               String
   sentAt             DateTime
+  approvalStatus     MessageApprovalStatus @default(APPROVED)
   deliveryStatus     DeliveryStatus
   createdAt          DateTime         @default(now())
 

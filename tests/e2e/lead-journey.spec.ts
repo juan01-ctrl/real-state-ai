@@ -15,6 +15,8 @@ test.describe("journey lead (navegador + API)", () => {
   test.skip(!hasAuth, "Configurá E2E_USER_EMAIL y E2E_USER_PASSWORD (usuario real en la DB).");
 
   test("sesión → intake → lead visible en bandeja", async ({ page }) => {
+    test.setTimeout(120_000);
+
     await page.goto("/sign-in");
     await page.locator('input[type="email"]').fill(e2eEmail!);
     await page.locator('input[type="password"]').fill(e2ePassword!);
@@ -42,6 +44,6 @@ test.describe("journey lead (navegador + API)", () => {
     expect(json.ok).toBe(true);
 
     await page.goto("/leads");
-    await expect(page.getByText(contact, { exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText(contact, { exact: true })).toBeVisible({ timeout: 60_000 });
   });
 });

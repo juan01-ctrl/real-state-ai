@@ -6,7 +6,6 @@ import { displayChannel, displayLeadStage } from "@/lib/i18n/present";
 import type { StrategicInsightsModel } from "@/lib/server/read-models/strategic-insights";
 
 interface StrategicInsightsViewProps {
-  agencyId: string;
   insights: StrategicInsightsModel;
 }
 
@@ -19,8 +18,8 @@ function formatDelayMinutes(m: number | null) {
   return `${h} h ${min} min`;
 }
 
-function leadHref(agencyId: string, leadId: string) {
-  return `/leads/${leadId}?agencyId=${agencyId}`;
+function leadHref(leadId: string) {
+  return `/leads/${leadId}`;
 }
 
 function KpiCard({
@@ -43,16 +42,16 @@ function KpiCard({
   );
 }
 
-export function StrategicInsightsView({ agencyId, insights }: StrategicInsightsViewProps) {
+export function StrategicInsightsView({ insights }: StrategicInsightsViewProps) {
   const topLoss = insights.lossReasons.buckets[0];
   const maxLossCount = insights.lossReasons.buckets[0]?.count ?? 1;
 
   return (
     <main className="aesthete-page min-h-screen bg-[#fbf9f6] text-[#313330]">
-      <AestheteSidebar active="Analítica" agencyId={agencyId} />
+      <AestheteSidebar active="Analítica" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar agencyId={agencyId} />
+        <AestheteTopBar />
 
         <div className="max-w-[1200px] px-4 py-10 sm:px-8 sm:py-12 lg:px-12">
           <header className="mb-10 border-b border-[#e9e8e4] pb-8">
@@ -70,7 +69,7 @@ export function StrategicInsightsView({ agencyId, insights }: StrategicInsightsV
             </p>
           </header>
 
-          <section className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <section className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <KpiCard
               label="LOST de alta intención"
               value={String(insights.lostHighIntent.count)}
@@ -86,6 +85,34 @@ export function StrategicInsightsView({ agencyId, insights }: StrategicInsightsV
               value={String(insights.waitingTooLong.count)}
               hint={insights.waitingTooLong.definitionNote}
             />
+            <KpiCard
+              label="Deuda de mensajería"
+              value={String(insights.operationalMessaging.pendingDrafts + insights.operationalMessaging.failedOutbound)}
+              hint={`${insights.operationalMessaging.pendingDrafts} pendientes · ${insights.operationalMessaging.failedOutbound} fallidos · ${insights.operationalMessaging.pendingOver24h} en cola >24h.`}
+            />
+          </section>
+
+          <section className="mb-12 rounded-xl border border-[#e9e8e4] bg-white p-6 sm:p-8">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5e5f5c]">Mensajería operativa</h2>
+            <p className="mt-2 text-xs text-[#5e5f5c]">{insights.operationalMessaging.methodNote}</p>
+            <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <div className="rounded-md border border-[#efeeea] bg-[#fafaf8] p-3">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-[#5e5f5c]">Pendientes</p>
+                <p className="mt-1 text-2xl tabular-nums text-[#313330]">{insights.operationalMessaging.pendingDrafts}</p>
+              </div>
+              <div className="rounded-md border border-[#efeeea] bg-[#fafaf8] p-3">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-[#5e5f5c]">&gt;24h en cola</p>
+                <p className="mt-1 text-2xl tabular-nums text-[#313330]">{insights.operationalMessaging.pendingOver24h}</p>
+              </div>
+              <div className="rounded-md border border-[#efeeea] bg-[#fafaf8] p-3">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-[#5e5f5c]">Fallidos</p>
+                <p className="mt-1 text-2xl tabular-nums text-[#a73b21]">{insights.operationalMessaging.failedOutbound}</p>
+              </div>
+              <div className="rounded-md border border-[#efeeea] bg-[#fafaf8] p-3">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-[#5e5f5c]">Descartados</p>
+                <p className="mt-1 text-2xl tabular-nums text-[#313330]">{insights.operationalMessaging.rejectedDrafts}</p>
+              </div>
+            </div>
           </section>
 
           {(insights.lostHighIntent.sample.length > 0 || insights.waitingTooLong.sample.length > 0) && (
@@ -98,7 +125,7 @@ export function StrategicInsightsView({ agencyId, insights }: StrategicInsightsV
                       <li key={row.leadId} className="flex flex-wrap items-baseline justify-between gap-2 py-3 first:pt-0">
                         <Link
                           className="text-sm font-medium text-[#313330] underline-offset-4 hover:underline"
-                          href={leadHref(agencyId, row.leadId)}
+                          href={leadHref(row.leadId)}
                         >
                           {row.name}
                         </Link>
@@ -118,7 +145,7 @@ export function StrategicInsightsView({ agencyId, insights }: StrategicInsightsV
                       <li key={row.leadId} className="flex flex-wrap items-baseline justify-between gap-2 py-3 first:pt-0">
                         <Link
                           className="text-sm font-medium text-[#313330] underline-offset-4 hover:underline"
-                          href={leadHref(agencyId, row.leadId)}
+                          href={leadHref(row.leadId)}
                         >
                           {row.name}
                         </Link>

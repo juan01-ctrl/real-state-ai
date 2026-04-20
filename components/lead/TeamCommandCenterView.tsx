@@ -7,7 +7,6 @@ import { formatRelativeHours } from "@/lib/formatters";
 import type { TeamCommandCenterModel, TeamUrgentItem } from "@/lib/server/read-models/team-command-center";
 
 interface TeamCommandCenterViewProps {
-  agencyId: string;
   team: TeamCommandCenterModel;
 }
 
@@ -28,7 +27,7 @@ function urgentTone(item: TeamUrgentItem): "now" | "today" | "risk" {
   return "today";
 }
 
-function UrgentCard({ item, agencyId }: { item: TeamUrgentItem; agencyId: string }) {
+function UrgentCard({ item }: { item: TeamUrgentItem }) {
   const tone = urgentTone(item);
   const border =
     tone === "now"
@@ -71,7 +70,7 @@ function UrgentCard({ item, agencyId }: { item: TeamUrgentItem; agencyId: string
       </div>
       <Link
         className="inline-flex items-center text-[10px] font-bold uppercase tracking-[0.12em] text-[#58624e]"
-        href={`/leads/${item.leadId}?agencyId=${agencyId}`}
+        href={`/leads/${item.leadId}`}
       >
         Abrir lead
         <span className="material-symbols-outlined ml-1 text-[16px]">chevron_right</span>
@@ -82,17 +81,15 @@ function UrgentCard({ item, agencyId }: { item: TeamUrgentItem; agencyId: string
 
 function LeadRowLink({
   row,
-  agencyId,
   showSilence
 }: {
   row: { leadId: string; fullName: string; zone: string; score: number; closeProbability: number; silenceHours: number; ownerLabel: string | null; stageLabel: string };
-  agencyId: string;
   showSilence?: boolean;
 }) {
   return (
     <Link
       className="group flex items-center justify-between gap-4 rounded-lg border border-transparent px-3 py-3 transition-colors hover:border-stone-200 hover:bg-white"
-      href={`/leads/${row.leadId}?agencyId=${agencyId}`}
+      href={`/leads/${row.leadId}`}
     >
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium text-[#313330]">{row.fullName}</p>
@@ -118,7 +115,7 @@ function LeadRowLink({
   );
 }
 
-export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewProps) {
+export function TeamCommandCenterView({ team }: TeamCommandCenterViewProps) {
   const {
     snapshotAt,
     headline,
@@ -140,16 +137,16 @@ export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewP
 
   return (
     <main className="aesthete-page min-h-screen bg-[#fbf9f6] font-body text-[#313330]">
-      <AestheteSidebar active="Equipo" agencyId={agencyId} />
+      <AestheteSidebar active="Equipo" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar agencyId={agencyId} />
+        <AestheteTopBar />
 
         <div className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-8 sm:pb-20 lg:px-10">
           <div className="mb-8 rounded-lg border border-[#dce6cd] bg-[#f5f3f0] px-4 py-4 sm:px-6 sm:py-5">
             <p className="text-sm text-[#313330]">
               Para <strong>dar de alta o editar miembros</strong> del equipo (roles, invitaciones), usá{" "}
-              <Link className="font-medium text-[#58624e] underline underline-offset-2" href={`/settings?agencyId=${agencyId}#equipo`}>
+              <Link className="font-medium text-[#58624e] underline underline-offset-2" href={`/settings#equipo`}>
                 Configuración → Equipo activo
               </Link>
               .
@@ -199,7 +196,7 @@ export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewP
               </div>
               <Link
                 className="text-[10px] uppercase tracking-[0.1em] text-stone-400 transition-colors hover:text-[#58624e]"
-                href={`/leads?agencyId=${agencyId}`}
+                href={`/leads`}
               >
                 Ir a bandeja
               </Link>
@@ -208,7 +205,7 @@ export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewP
             {urgentFollowUps.length ? (
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {urgentFollowUps.map((item) => (
-                  <UrgentCard agencyId={agencyId} item={item} key={`${item.kind}-${item.id}`} />
+                  <UrgentCard item={item} key={`${item.kind}-${item.id}`} />
                 ))}
               </div>
             ) : (
@@ -229,7 +226,7 @@ export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewP
                 <div className="divide-y divide-stone-100 rounded-lg border border-stone-200/60 bg-white">
                   {unassignedHighValue.length ? (
                     unassignedHighValue.map((row) => (
-                      <LeadRowLink agencyId={agencyId} key={row.leadId} row={row} showSilence={false} />
+                      <LeadRowLink key={row.leadId} row={row} showSilence={false} />
                     ))
                   ) : (
                     <p className="px-4 py-8 text-center text-sm text-stone-500">Ninguno en este momento.</p>
@@ -242,7 +239,7 @@ export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewP
                 <p className="mb-4 text-xs text-stone-400">Score ≥ 65 y más de 24h sin actividad (pipeline activo).</p>
                 <div className="divide-y divide-stone-100 rounded-lg border border-stone-200/60 bg-white">
                   {atRisk.length ? (
-                    atRisk.map((row) => <LeadRowLink agencyId={agencyId} key={row.leadId} row={row} showSilence />)
+                    atRisk.map((row) => <LeadRowLink key={row.leadId} row={row} showSilence />)
                   ) : (
                     <p className="px-4 py-8 text-center text-sm text-stone-500">No hay señales de riesgo con estos criterios.</p>
                   )}
@@ -261,7 +258,7 @@ export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewP
                   visitsBookedToday.map((v) => (
                     <Link
                       className="group flex items-center justify-between gap-3 px-4 py-4 transition-colors hover:bg-[#fafaf8]"
-                      href={`/leads/${v.leadId}?agencyId=${agencyId}`}
+                      href={`/leads/${v.leadId}`}
                       key={v.leadId}
                     >
                       <div>
@@ -337,7 +334,7 @@ export function TeamCommandCenterView({ agencyId, team }: TeamCommandCenterViewP
                         {group.tasks.map((t) => (
                           <li className="flex flex-col gap-1 border-b border-stone-100 pb-3 last:border-0 last:pb-0" key={t.taskId}>
                             <div className="flex items-start justify-between gap-2">
-                              <Link className="text-sm font-medium text-[#313330] hover:text-[#58624e]" href={`/leads/${t.leadId}?agencyId=${agencyId}`}>
+                              <Link className="text-sm font-medium text-[#313330] hover:text-[#58624e]" href={`/leads/${t.leadId}`}>
                                 {t.title}
                               </Link>
                               <span className="flex-shrink-0 text-[9px] uppercase tracking-wider text-stone-400">

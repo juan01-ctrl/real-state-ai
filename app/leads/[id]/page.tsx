@@ -11,5 +11,5 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
   const [{ id }, { agencyId }] = await Promise.all([params, requireSessionContext({ redirectTo: "/sign-in" })]);
   const [leadDetail, operators] = await Promise.all([getLeadDetail(id, agencyId), getAgencyOperators(agencyId)]);
 
-  return <LeadIntelligenceDossierView agencyId={agencyId} lead={leadDetail} operators={operators} />;
+  return <LeadIntelligenceDossierView lead={leadDetail} operators={operators} />;
 }

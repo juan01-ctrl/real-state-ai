@@ -11,7 +11,6 @@ import { formatCurrencyUSD, formatDateTime, formatRelativeHours } from "@/lib/fo
 import { displayFinancingMode, displayMessageDirection, displayPropertyType } from "@/lib/i18n/present";
 
 interface LeadIntelligenceDossierViewProps {
-  agencyId: string;
   lead: LeadDetailModel | null;
   operators: AgencyOperator[];
 }
@@ -60,7 +59,28 @@ function generatedOutreach(lead: LeadDetailModel) {
   return "Vi tu actividad reciente sobre esta oportunidad. Puedo coordinar una visita privada mañana si querés evaluarla con todo el contexto.";
 }
 
-export function LeadIntelligenceDossierView({ agencyId, lead, operators }: LeadIntelligenceDossierViewProps) {
+function deliveryStatusLabel(status: string) {
+  if (status === "READ") return "Leído";
+  if (status === "DELIVERED") return "Entregado";
+  if (status === "NOT_SENT") return "No enviado";
+  if (status === "FAILED") return "Fallido";
+  return status;
+}
+
+function deliveryTone(status: string) {
+  if (status === "FAILED") return "bg-[#fd795a]/10 text-[#a73b21]";
+  if (status === "NOT_SENT") return "bg-[#58624e]/10 text-[#58624e]";
+  if (status === "READ" || status === "DELIVERED") return "bg-[#efeeea] text-[#5e5f5c]";
+  return "bg-[#efeeea] text-[#5e5f5c]";
+}
+
+function editorialStatusLabel(status: string) {
+  if (status === "PENDING") return "Pendiente aprobación";
+  if (status === "REJECTED") return "Descartado";
+  return null;
+}
+
+export function LeadIntelligenceDossierView({ lead, operators }: LeadIntelligenceDossierViewProps) {
   if (!lead) notFound();
 
   const matches = lead.recommendations.slice(0, 2);
@@ -73,10 +93,10 @@ export function LeadIntelligenceDossierView({ agencyId, lead, operators }: LeadI
 
   return (
     <main className="aesthete-page min-h-screen bg-background text-on-background antialiased">
-      <AestheteSidebar active="Leads" agencyId={agencyId} />
+      <AestheteSidebar active="Leads" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar agencyId={agencyId} title="Dossier de inteligencia del lead" />
+        <AestheteTopBar title="Dossier de inteligencia del lead" />
 
         <header className="sticky top-[76px] z-30 bg-[#fbf9f6]/80 px-4 py-6 backdrop-blur-xl sm:px-8 lg:px-12">
           <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
@@ -181,6 +201,18 @@ export function LeadIntelligenceDossierView({ agencyId, lead, operators }: LeadI
                         <span className="text-[10px] uppercase tracking-widest text-on-surface-variant">
                           {displayMessageDirection(message.direction)} · {formatDateTime(message.sentAt)}
                         </span>
+                        {message.direction === "OUTBOUND" ? (
+                          <div className="flex items-center gap-1">
+                            {editorialStatusLabel(message.approvalStatus) ? (
+                              <span className="rounded bg-[#313330]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#313330]">
+                                {editorialStatusLabel(message.approvalStatus)}
+                              </span>
+                            ) : null}
+                            <span className={`rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${deliveryTone(message.deliveryStatus)}`}>
+                              {deliveryStatusLabel(message.deliveryStatus)}
+                            </span>
+                          </div>
+                        ) : null}
                       </div>
                       <div className={`${index === 0 ? "bg-surface-container-low" : "bg-surface-container-lowest shadow-[0_2px_10px_rgba(49,51,48,0.02)]"} rounded-lg p-5`}>
                         <p className={`${index === 0 ? "italic text-on-surface/80" : ""} text-sm leading-relaxed`}>
@@ -231,6 +263,39 @@ export function LeadIntelligenceDossierView({ agencyId, lead, operators }: LeadI
                 ))}
               </div>
             </section>
+
+            {lead.scoreBreakdown ? (
+              <section>
+                <h3 className="mb-8 flex items-center gap-3 text-[12px] uppercase tracking-[0.2em] text-on-surface-variant">
+                  <span className="h-px w-8 bg-primary/30" />
+                  Explicación del score
+                </h3>
+                <div className="space-y-4 rounded-lg border border-outline-variant/20 bg-surface-container-lowest p-5">
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-[10px] uppercase tracking-widest text-on-surface-variant">Score total</p>
+                    <p className="text-2xl text-primary serif">{lead.scoreBreakdown.total}</p>
+                  </div>
+                  <ul className="space-y-3">
+                    {lead.scoreBreakdown.components.map((component) => {
+                      const width = Math.max(4, Math.min(100, (component.score / Math.max(1, component.max)) * 100));
+                      return (
+                        <li key={`${component.name}-${component.reason}`}>
+                          <div className="mb-1 flex items-center justify-between gap-3">
+                            <p className="text-xs font-medium text-on-surface">{component.reason}</p>
+                            <span className="shrink-0 text-[10px] uppercase tracking-wider text-on-surface-variant">
+                              {component.score}/{component.max}
+                            </span>
+                          </div>
+                          <div className="h-1.5 overflow-hidden rounded-full bg-surface-container-high">
+                            <div className="h-full rounded-full bg-primary/75" style={{ width: `${width}%` }} />
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </section>
+            ) : null}
           </div>
 
           <aside className="space-y-8 lg:col-span-5">
@@ -274,7 +339,7 @@ export function LeadIntelligenceDossierView({ agencyId, lead, operators }: LeadI
             <section>
               <div className="mb-6 flex items-center justify-between">
                 <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">Matches sugeridos</h3>
-                <Link className="border-b border-primary/20 text-[10px] uppercase tracking-widest text-primary" href={`/properties?agencyId=${agencyId}`}>
+                <Link className="border-b border-primary/20 text-[10px] uppercase tracking-widest text-primary" href={`/properties`}>
                   Ver portafolio
                 </Link>
               </div>

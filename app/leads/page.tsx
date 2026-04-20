@@ -21,7 +21,6 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
 
   return (
     <LeadsWorkspace
-      agencyId={agencyId}
       inboxItems={inboxItems}
       leadDetail={leadDetail}
       operators={operators}

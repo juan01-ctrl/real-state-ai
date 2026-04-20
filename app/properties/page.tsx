@@ -6,5 +6,5 @@ export default async function PropertiesPage() {
   const { agencyId } = await requireSessionContext({ redirectTo: "/sign-in" });
   const model = await getPropertiesPageModel(agencyId);
 
-  return <PropertyAdvisorIntelligenceView agencyId={agencyId} model={model} />;
+  return <PropertyAdvisorIntelligenceView model={model} />;
 }

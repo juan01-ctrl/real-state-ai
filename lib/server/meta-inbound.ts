@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { ChannelConnectionStatus, ChannelType, DeliveryStatus } from "@prisma/client";
+import { ChannelConnectionStatus, ChannelType, DeliveryStatus, MessageApprovalStatus } from "@prisma/client";
 import { db } from "@/lib/server/db";
 import type { ChannelType as QualificationChannelType } from "@/lib/qualification/types";
 import { appendInboundTextMessage, ingestLeadAndQualify } from "@/lib/server/lead-intake";
@@ -32,7 +32,8 @@ async function findConnectionForWhatsApp(phoneNumberId: string) {
       type: ChannelType.WHATSAPP,
       externalAccountId: phoneNumberId,
       status: { in: [ChannelConnectionStatus.CONNECTED, ChannelConnectionStatus.PENDING_SETUP] }
-    }
+    },
+    orderBy: { updatedAt: "desc" }
   });
 }
 
@@ -42,7 +43,8 @@ async function findConnectionForInstagram(igAccountId: string) {
       type: ChannelType.INSTAGRAM,
       externalAccountId: igAccountId,
       status: { in: [ChannelConnectionStatus.CONNECTED, ChannelConnectionStatus.PENDING_SETUP] }
-    }
+    },
+    orderBy: { updatedAt: "desc" }
   });
 }
 
@@ -191,6 +193,7 @@ export async function processWhatsAppBusinessAccountPayload(body: unknown): Prom
           where: {
             externalMessageId,
             agencyId: conn.agencyId,
+            approvalStatus: MessageApprovalStatus.APPROVED,
             conversation: {
               channelConnectionId: conn.id
             }

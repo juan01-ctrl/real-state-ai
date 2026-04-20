@@ -6,5 +6,5 @@ export default async function InsightsPage() {
   const { agencyId } = await requireSessionContext({ redirectTo: "/sign-in" });
   const insights = await getStrategicInsightsModel(agencyId);
 
-  return <StrategicInsightsView agencyId={agencyId} insights={insights} />;
+  return <StrategicInsightsView insights={insights} />;
 }

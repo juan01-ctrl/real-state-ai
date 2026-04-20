@@ -51,10 +51,10 @@ export function AgencySettingsView({
 
   return (
     <main className="aesthete-page min-h-screen bg-[#fbf9f6] text-[#313330] antialiased">
-      <AestheteSidebar active="Configuración" agencyId={agencyId} />
+      <AestheteSidebar active="Configuración" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar agencyId={agencyId} />
+        <AestheteTopBar />
 
         <main className="mx-auto max-w-5xl space-y-20 px-4 py-10 sm:space-y-24 sm:px-8 sm:py-14 lg:space-y-32 lg:px-16 lg:py-24">
           <header className="space-y-4">
