@@ -20,6 +20,13 @@ enum ChannelType {
   MANUAL_IMPORT
 }
 
+/** Estado de la conexión técnica con Meta (WhatsApp / Instagram). */
+enum ChannelConnectionStatus {
+  DISCONNECTED
+  PENDING_SETUP
+  CONNECTED
+}
+
 enum LeadStage {
   NEW
   CONTACTED
@@ -187,18 +194,25 @@ model Verification {
 }
 
 model ChannelConnection {
-  id                String      @id @default(cuid())
+  id                String                   @id @default(cuid())
   agencyId          String
   type              ChannelType
   label             String
+  /** ID en Meta: phone_number_id (WhatsApp) o Instagram user/page id según el producto. */
   externalAccountId String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  status            ChannelConnectionStatus  @default(PENDING_SETUP)
+  /** Detalle de errores, tokens opacos, ids secundarios (p. ej. WABA id). No guardar secretos en claro en producción. */
+  metadata          Json?
+  /** Token de acceso de Meta (Graph API) cifrado con AES-256-GCM (ver META_TOKEN_ENCRYPTION_KEY). */
+  accessTokenEnc    String?
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
 
   agency            Agency      @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   conversations     Conversation[]
 
   @@index([agencyId, type])
+  @@index([externalAccountId])
 }
 
 model Lead {

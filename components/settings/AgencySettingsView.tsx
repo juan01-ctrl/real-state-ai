@@ -1,20 +1,37 @@
 import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
 import { AestheteFooter } from "@/components/layout/AestheteFooter";
 import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
+import { MetaChannelConnections } from "@/components/settings/MetaChannelConnections";
+import { displayChannel } from "@/lib/i18n/present";
 import { ExecutiveAnalyticsModel } from "@/lib/server/read-models/analytics";
+import type { ChannelConnectionListItem } from "@/lib/server/read-models/channel-connections";
 
 interface AgencySettingsViewProps {
   agencyId: string;
   analytics: ExecutiveAnalyticsModel;
+  connections: ChannelConnectionListItem[];
+  metaWebhookUrl: string;
+  metaVerifyConfigured: boolean;
+  metaSecretConfigured: boolean;
+  metaEncryptionConfigured: boolean;
 }
 
-export function AgencySettingsView({ agencyId, analytics }: AgencySettingsViewProps) {
-  const sourceCards = [
-    { label: "Instagram", value: analytics.channels.find((c) => c.channel === "INSTAGRAM")?.leadCount ?? 12 },
-    { label: "Zillow", value: 8 },
-    { label: "Sitio web propio", value: analytics.channels.find((c) => c.channel === "WEB_FORM")?.leadCount ?? 24 },
-    { label: "Portal", value: analytics.channels.find((c) => c.channel === "PORTAL")?.leadCount ?? 5 }
-  ];
+export function AgencySettingsView({
+  agencyId,
+  analytics,
+  connections,
+  metaWebhookUrl,
+  metaVerifyConfigured,
+  metaSecretConfigured,
+  metaEncryptionConfigured
+}: AgencySettingsViewProps) {
+  const sourceCards =
+    analytics.channels.length > 0
+      ? analytics.channels.map((c) => ({
+          label: displayChannel(c.channel),
+          value: c.leadCount
+        }))
+      : [{ label: "Sin datos aún", value: 0 }];
 
   return (
     <main className="aesthete-page min-h-screen bg-[#fbf9f6] text-[#313330] antialiased">
@@ -34,54 +51,53 @@ export function AgencySettingsView({ agencyId, analytics }: AgencySettingsViewPr
             </p>
           </header>
 
+          <section className="space-y-6">
+            <div className="space-y-1">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Comunicación</span>
+              <h3 className="text-2xl text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
+                WhatsApp e Instagram (Meta)
+              </h3>
+              <p className="max-w-2xl text-sm text-[#5e5f5c]">
+                Registrá el ID que figura en el panel de Meta y el mismo callback URL en la app. Los mensajes de texto
+                entrantes crean o actualizan leads en tu agencia ({agencyId}).
+              </p>
+            </div>
+            <MetaChannelConnections
+              encryptionConfigured={metaEncryptionConfigured}
+              initialConnections={connections}
+              secretConfigured={metaSecretConfigured}
+              verifyConfigured={metaVerifyConfigured}
+              webhookUrl={metaWebhookUrl}
+            />
+          </section>
+
           <section className="grid grid-cols-1 gap-14 sm:gap-20 md:grid-cols-2">
-            <div className="space-y-8">
-              <div className="space-y-1">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Comunicación</span>
-                <h3 className="text-2xl text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                  Canales conectados
-                </h3>
-              </div>
-              <div className="space-y-6">
-                {[
-                  { icon: "chat", label: "WhatsApp" },
-                  { icon: "mail", label: "Correo" },
-                  { icon: "call", label: "Teléfono" }
-                ].map((item) => (
-                  <div key={item.label} className="group flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <span className="material-symbols-outlined text-[#58624e]/60">{item.icon}</span>
-                      <div>
-                        <p className="text-sm font-medium">{item.label}</p>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#58624e]">Estado: activo</p>
-                      </div>
-                    </div>
-                    <button
-                      className="border-b border-transparent pb-1 text-[11px] uppercase tracking-widest text-[#313330]/40 transition-colors group-hover:border-[#58624e]/20 group-hover:text-[#58624e]"
-                      type="button"
-                    >
-                      Configurar
-                    </button>
-                  </div>
-                ))}
-              </div>
+            <div className="space-y-4 rounded-lg border border-[#e9e8e4] bg-white p-6">
+              <h4 className="text-sm font-medium text-[#313330]">Otros canales</h4>
+              <p className="text-xs leading-relaxed text-[#5e5f5c]">
+                Correo y teléfono como fuentes nativas siguen en roadmap; podés seguir cargando leads vía formulario web o
+                API de ingesta.
+              </p>
             </div>
 
             <div className="space-y-8">
               <div className="space-y-1">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Adquisición</span>
                 <h3 className="text-2xl text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-                  Fuentes de leads
+                  Fuentes de leads (datos)
                 </h3>
               </div>
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {sourceCards.map((source) => (
-                  <div key={source.label} className="flex h-28 cursor-pointer flex-col justify-between bg-[#efeeea] p-4 transition-all hover:bg-[#e9e8e4] sm:h-32 sm:p-6">
+                  <div
+                    key={source.label}
+                    className="flex h-28 flex-col justify-between bg-[#efeeea] p-4 transition-all hover:bg-[#e9e8e4] sm:h-32 sm:p-6"
+                  >
                     <span className="text-[10px] uppercase tracking-widest text-[#313330]/60 sm:text-[11px]">{source.label}</span>
                     <p className="text-xl text-[#313330] sm:text-2xl" style={{ fontFamily: "'Noto Serif', serif" }}>
                       {source.value}{" "}
                       <span className="text-[12px] italic text-[#313330]/40" style={{ fontFamily: "Inter, sans-serif" }}>
-                        esta semana
+                        leads
                       </span>
                     </p>
                   </div>

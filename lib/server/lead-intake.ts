@@ -27,6 +27,10 @@ export interface LeadIntakeRequest {
   contactName?: string;
   messages: InboundConversationMessage[];
   manualOverrides?: LeadQualificationInput["manualOverrides"];
+  /** Vincula la conversación a una conexión Meta (WhatsApp / Instagram). */
+  channelConnectionId?: string | null;
+  /** Clave estable por hilo (p. ej. wa:+54911… / ig:psid). */
+  externalThreadId?: string | null;
 }
 
 function toPriority(priority: "P1" | "P2" | "P3"): LeadPriority {
@@ -153,7 +157,9 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
     const conversation = await tx.conversation.create({
       data: {
         leadId: lead.id,
-        agencyId: agency.id
+        agencyId: agency.id,
+        channelConnectionId: input.channelConnectionId ?? undefined,
+        externalThreadId: input.externalThreadId ?? undefined
       }
     });
 
@@ -330,6 +336,38 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
   });
 
   return created;
+}
+
+/**
+ * Mensaje entrante adicional en un hilo ya existente (Meta u otros).
+ * No re-ejecuta calificación completa en este MVP (solo persistencia + actividad).
+ */
+export async function appendInboundTextMessage(params: {
+  agencyId: string;
+  conversationId: string;
+  leadId: string;
+  body: string;
+  sentAt: Date;
+  senderName?: string | null;
+}) {
+  await db.$transaction(async (tx) => {
+    await tx.message.create({
+      data: {
+        conversationId: params.conversationId,
+        agencyId: params.agencyId,
+        direction: MessageDirection.INBOUND,
+        senderType: SenderType.CONTACT,
+        senderName: params.senderName?.trim() || null,
+        body: params.body,
+        sentAt: params.sentAt,
+        deliveryStatus: DeliveryStatus.DELIVERED
+      }
+    });
+    await tx.lead.update({
+      where: { id: params.leadId },
+      data: { lastActivityAt: params.sentAt }
+    });
+  });
 }
 
 export async function getLeadSnapshot(leadId: string, agencyId?: string) {

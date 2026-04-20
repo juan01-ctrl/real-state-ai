@@ -15,7 +15,7 @@ function inferTitle(pathname: string) {
   if (pathname.startsWith("/team")) return "Centro de Comando del Equipo";
   if (pathname.startsWith("/lead")) return "Centro de Comando del Equipo";
   if (pathname.startsWith("/opportunities")) return "Oportunidades Estratégicas";
-  if (pathname.startsWith("/insights") || pathname.startsWith("/analytics")) return "Insights Estratégicos";
+  if (pathname.startsWith("/insights") || pathname.startsWith("/analytics")) return "Analítica operativa";
   if (pathname.startsWith("/properties")) return "Inteligencia de Propiedades";
   if (pathname.startsWith("/settings")) return "Configuración de la Agencia";
   return "Aesthete AI";

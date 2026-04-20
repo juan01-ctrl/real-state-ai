@@ -123,6 +123,13 @@ export interface LeadDetailModel {
     body: string;
     createdAt: string;
   }[];
+  /** Respuesta por WhatsApp/Instagram si el lead tiene hilo Meta y token configurado. */
+  metaReply: {
+    canSend: boolean;
+    channelLabel: string;
+    channelType: string;
+    missingTokenHint?: string;
+  } | null;
 }
 
 function hoursSince(date: Date | null): number | null {
@@ -131,7 +138,7 @@ function hoursSince(date: Date | null): number | null {
   return Math.max(0, Math.round(diffMs / 1000 / 60 / 60));
 }
 
-function parseNextAction(outputJson: unknown): LeadInboxItem["recommendedNextAction"] {
+export function parseNextAction(outputJson: unknown): LeadInboxItem["recommendedNextAction"] {
   if (!outputJson || typeof outputJson !== "object") return null;
 
   const root = outputJson as Record<string, unknown>;
@@ -236,7 +243,8 @@ export async function getLeadDetail(leadId: string, agencyId: string): Promise<L
         include: {
           messages: {
             orderBy: { sentAt: "asc" }
-          }
+          },
+          channelConnection: true
         }
       },
       aiRuns: {
@@ -337,6 +345,25 @@ export async function getLeadDetail(leadId: string, agencyId: string): Promise<L
       author: note.author,
       body: note.body,
       createdAt: note.createdAt.toISOString()
-    }))
+    })),
+    metaReply: (() => {
+      const conv = lead.conversations.find(
+        (c) =>
+          Boolean(c.externalThreadId) &&
+          (c.externalThreadId!.startsWith("wa:") || c.externalThreadId!.startsWith("ig:")) &&
+          c.channelConnectionId
+      );
+      if (!conv?.channelConnection) return null;
+      const conn = conv.channelConnection;
+      const hasToken = Boolean(conn.accessTokenEnc);
+      return {
+        canSend: hasToken,
+        channelLabel: conn.label,
+        channelType: conn.type,
+        missingTokenHint: hasToken
+          ? undefined
+          : "Configurá el token de acceso (Graph API) en Configuración → WhatsApp e Instagram para responder desde acá."
+      };
+    })()
   };
 }

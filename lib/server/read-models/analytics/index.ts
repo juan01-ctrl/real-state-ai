@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { LeadStage } from "@prisma/client";
 import { db } from "@/lib/server/db";
 import { displayChannel } from "@/lib/i18n/present";
@@ -101,7 +102,7 @@ function buildFunnel(stages: LeadStage[]): StageMetric[] {
   });
 }
 
-export async function getExecutiveAnalytics(agencyId: string): Promise<ExecutiveAnalyticsModel> {
+export const getExecutiveAnalytics = cache(async (agencyId: string): Promise<ExecutiveAnalyticsModel> => {
   const leads = await db.lead.findMany({
     where: { agencyId },
     include: {
@@ -248,4 +249,4 @@ export async function getExecutiveAnalytics(agencyId: string): Promise<Executive
     riskQueue,
     insights
   };
-}
+});

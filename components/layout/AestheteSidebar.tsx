@@ -2,7 +2,7 @@ import Link from "next/link";
 
 type SidebarItem = {
   icon: string;
-  label: "Tablero" | "Leads" | "Oportunidades" | "Insights" | "Propiedades" | "Equipo" | "Configuración";
+  label: "Tablero" | "Leads" | "Oportunidades" | "Analítica" | "Propiedades" | "Equipo" | "Configuración";
   href: string;
 };
 
@@ -15,7 +15,7 @@ const baseItems: SidebarItem[] = [
   { icon: "dashboard", label: "Tablero", href: "/dashboard" },
   { icon: "person_search", label: "Leads", href: "/leads" },
   { icon: "analytics", label: "Oportunidades", href: "/opportunities" },
-  { icon: "insights", label: "Insights", href: "/insights" },
+  { icon: "insights", label: "Analítica", href: "/insights" },
   { icon: "domain", label: "Propiedades", href: "/properties" },
   { icon: "group", label: "Equipo", href: "/team" },
   { icon: "settings", label: "Configuración", href: "/settings" }

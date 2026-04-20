@@ -4,6 +4,7 @@ import { AestheteFooter } from "@/components/layout/AestheteFooter";
 import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
 import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
 import { LeadOperationsPanel } from "@/components/leads/LeadOperationsPanel";
+import { MetaOutboundComposer } from "@/components/leads/MetaOutboundComposer";
 import type { AgencyOperator } from "@/lib/server/read-models/operators";
 import type { LeadDetailModel } from "@/lib/server/read-models/leads";
 import { formatCurrencyUSD, formatDateTime, formatRelativeHours } from "@/lib/formatters";
@@ -195,6 +196,12 @@ export function LeadIntelligenceDossierView({ agencyId, lead, operators }: LeadI
                 )}
               </div>
             </section>
+
+            {lead.metaReply ? (
+              <section className="max-w-xl">
+                <MetaOutboundComposer leadId={lead.id} metaReply={lead.metaReply} />
+              </section>
+            ) : null}
 
             <section>
               <h3 className="mb-8 flex items-center gap-3 text-[12px] uppercase tracking-[0.2em] text-on-surface-variant">

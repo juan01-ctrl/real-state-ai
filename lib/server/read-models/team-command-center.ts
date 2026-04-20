@@ -1,3 +1,4 @@
+import { cache } from "react";
 import {
   FollowUpEventStatus,
   LeadPriority,
@@ -99,7 +100,7 @@ function zoneOf(zones: string[]) {
   return zones[0] ?? "—";
 }
 
-export async function getTeamCommandCenterModel(agencyId: string): Promise<TeamCommandCenterModel> {
+export const getTeamCommandCenterModel = cache(async (agencyId: string): Promise<TeamCommandCenterModel> => {
   const { start: dayStart, end: dayEnd } = dayBounds();
 
   const activeLeadWhere: Prisma.LeadWhereInput = {
@@ -391,4 +392,4 @@ export async function getTeamCommandCenterModel(agencyId: string): Promise<TeamC
     openTasksByOwner,
     insightHint
   };
-}
+});

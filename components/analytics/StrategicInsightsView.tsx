@@ -49,7 +49,7 @@ export function StrategicInsightsView({ agencyId, insights }: StrategicInsightsV
 
   return (
     <main className="aesthete-page min-h-screen bg-[#fbf9f6] text-[#313330]">
-      <AestheteSidebar active="Insights" agencyId={agencyId} />
+      <AestheteSidebar active="Analítica" agencyId={agencyId} />
 
       <div className="min-h-screen lg:ml-64">
         <AestheteTopBar />

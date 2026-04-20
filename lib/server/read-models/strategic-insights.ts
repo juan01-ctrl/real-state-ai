@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { ChannelType, LeadStage, MessageDirection } from "@prisma/client";
 import { db } from "@/lib/server/db";
 import { displayChannel } from "@/lib/i18n/present";
@@ -142,7 +143,7 @@ function computeInboundToOutboundDelayMinutes(
   return { averageMinutes: avg, sampleSize: delaysMinutes.length };
 }
 
-export async function getStrategicInsightsModel(agencyId: string): Promise<StrategicInsightsModel> {
+export const getStrategicInsightsModel = cache(async (agencyId: string): Promise<StrategicInsightsModel> => {
   const staleWhere = {
     agencyId,
     stage: { notIn: [LeadStage.WON, LeadStage.LOST] },
@@ -328,4 +329,4 @@ export async function getStrategicInsightsModel(agencyId: string): Promise<Strat
     stageConversion,
     methodology
   };
-}
+});

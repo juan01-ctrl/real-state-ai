@@ -1,4 +1,5 @@
 import { LeadOperationsPanel } from "@/components/leads/LeadOperationsPanel";
+import { MetaOutboundComposer } from "@/components/leads/MetaOutboundComposer";
 import { formatRelativeHours } from "@/lib/formatters";
 import type { AgencyOperator } from "@/lib/server/read-models/operators";
 import type { LeadDetailModel } from "@/lib/server/read-models/leads";
@@ -154,6 +155,8 @@ function PanelContent({ lead, operators }: { lead: LeadDetailModel; operators: A
           </div>
         </div>
       </div>
+
+      <MetaOutboundComposer leadId={lead.id} metaReply={lead.metaReply} />
 
       <div className="sticky bottom-0 pt-3 sm:pt-4">
         <button
