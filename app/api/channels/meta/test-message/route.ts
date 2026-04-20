@@ -13,6 +13,24 @@ type Body = {
   text?: string;
 };
 
+export async function GET() {
+  return NextResponse.json({
+    ok: true,
+    endpoint: "/api/channels/meta/test-message",
+    method: "POST",
+    requiredBody: ["connectionId", "recipientId", "text"]
+  });
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      Allow: "GET,POST,OPTIONS"
+    }
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { agencyId } = await requireSessionContext();
@@ -23,7 +41,10 @@ export async function POST(request: NextRequest) {
     const text = body.text?.trim();
 
     if (!connectionId || !recipientId || !text) {
-      return NextResponse.json({ ok: false, error: "INVALID_INPUT" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "INVALID_INPUT", message: "Debés enviar connectionId, recipientId y text." },
+        { status: 400 }
+      );
     }
 
     const connection = await db.channelConnection.findFirst({
@@ -35,22 +56,75 @@ export async function POST(request: NextRequest) {
     });
 
     if (!connection) {
-      return NextResponse.json({ ok: false, error: "NOT_FOUND" }, { status: 404 });
+      const existsInOtherAgency = await db.channelConnection.findUnique({
+        where: { id: connectionId },
+        select: { id: true, agencyId: true }
+      });
+      if (existsInOtherAgency) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "FORBIDDEN_CONNECTION",
+            message: "La conexión existe pero no pertenece a tu agencia."
+          },
+          { status: 403 }
+        );
+      }
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "NOT_FOUND",
+          message: "La conexión no existe o fue eliminada. Actualizá la lista e intentá de nuevo."
+        },
+        { status: 404 }
+      );
+    }
+
+    if (connection.status !== "CONNECTED") {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "CONNECTION_NOT_CONNECTED",
+          message: "La conexión no está en estado Conectado."
+        },
+        { status: 400 }
+      );
     }
 
     if (!connection.accessTokenEnc) {
-      return NextResponse.json({ ok: false, error: "NO_TOKEN" }, { status: 400 });
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "NO_TOKEN",
+          message: "La conexión no tiene token de acceso para enviar mensajes."
+        },
+        { status: 400 }
+      );
     }
 
     if (!connection.externalAccountId) {
-      return NextResponse.json({ ok: false, error: "MISSING_EXTERNAL_ID" }, { status: 400 });
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "MISSING_EXTERNAL_ID",
+          message: "La conexión no tiene configurado el ID de cuenta en Meta."
+        },
+        { status: 400 }
+      );
     }
 
     let token: string;
     try {
       token = decryptMetaAccessToken(connection.accessTokenEnc);
     } catch {
-      return NextResponse.json({ ok: false, error: "TOKEN_DECRYPT_FAILED" }, { status: 503 });
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "TOKEN_DECRYPT_FAILED",
+          message: "No se pudo descifrar el token guardado. Volvé a cargarlo en la conexión."
+        },
+        { status: 503 }
+      );
     }
 
     try {

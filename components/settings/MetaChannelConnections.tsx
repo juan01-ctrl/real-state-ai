@@ -214,12 +214,19 @@ export function MetaChannelConnections({
       if (!res.ok || !data.ok) {
         const map: Record<string, string> = {
           INVALID_INPUT: "Completá conexión, destinatario y mensaje.",
+          NOT_FOUND: "La conexión seleccionada no existe o fue eliminada. Actualizá y volvé a intentar.",
+          FORBIDDEN_CONNECTION: "La conexión seleccionada no pertenece a tu agencia.",
+          CONNECTION_NOT_CONNECTED: "La conexión está pendiente o desconectada. Ponela en estado Conectado.",
           NO_TOKEN: "La conexión seleccionada no tiene token de envío.",
           MISSING_EXTERNAL_ID: "La conexión no tiene ID de cuenta configurado.",
           TOKEN_DECRYPT_FAILED: "No se pudo usar el token guardado. Volvé a cargarlo en esta conexión.",
           GRAPH_ERROR: data.message || "Meta rechazó el envío de prueba."
         };
-        setTestResult(map[data.error ?? ""] ?? "No se pudo enviar la prueba.");
+        const message = map[data.error ?? ""] ?? data.message ?? "No se pudo enviar la prueba.";
+        setTestResult(message);
+        if (data.error === "NOT_FOUND") {
+          await refresh();
+        }
         return;
       }
 
