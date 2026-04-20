@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { LeadStage } from "@prisma/client";
-import { requireSessionContext } from "@/lib/server/auth-session";
+import { requirePermission } from "@/lib/server/auth-session";
 import { getLeadSnapshot } from "@/lib/server/lead-intake";
 import { patchLeadOperations } from "@/lib/server/lead-mutations";
 
@@ -10,7 +10,7 @@ interface RouteParams {
 
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
-    const [{ leadId }, { agencyId }] = await Promise.all([params, requireSessionContext()]);
+    const [{ leadId }, { agencyId }] = await Promise.all([params, requirePermission("leads.read")]);
     const lead = await getLeadSnapshot(leadId, agencyId);
     if (!lead) {
       return NextResponse.json(
@@ -27,6 +27,18 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ ok: true, lead });
   } catch (error) {
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: {
+            code: "FORBIDDEN",
+            message: "No tenés permisos para ver este lead"
+          }
+        },
+        { status: 403 }
+      );
+    }
     if (!(error instanceof Error && error.message === "UNAUTHORIZED")) {
       return NextResponse.json(
         {
@@ -61,7 +73,7 @@ interface LeadOperationPayload {
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const [{ leadId }, { agencyId, name }] = await Promise.all([params, requireSessionContext()]);
+    const [{ leadId }, { agencyId, name }] = await Promise.all([params, requirePermission("leads.write")]);
     const payload = (await request.json()) as LeadOperationPayload;
 
     const result = await patchLeadOperations(leadId, agencyId, payload, name || "Operador");
@@ -106,6 +118,18 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const lead = await getLeadSnapshot(leadId, agencyId);
     return NextResponse.json({ ok: true, lead });
   } catch (error) {
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: {
+            code: "FORBIDDEN",
+            message: "No tenés permisos para modificar leads"
+          }
+        },
+        { status: 403 }
+      );
+    }
     if (!(error instanceof Error && error.message === "UNAUTHORIZED")) {
       return NextResponse.json(
         {

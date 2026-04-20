@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireSessionContext } from "@/lib/server/auth-session";
+import { logAuditEvent } from "@/lib/server/audit";
+import { requirePermission } from "@/lib/server/auth-session";
 import { db } from "@/lib/server/db";
 import { getAgencyAiPreferences } from "@/lib/server/read-models/agency-settings";
 
@@ -25,12 +26,15 @@ function clampUrgency(value: number) {
 
 export async function GET() {
   try {
-    const { agencyId } = await requireSessionContext();
+    const { agencyId } = await requirePermission("settings.read");
     const model = await getAgencyAiPreferences(agencyId);
     return NextResponse.json({ ok: true, ...model });
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    }
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
     }
 
     return NextResponse.json({ ok: false, error: "AI_PREFS_FETCH_FAILED" }, { status: 500 });
@@ -39,7 +43,7 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const { agencyId } = await requireSessionContext();
+    const { agencyId, userId } = await requirePermission("settings.write");
     const payload = (await request.json()) as UpdatePayload;
 
     const data: {
@@ -78,11 +82,24 @@ export async function PATCH(request: NextRequest) {
       data
     });
 
+    await logAuditEvent({
+      agencyId,
+      userId,
+      action: "settings.ai_preferences.updated",
+      resource: "Agency",
+      resourceId: agencyId,
+      summary: "Preferencias IA actualizadas",
+      metadata: data
+    });
+
     const model = await getAgencyAiPreferences(agencyId);
     return NextResponse.json({ ok: true, ...model });
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    }
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
     }
 
     return NextResponse.json({ ok: false, error: "AI_PREFS_UPDATE_FAILED" }, { status: 500 });

@@ -8,7 +8,8 @@ export const AESTHETE_NAV_ITEMS = [
   { icon: "insights", label: "Analítica", href: "/insights" },
   { icon: "domain", label: "Propiedades", href: "/properties" },
   { icon: "group", label: "Equipo", href: "/team" },
-  { icon: "settings", label: "Configuración", href: "/settings" }
+  { icon: "settings", label: "Configuración", href: "/settings" },
+  { icon: "admin_panel_settings", label: "Backoffice", href: "/backoffice" }
 ] as const;
 
 export type AestheteNavLabel = (typeof AESTHETE_NAV_ITEMS)[number]["label"];

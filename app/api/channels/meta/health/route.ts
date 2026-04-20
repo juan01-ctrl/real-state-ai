@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { ChannelType, MessageDirection } from "@prisma/client";
-import { requireSessionContext } from "@/lib/server/auth-session";
+import { requirePermission } from "@/lib/server/auth-session";
 import { db } from "@/lib/server/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const { agencyId } = await requireSessionContext();
+    const { agencyId } = await requirePermission("settings.read");
 
     const connections = await db.channelConnection.findMany({
       where: {
@@ -72,6 +72,9 @@ export async function GET() {
   } catch (e) {
     if (e instanceof Error && e.message === "UNAUTHORIZED") {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    }
+    if (e instanceof Error && e.message === "FORBIDDEN") {
+      return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
     }
     throw e;
   }

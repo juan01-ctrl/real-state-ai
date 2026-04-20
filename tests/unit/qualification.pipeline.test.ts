@@ -49,8 +49,8 @@ describe("qualification pipeline", () => {
     expect(action.detail).toMatch(/Acción directa:/);
   });
 
-  it("full pipeline returns explainable output with confidence and hooks", () => {
-    const output = runLeadQualificationPipeline({
+  it("full pipeline returns explainable output with confidence and hooks", async () => {
+    const output = await runLeadQualificationPipeline({
       agencyId: "agency_test",
       leadId: "lead_test",
       messages: [
@@ -64,6 +64,7 @@ describe("qualification pipeline", () => {
     });
 
     expect(output.version).toBeTruthy();
+    expect(["rules_only", "llm_assisted"]).toContain(output.extractionStrategy);
     expect(output.assessment.leadScore).toBeGreaterThanOrEqual(0);
     expect(output.assessment.recommendedNextAction.title.length).toBeGreaterThan(0);
     expect(output.confidence.overall).toBeGreaterThanOrEqual(0);

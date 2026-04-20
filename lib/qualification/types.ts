@@ -48,14 +48,14 @@ export interface ExtractedField<T> {
   value: T | null;
   confidence: number;
   sourceMessageIds: string[];
-  method: "regex" | "keyword" | "heuristic" | "manual_override" | "none";
+  method: "regex" | "keyword" | "heuristic" | "manual_override" | "llm" | "none";
   notes?: string;
 }
 
 export interface BudgetRange {
   min: number;
   max: number;
-  currency: "USD";
+  currency: "USD" | "ARS";
 }
 
 export interface LeadProfile {
@@ -132,6 +132,7 @@ export interface QualificationOutput {
   version: string;
   profile: LeadProfile;
   extraction: ExtractionResult;
+  extractionStrategy: "rules_only" | "llm_assisted";
   assessment: QualificationAssessment;
   confidence: ConfidenceReport;
   logs: QualificationLog[];

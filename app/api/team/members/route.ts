@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { UserRole } from "@prisma/client";
-import { requireSessionContext } from "@/lib/server/auth-session";
+import { logAuditEvent } from "@/lib/server/audit";
+import { requirePermission } from "@/lib/server/auth-session";
 import { db } from "@/lib/server/db";
 import { getTeamMembersForAgency } from "@/lib/server/read-models/team-members";
 
@@ -10,12 +11,15 @@ function normalizeRole(role?: string): UserRole {
 
 export async function GET() {
   try {
-    const { agencyId } = await requireSessionContext();
+    const { agencyId } = await requirePermission("team.read");
     const model = await getTeamMembersForAgency(agencyId);
     return NextResponse.json({ ok: true, ...model });
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    }
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
     }
 
     return NextResponse.json({ ok: false, error: "TEAM_MEMBERS_FETCH_FAILED" }, { status: 500 });
@@ -30,7 +34,7 @@ interface CreateMemberPayload {
 
 export async function POST(request: NextRequest) {
   try {
-    const { agencyId } = await requireSessionContext();
+    const { agencyId, userId } = await requirePermission("team.manage");
     const payload = (await request.json()) as CreateMemberPayload;
 
     const name = payload.name?.trim();
@@ -50,7 +54,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "EMAIL_ALREADY_EXISTS" }, { status: 409 });
     }
 
-    await db.user.create({
+    const created = await db.user.create({
       data: {
         agencyId,
         name,
@@ -60,11 +64,24 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    await logAuditEvent({
+      agencyId,
+      userId,
+      action: "team.member.created",
+      resource: "User",
+      resourceId: created.id,
+      summary: `Alta de ${created.email}`,
+      metadata: { role: created.role }
+    });
+
     const model = await getTeamMembersForAgency(agencyId);
     return NextResponse.json({ ok: true, ...model }, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    }
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
     }
 
     return NextResponse.json({ ok: false, error: "TEAM_MEMBER_CREATE_FAILED" }, { status: 500 });

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ChannelConnectionStatus, ChannelType } from "@prisma/client";
+import { logAuditEvent } from "@/lib/server/audit";
 import { db } from "@/lib/server/db";
-import { requireSessionContext } from "@/lib/server/auth-session";
+import { requirePermission } from "@/lib/server/auth-session";
 import { encryptMetaAccessToken, isMetaEncryptionConfigured } from "@/lib/server/meta-token-crypto";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +29,7 @@ function sanitizeConnection(c: {
 
 export async function GET() {
   try {
-    const { agencyId } = await requireSessionContext();
+    const { agencyId } = await requirePermission("settings.read");
     const connections = await db.channelConnection.findMany({
       where: { agencyId },
       orderBy: [{ type: "asc" }, { updatedAt: "desc" }]
@@ -49,6 +50,9 @@ export async function GET() {
     if (e instanceof Error && e.message === "UNAUTHORIZED") {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
     }
+    if (e instanceof Error && e.message === "FORBIDDEN") {
+      return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
+    }
     throw e;
   }
 }
@@ -64,7 +68,7 @@ type Body = {
 
 export async function POST(request: NextRequest) {
   try {
-    const { agencyId } = await requireSessionContext();
+    const { agencyId, userId } = await requirePermission("channels.manage");
     const body = (await request.json()) as Body;
     const typeRaw = body.type?.toUpperCase();
     if (typeRaw !== "WHATSAPP" && typeRaw !== "INSTAGRAM") {
@@ -105,6 +109,14 @@ export async function POST(request: NextRequest) {
           ...(accessTokenEnc !== undefined ? { accessTokenEnc } : {})
         }
       });
+      await logAuditEvent({
+        agencyId,
+        userId,
+        action: "channel.connection.updated",
+        resource: "ChannelConnection",
+        resourceId: updated.id,
+        summary: `Conexión ${updated.type} actualizada`
+      });
       return NextResponse.json({ ok: true, connection: sanitizeConnection(updated) });
     }
 
@@ -119,10 +131,22 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    await logAuditEvent({
+      agencyId,
+      userId,
+      action: "channel.connection.created",
+      resource: "ChannelConnection",
+      resourceId: created.id,
+      summary: `Conexión ${created.type} creada`
+    });
+
     return NextResponse.json({ ok: true, connection: sanitizeConnection(created) }, { status: 201 });
   } catch (e) {
     if (e instanceof Error && e.message === "UNAUTHORIZED") {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    }
+    if (e instanceof Error && e.message === "FORBIDDEN") {
+      return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
     }
     throw e;
   }
@@ -130,7 +154,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { agencyId } = await requireSessionContext();
+    const { agencyId, userId } = await requirePermission("channels.manage");
     const id = request.nextUrl.searchParams.get("id");
     if (!id) {
       return NextResponse.json({ ok: false, error: "id_required" }, { status: 400 });
@@ -142,10 +166,21 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
     }
     await db.channelConnection.delete({ where: { id } });
+    await logAuditEvent({
+      agencyId,
+      userId,
+      action: "channel.connection.deleted",
+      resource: "ChannelConnection",
+      resourceId: id,
+      summary: `Conexión ${row.type} eliminada`
+    });
     return NextResponse.json({ ok: true });
   } catch (e) {
     if (e instanceof Error && e.message === "UNAUTHORIZED") {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    }
+    if (e instanceof Error && e.message === "FORBIDDEN") {
+      return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
     }
     throw e;
   }

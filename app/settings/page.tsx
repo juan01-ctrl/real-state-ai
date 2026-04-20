@@ -1,5 +1,5 @@
 import { AgencySettingsView } from "@/components/settings/AgencySettingsView";
-import { requireSessionContext } from "@/lib/server/auth-session";
+import { requirePermission } from "@/lib/server/auth-session";
 import { getExecutiveAnalytics } from "@/lib/server/read-models/analytics";
 import { getAgencyAiPreferences } from "@/lib/server/read-models/agency-settings";
 import { getChannelConnectionsForAgency } from "@/lib/server/read-models/channel-connections";
@@ -8,7 +8,7 @@ import { isMetaEncryptionConfigured } from "@/lib/server/meta-token-crypto";
 import { getPublicAppOrigin } from "@/lib/server/public-app-url";
 
 export default async function SettingsPage() {
-  const { agencyId } = await requireSessionContext({ redirectTo: "/sign-in" });
+  const { agencyId } = await requirePermission("settings.read", { redirectTo: "/sign-in" });
   const [analytics, connections, teamMembers, aiPreferences] = await Promise.all([
     getExecutiveAnalytics(agencyId),
     getChannelConnectionsForAgency(agencyId),

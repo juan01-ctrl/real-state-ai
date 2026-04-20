@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ChannelType } from "@prisma/client";
-import { requireSessionContext } from "@/lib/server/auth-session";
+import { logAuditEvent } from "@/lib/server/audit";
+import { requirePermission } from "@/lib/server/auth-session";
 import { db } from "@/lib/server/db";
 import { sendInstagramText, sendWhatsAppText } from "@/lib/server/meta-outbound";
 import { decryptMetaAccessToken } from "@/lib/server/meta-token-crypto";
@@ -33,7 +34,7 @@ export async function OPTIONS() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { agencyId } = await requireSessionContext();
+    const { agencyId, userId } = await requirePermission("channels.manage");
     const body = (await request.json()) as Body;
 
     const connectionId = body.connectionId?.trim();
@@ -148,10 +149,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "GRAPH_ERROR", message }, { status: 502 });
     }
 
+    await logAuditEvent({
+      agencyId,
+      userId,
+      action: "channel.test_message.sent",
+      resource: "ChannelConnection",
+      resourceId: connection.id,
+      summary: `Mensaje de prueba enviado por ${connection.type}`
+    });
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     if (e instanceof Error && e.message === "UNAUTHORIZED") {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    }
+    if (e instanceof Error && e.message === "FORBIDDEN") {
+      return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
     }
     throw e;
   }

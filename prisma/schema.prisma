@@ -112,6 +112,14 @@ enum AiRunStatus {
   FAILED
 }
 
+enum CriticalJobStatus {
+  QUEUED
+  RUNNING
+  RETRY_SCHEDULED
+  SUCCEEDED
+  FAILED
+}
+
 enum FollowUpEventStatus {
   SCHEDULED
   EXECUTED
@@ -141,6 +149,9 @@ model Agency {
   properties       Property[]
   aiRuns           AiRun[]
   analyticsEvents  AnalyticsEvent[]
+  auditLogs        AuditLog[]
+  criticalJobs     CriticalJob[]
+  subscription     AgencySubscription?
 }
 
 model User {
@@ -158,6 +169,7 @@ model User {
   ownedLeads  Lead[]    @relation("LeadOwner")
   sessions    Session[]
   accounts    Account[]
+  auditLogs   AuditLog[]
 
   @@unique([agencyId, email])
   @@unique([email])
@@ -449,4 +461,58 @@ model AnalyticsEvent {
   @@unique([agencyId, idempotencyKey])
   @@index([agencyId, occurredAt])
   @@index([leadId, occurredAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  agencyId   String
+  userId     String?
+  action     String
+  resource   String
+  resourceId String?
+  summary    String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  agency     Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([agencyId, createdAt])
+  @@index([agencyId, resource, createdAt])
+}
+
+model CriticalJob {
+  id             String            @id @default(cuid())
+  agencyId       String
+  type           String
+  status         CriticalJobStatus @default(QUEUED)
+  payload        Json
+  idempotencyKey String
+  attemptCount   Int               @default(0)
+  maxAttempts    Int               @default(5)
+  nextAttemptAt  DateTime          @default(now())
+  lastRunAt      DateTime?
+  lastError      String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  agency         Agency            @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  @@unique([agencyId, idempotencyKey])
+  @@index([agencyId, status, nextAttemptAt])
+  @@index([agencyId, type, createdAt])
+}
+
+model AgencySubscription {
+  id               String   @id @default(cuid())
+  agencyId         String   @unique
+  planCode         String   @default("starter")
+  status           String   @default("trialing")
+  seatLimit        Int      @default(3)
+  monthlyPriceUsd  Int      @default(0)
+  currentPeriodEnd DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  agency           Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
 }

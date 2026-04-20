@@ -21,6 +21,7 @@ function inferTitle(pathname: string) {
   if (pathname.startsWith("/insights") || pathname.startsWith("/analytics")) return "Analítica operativa";
   if (pathname.startsWith("/properties")) return "Inteligencia de Propiedades";
   if (pathname.startsWith("/settings")) return "Configuración de la Agencia";
+  if (pathname.startsWith("/backoffice")) return "Backoffice Operativo";
   return "Aesthete AI";
 }
 
@@ -33,6 +34,7 @@ function activeLabelForPath(pathname: string): AestheteNavLabel | null {
   if (p.startsWith("/properties")) return "Propiedades";
   if (p.startsWith("/team")) return "Equipo";
   if (p.startsWith("/settings")) return "Configuración";
+  if (p.startsWith("/backoffice")) return "Backoffice";
   return null;
 }
 

@@ -2,12 +2,17 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const requireSessionContext = vi.fn();
+const requirePermission = vi.fn();
 const sendMetaOutboundMessage = vi.fn();
 const approveMetaOutboundDraft = vi.fn();
 const discardMetaOutboundDraft = vi.fn();
+const logAuditEvent = vi.fn();
+const recordApiSliEvent = vi.fn();
+const buildTraceId = vi.fn(() => "trace_test");
 
 vi.mock("@/lib/server/auth-session", () => ({
-  requireSessionContext
+  requireSessionContext,
+  requirePermission
 }));
 
 vi.mock("@/lib/server/send-meta-outbound", () => ({
@@ -16,13 +21,22 @@ vi.mock("@/lib/server/send-meta-outbound", () => ({
   discardMetaOutboundDraft
 }));
 
+vi.mock("@/lib/server/audit", () => ({
+  logAuditEvent
+}));
+
+vi.mock("@/lib/server/observability", () => ({
+  buildTraceId,
+  recordApiSliEvent
+}));
+
 describe("api /leads/[leadId]/meta-messages", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("POST saves draft and returns message id", async () => {
-    requireSessionContext.mockResolvedValue({ agencyId: "a1", name: "Agente" });
+    requirePermission.mockResolvedValue({ agencyId: "a1", name: "Agente", userId: "u1" });
     sendMetaOutboundMessage.mockResolvedValue({ ok: true, messageId: "m1" });
 
     const { POST } = await import("@/app/api/leads/[leadId]/meta-messages/route");
@@ -40,8 +54,13 @@ describe("api /leads/[leadId]/meta-messages", () => {
   });
 
   it("PATCH approve validates action and messageId", async () => {
-    requireSessionContext.mockResolvedValue({ agencyId: "a1", name: "Agente" });
-    approveMetaOutboundDraft.mockResolvedValue({ ok: true, messageId: "m2" });
+    requirePermission.mockResolvedValue({ agencyId: "a1", name: "Agente", userId: "u1" });
+    approveMetaOutboundDraft.mockResolvedValue({
+      ok: true,
+      messageId: "m2",
+      queuedJobId: "j1",
+      deliveryStatus: "NOT_SENT"
+    });
 
     const { PATCH } = await import("@/app/api/leads/[leadId]/meta-messages/route");
 
@@ -66,7 +85,7 @@ describe("api /leads/[leadId]/meta-messages", () => {
   });
 
   it("PATCH discard path returns ok", async () => {
-    requireSessionContext.mockResolvedValue({ agencyId: "a1", name: "Agente" });
+    requirePermission.mockResolvedValue({ agencyId: "a1", name: "Agente", userId: "u1" });
     discardMetaOutboundDraft.mockResolvedValue({ ok: true });
 
     const { PATCH } = await import("@/app/api/leads/[leadId]/meta-messages/route");

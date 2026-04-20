@@ -1,5 +1,6 @@
 import { buildConfidenceReport } from "@/lib/qualification/confidence";
 import { runLeadExtraction } from "@/lib/qualification/extractors";
+import { maybeEnrichExtractionWithLlm } from "@/lib/qualification/llm-extractor";
 import { recommendNextAction } from "@/lib/qualification/next-action";
 import { runScoring } from "@/lib/qualification/scoring";
 import {
@@ -95,7 +96,7 @@ function normalizePolicy(policy: LeadQualificationInput["policy"]) {
   return { urgencyThreshold, matchingMode, outreachTone };
 }
 
-export function runLeadQualificationPipeline(input: LeadQualificationInput): QualificationOutput {
+export async function runLeadQualificationPipeline(input: LeadQualificationInput): Promise<QualificationOutput> {
   const now = input.now ?? new Date().toISOString();
   const policy = normalizePolicy(input.policy);
   const logs: QualificationLog[] = [
@@ -111,7 +112,12 @@ export function runLeadQualificationPipeline(input: LeadQualificationInput): Qua
     }
   ];
 
-  const extraction = runLeadExtraction(input.messages);
+  const ruleExtraction = runLeadExtraction(input.messages);
+  const llmResult = await maybeEnrichExtractionWithLlm({
+    extraction: ruleExtraction,
+    messages: input.messages
+  });
+  const extraction = llmResult.extraction;
 
   logs.push({
     timestamp: new Date().toISOString(),
@@ -121,9 +127,22 @@ export function runLeadQualificationPipeline(input: LeadQualificationInput): Qua
     data: {
       budgetExtracted: extraction.budget.value !== null,
       zonesExtracted: (extraction.preferredZones.value?.length ?? 0) > 0,
-      timelineExtracted: extraction.timelineMonths.value !== null
+      timelineExtracted: extraction.timelineMonths.value !== null,
+      llmAssisted: llmResult.used
     }
   });
+
+  if (!llmResult.used && llmResult.reason && llmResult.reason !== "not_ambiguous") {
+    logs.push({
+      timestamp: new Date().toISOString(),
+      step: "fallback",
+      level: "warn",
+      message: "Fallback a extracción por reglas",
+      data: {
+        reason: llmResult.reason
+      }
+    });
+  }
 
   const scoringBase = runScoring(extraction, input.messages, {
     urgencyThreshold: policy.urgencyThreshold,
@@ -161,6 +180,7 @@ export function runLeadQualificationPipeline(input: LeadQualificationInput): Qua
     version: PIPELINE_VERSION,
     profile,
     extraction,
+    extractionStrategy: llmResult.used ? "llm_assisted" : "rules_only",
     assessment: {
       ...scoringBase,
       recommendedNextAction: nextAction

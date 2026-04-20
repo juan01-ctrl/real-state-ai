@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { UserRole } from "@prisma/client";
-import { requireSessionContext } from "@/lib/server/auth-session";
+import { logAuditEvent } from "@/lib/server/audit";
+import { requirePermission } from "@/lib/server/auth-session";
 import { db } from "@/lib/server/db";
 import { getTeamMembersForAgency } from "@/lib/server/read-models/team-members";
 
@@ -19,7 +20,10 @@ interface UpdateMemberPayload {
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const [{ userId }, { agencyId, userId: sessionUserId }] = await Promise.all([params, requireSessionContext()]);
+    const [{ userId }, { agencyId, userId: sessionUserId }] = await Promise.all([
+      params,
+      requirePermission("team.manage")
+    ]);
     const payload = (await request.json()) as UpdateMemberPayload;
     const name = payload.name?.trim();
 
@@ -52,11 +56,27 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       }
     });
 
+    await logAuditEvent({
+      agencyId,
+      userId: sessionUserId,
+      action: "team.member.updated",
+      resource: "User",
+      resourceId: userId,
+      summary: "Actualización de miembro",
+      metadata: {
+        name: name ?? null,
+        role: nextRole ?? null
+      }
+    });
+
     const model = await getTeamMembersForAgency(agencyId);
     return NextResponse.json({ ok: true, ...model });
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    }
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
     }
 
     return NextResponse.json({ ok: false, error: "TEAM_MEMBER_UPDATE_FAILED" }, { status: 500 });
@@ -65,7 +85,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
-    const [{ userId }, { agencyId, userId: sessionUserId }] = await Promise.all([params, requireSessionContext()]);
+    const [{ userId }, { agencyId, userId: sessionUserId }] = await Promise.all([
+      params,
+      requirePermission("team.manage")
+    ]);
 
     const member = await db.user.findFirst({
       where: { id: userId, agencyId },
@@ -96,11 +119,23 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       await tx.user.delete({ where: { id: member.id } });
     });
 
+    await logAuditEvent({
+      agencyId,
+      userId: sessionUserId,
+      action: "team.member.deleted",
+      resource: "User",
+      resourceId: member.id,
+      summary: "Baja de miembro"
+    });
+
     const model = await getTeamMembersForAgency(agencyId);
     return NextResponse.json({ ok: true, ...model });
   } catch (error) {
     if (error instanceof Error && error.message === "UNAUTHORIZED") {
       return NextResponse.json({ ok: false, error: "UNAUTHORIZED" }, { status: 401 });
+    }
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json({ ok: false, error: "FORBIDDEN" }, { status: 403 });
     }
 
     return NextResponse.json({ ok: false, error: "TEAM_MEMBER_DELETE_FAILED" }, { status: 500 });

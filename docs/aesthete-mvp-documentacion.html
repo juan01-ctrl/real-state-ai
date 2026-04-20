@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aesthete AI - Documento completo del proyecto (MVP)</title>
+    <style>
+      :root {
+        --bg: #fbf9f6;
+        --text: #2f312e;
+        --muted: #5e5f5c;
+        --line: #d9d8d3;
+        --primary: #58624e;
+        --soft: #efeeea;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--text);
+        background: var(--bg);
+        line-height: 1.5;
+      }
+      .page {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 36px 44px 60px;
+      }
+      h1, h2, h3 { margin: 0 0 10px; color: #313330; }
+      h1 { font-family: "Noto Serif", Georgia, serif; font-size: 34px; line-height: 1.2; margin-top: 8px; }
+      h2 {
+        font-size: 21px;
+        margin-top: 34px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+      }
+      h3 { font-size: 16px; margin-top: 18px; }
+      p, li { font-size: 13px; color: #313330; }
+      .muted { color: var(--muted); }
+      .kicker {
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--primary);
+        font-weight: 600;
+      }
+      .meta {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin: 14px 0 18px;
+      }
+      .card {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px 12px;
+      }
+      .card small { color: var(--muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.08em; }
+      .card div { margin-top: 4px; font-weight: 600; font-size: 13px; }
+      ul { margin: 8px 0 10px 18px; padding: 0; }
+      ol { margin: 8px 0 10px 20px; padding: 0; }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        background: #f1f0eb;
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .status {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 8px;
+      }
+      .ok { background: #dce6cd; color: #394230; }
+      .warn { background: #f5eaa4; color: #4a430e; }
+      .gap { background: #fde4dd; color: #6e1400; }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        padding: 10px 12px;
+      }
+      .small { font-size: 12px; }
+      .footer-note {
+        margin-top: 30px;
+        font-size: 11px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        padding-top: 10px;
+      }
+      @media print {
+        .page { padding: 20px 26px 30px; }
+        h2 { margin-top: 24px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <p class="kicker">Aesthete AI · Documento operativo del MVP</p>
+      <h1>Proyecto completo: estado actual, funcionalidades, IA y guía de uso real</h1>
+      <p class="muted">
+        Documento generado sobre el código actual del repositorio <code>real-state-ai</code> (Next.js 15 + Prisma + PostgreSQL),
+        con foco en operación real del MVP y no solo en diseño.
+      </p>
+
+      <section class="meta">
+        <article class="card">
+          <small>Stack</small>
+          <div>Next.js 15, React 19, TypeScript strict, Tailwind v4</div>
+        </article>
+        <article class="card">
+          <small>Backend</small>
+          <div>Route Handlers + Server Actions + Better Auth + Prisma</div>
+        </article>
+        <article class="card">
+          <small>Integraciones</small>
+          <div>Meta Webhooks/API (WhatsApp + Instagram)</div>
+        </article>
+      </section>
+
+      <h2>1) Qué es el producto</h2>
+      <p>
+        Aesthete es una capa de inteligencia comercial para inmobiliarias. No está pensado como “otro CRM” ni como “chatbot genérico”: su propuesta
+        central es detectar qué leads realmente importan, recomendar la próxima acción y mostrar dónde se están perdiendo oportunidades.
+      </p>
+      <p>
+        Superficie actual del producto:
+        <code>/dashboard</code>, <code>/leads</code>, <code>/leads/[id]</code>, <code>/opportunities</code>, <code>/insights</code>, <code>/properties</code>,
+        <code>/team</code>, <code>/settings</code>, más landing comercial en <code>/</code>.
+      </p>
+
+      <h2>2) Stack completo y arquitectura</h2>
+      <ul>
+        <li>Frontend: Next.js App Router, React 19, Tailwind v4, componentes reutilizables.</li>
+        <li>Backend app: Route Handlers en <code>app/api/**</code> + Server Actions para operaciones de leads.</li>
+        <li>Autenticación: <code>better-auth</code> con sesión en DB y <code>requireSessionContext()</code>.</li>
+        <li>Multitenancy: scoping por <code>agencyId</code> derivado de sesión (no por query libre).</li>
+        <li>Persistencia: PostgreSQL + Prisma (schema robusto de operación comercial e inteligencia).</li>
+        <li>Integración de canales: Webhook Meta en <code>/api/webhooks/meta</code> + salida por Graph API.</li>
+        <li>Testing: Vitest (unit/integration) + Playwright E2E.</li>
+      </ul>
+
+      <h2>3) Modelo de dominio (resumen)</h2>
+      <div class="grid-2">
+        <div class="box small">
+          <h3>Entidades núcleo</h3>
+          <ul>
+            <li><code>Agency</code>, <code>User</code>, <code>Session</code></li>
+            <li><code>Lead</code>, <code>LeadProfile</code>, <code>LeadStageHistory</code></li>
+            <li><code>Conversation</code>, <code>Message</code>, <code>ChannelConnection</code></li>
+            <li><code>Task</code>, <code>Note</code>, <code>FollowUpEvent</code></li>
+          </ul>
+        </div>
+        <div class="box small">
+          <h3>Inteligencia y analítica</h3>
+          <ul>
+            <li><code>Property</code>, <code>PropertyRecommendation</code></li>
+            <li><code>AiRun</code> (auditoría de ejecución de pipeline)</li>
+            <li><code>AnalyticsEvent</code> (métricas y señales de negocio)</li>
+            <li>Enums de etapa, prioridad, urgencia, seriedad, estado de entrega, etc.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>4) Funcionalidades actuales por vista</h2>
+
+      <h3>Landing <code>/</code> <span class="status ok">Implementado</span></h3>
+      <ul>
+        <li>Posicionamiento comercial premium orientado a “inteligencia de oportunidades”.</li>
+        <li>Navegación por secciones + CTA principal + adaptación mobile.</li>
+      </ul>
+
+      <h3>Leads inbox <code>/leads</code> <span class="status ok">Operativo</span></h3>
+      <ul>
+        <li>Listado con selección de lead, estado visual activo/no activo, panel derecho contextual.</li>
+        <li>Click en flecha: navegación a <code>/leads/[id]</code>.</li>
+        <li>Click en fila: cambia contexto de detalle dentro del workspace.</li>
+        <li>Mensajería Meta: borrador, aprobación y envío.</li>
+      </ul>
+
+      <h3>Detalle de lead <code>/leads/[id]</code> <span class="status ok">Operativo</span></h3>
+      <ul>
+        <li>Cambio de etapa.</li>
+        <li>Asignación de owner/agente.</li>
+        <li>Creación y completado/reapertura de tareas.</li>
+        <li>Notas operativas.</li>
+        <li>Marcado de visita agendada.</li>
+      </ul>
+
+      <h3>Team command center <code>/team</code> <span class="status ok">Operativo (MVP)</span></h3>
+      <ul>
+        <li>Follow-ups urgentes.</li>
+        <li>Leads high-value sin asignar.</li>
+        <li>Leads en riesgo.</li>
+        <li>Visitas del día.</li>
+        <li>Carga por miembro y tareas abiertas por owner.</li>
+      </ul>
+
+      <h3>Insights <code>/insights</code> <span class="status ok">Operativo (MVP)</span></h3>
+      <ul>
+        <li>Leads de alta intención perdidos.</li>
+        <li>Demora promedio de respuesta.</li>
+        <li>Leads sin follow-up por demasiado tiempo.</li>
+        <li>Razones frecuentes de pérdida (si hay señal disponible).</li>
+        <li>Comparativo por fuente y vista simple de conversión por etapa.</li>
+      </ul>
+
+      <h3>Settings <code>/settings</code> <span class="status ok">Operativo</span></h3>
+      <ul>
+        <li>Conexiones Meta (alta, borrado, estado, token, health de actividad).</li>
+        <li>Prueba de envío real <code>/api/channels/meta/test-message</code>.</li>
+        <li>Preferencias de IA (umbral, modo de matching, tono).</li>
+        <li>Gestión de equipo (alta, edición, baja con protecciones básicas).</li>
+      </ul>
+
+      <h3>Dashboard / Opportunities / Properties / Analytics <span class="status warn">Parcial</span></h3>
+      <ul>
+        <li>UI premium y navegación funcional.</li>
+        <li>Varias tarjetas y paneles ya conectados con read-models.</li>
+        <li>Parte de los bloques sigue con lógica simplificada para MVP.</li>
+      </ul>
+
+      <h2>5) Cómo funciona la parte de IA hoy</h2>
+      <p>
+        <strong>Sí hay sistema de inteligencia funcionando.</strong> Hoy es un motor determinístico de reglas (no un modelo generativo LLM en producción).
+      </p>
+      <ol>
+        <li>Ingreso de lead/mensajes por API o webhook Meta.</li>
+        <li>Extracción de señales (presupuesto, zonas, timeline, tipo propiedad, objeciones, etc.).</li>
+        <li>Scoring ponderado (<code>0..100</code>) + cálculo de urgencia/seriedad/prioridad.</li>
+        <li>Recomendación de next best action según modo de política (conservador/agresivo).</li>
+        <li>Reporte de confianza y detección de casos para revisión humana.</li>
+        <li>Persistencia de outputs en <code>Lead</code>, <code>LeadProfile</code>, <code>AiRun</code>, <code>AnalyticsEvent</code>.</li>
+        <li>Recalificación automática cuando entran nuevos mensajes al hilo.</li>
+      </ol>
+
+      <h3>Lógica de calificación (resumen práctico)</h3>
+      <ul>
+        <li>Señales fuertes: presupuesto claro, zona definida, timeline, tipo de propiedad, profundidad conversacional.</li>
+        <li>Urgencia: timeline corto y lenguaje de prioridad elevan score operativo.</li>
+        <li>Seriedad: cantidad/calidad de señales + consistencia en mensajes.</li>
+        <li>Objeciones penalizan probabilidad de cierre.</li>
+        <li>Política de agencia ajusta umbral de urgencia y estrategia de recomendación.</li>
+      </ul>
+
+      <h2>6) Qué tenemos vs qué falta</h2>
+      <div class="grid-2">
+        <div class="box small">
+          <h3>Ya tenemos (real hoy)</h3>
+          <ul>
+            <li>Auth + sesión + scoping tenant en rutas críticas.</li>
+            <li>CRUD operativo de acciones clave sobre leads.</li>
+            <li>Persistencia completa en PostgreSQL.</li>
+            <li>Integración Meta inbound/outbound funcional para MVP.</li>
+            <li>Suite de tests unit, integration y E2E en camino crítico.</li>
+          </ul>
+        </div>
+        <div class="box small">
+          <h3>Falta / simplificado</h3>
+          <ul>
+            <li>Roles/permisos avanzados (RBAC fino).</li>
+            <li>Colas/reintentos robustos para jobs críticos.</li>
+            <li>IA generativa productiva (explicabilidad + guardrails + evals online).</li>
+            <li>Observabilidad empresarial (SLO/alertas/tracing).</li>
+            <li>Backoffice de auditoría y billing/planes multi-tenant.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>7) Flujo completo para probar como usuario real</h2>
+
+      <h3>Paso A — Preparación técnica</h3>
+      <ol>
+        <li>Instalar dependencias: <code>npm install</code></li>
+        <li>Configurar <code>.env</code> desde <code>.env.example</code> (DB + Better Auth + Meta opcional).</li>
+        <li>Migrar base: <code>npm run db:migrate</code></li>
+        <li>Crear usuario operador: <code>npm run create-account -- --new-agency --email tu@email --password 'TuPass123!' --name 'Operador'</code></li>
+        <li>Levantar app: <code>npm run dev</code></li>
+      </ol>
+
+      <h3>Paso B — Flujo funcional mínimo del negocio</h3>
+      <ol>
+        <li>Ingresar en <code>/sign-in</code> con el operador creado.</li>
+        <li>Ir a <code>/settings</code> y registrar conexión WhatsApp/Instagram (si aplica).</li>
+        <li>Crear lead por intake (webhook Meta o endpoint intake).</li>
+        <li>Verificar que aparece en <code>/leads</code>.</li>
+        <li>Abrir detalle del lead y ejecutar operaciones: etapa, owner, tarea, nota, visita.</li>
+        <li>Ir a <code>/team</code> y confirmar impacto operativo.</li>
+        <li>Ir a <code>/insights</code> y validar señales estratégicas derivadas.</li>
+      </ol>
+
+      <h3>Paso C — Prueba de mensajería Meta (si está conectado)</h3>
+      <ol>
+        <li>Desde <code>/settings</code> usar “Prueba de envío”.</li>
+        <li>Desde <code>/leads</code>, crear borrador y aprobar envío.</li>
+        <li>Simular/recibir webhook de estado y validar actualización de delivery.</li>
+      </ol>
+
+      <h2>8) Testing automatizado actual</h2>
+      <ul>
+        <li><strong>Unit:</strong> pipeline de calificación, seguridad Meta, parser payloads, utilidades y rutas de mensajes.</li>
+        <li><strong>Integration:</strong> flujo lead intake→operación y mensajería Meta workflow.</li>
+        <li><strong>E2E:</strong> journey principal de lead + aprobación/envío de mensaje Meta.</li>
+      </ul>
+      <p class="small">
+        Comandos:
+        <code>npm test</code>
+        <code>npm run test:e2e</code>
+      </p>
+
+      <h2>9) Evaluación honesta: ¿“tenemos un sistema de IA”?</h2>
+      <p>
+        Sí, en el sentido operativo del MVP: hay un motor de inteligencia que extrae, puntúa, prioriza y recomienda acciones con persistencia y trazabilidad.
+      </p>
+      <p>
+        No, si la definición exige un stack avanzado de modelos fundacionales en línea con aprendizaje continuo. Hoy el núcleo es rule-based,
+        sólido para validar negocio, pero todavía no es una “plataforma de IA avanzada” en versión final.
+      </p>
+
+      <h2>10) Prioridades recomendadas de mejora</h2>
+      <ol>
+        <li>Confiabilidad de mensajería: colas + retries + dead-letter + observabilidad.</li>
+        <li>Calidad de insights: explicaciones causales por lead y por etapa.</li>
+        <li>Métricas de negocio cerradas: visitas calificadas, conversión por owner, tiempo a primera acción.</li>
+        <li>Permisos por rol y controles anti-fuga de datos entre agencias.</li>
+        <li>Evolución IA: capa LLM opcional sobre el motor determinístico con evals y control de costo.</li>
+      </ol>
+
+      <p class="footer-note">
+        Documento pensado para onboarding de founders, equipo comercial y equipo técnico. Refleja estado real del código al día de hoy.
+      </p>
+    </main>
+  </body>
+</html>

@@ -1,4 +1,5 @@
 import { ChannelType, DeliveryStatus, MessageApprovalStatus, MessageDirection, SenderType } from "@prisma/client";
+import { enqueueCriticalJob } from "@/lib/server/critical-jobs";
 import { db } from "@/lib/server/db";
 import { decryptMetaAccessToken } from "@/lib/server/meta-token-crypto";
 import { sendInstagramText, sendWhatsAppText } from "@/lib/server/meta-outbound";
@@ -22,7 +23,7 @@ export type SendMetaOutboundResult =
     };
 
 export type ApproveMetaOutboundResult =
-  | { ok: true; messageId: string }
+  | { ok: true; messageId: string; queuedJobId: string; deliveryStatus: DeliveryStatus }
   | {
       ok: false;
       code:
@@ -189,77 +190,43 @@ export async function approveMetaOutboundDraft(
       message: "Falta el token de acceso de Meta en Configuración para este canal."
     };
   }
-  let accessToken: string;
-  try {
-    accessToken = decryptMetaAccessToken(conn.accessTokenEnc);
-  } catch {
-    return {
-      ok: false,
-      code: "ENCRYPTION_NOT_CONFIGURED",
-      message: "No se pudo descifrar el token. Reingresalo en Configuración."
-    };
-  }
-
   const thread = parseThreadRecipient(conv.externalThreadId);
   if (!thread) {
     return { ok: false, code: "NO_META_THREAD", message: "Hilo externo inválido" };
   }
 
-  const phoneOrIgId = conn.externalAccountId;
-  if (!phoneOrIgId) {
+  if (!conn.externalAccountId) {
     return { ok: false, code: "GRAPH_ERROR", message: "Falta el ID de número o cuenta en la conexión" };
   }
 
-  try {
-    let sendResult: { messageId: string | null } | null = null;
-    if (conn.type === ChannelType.WHATSAPP && thread.kind === "wa") {
-      sendResult = await sendWhatsAppText({
-        phoneNumberId: phoneOrIgId,
-        accessToken,
-        toDigits: thread.id,
-        body: draft.body
-      });
-    } else if (conn.type === ChannelType.INSTAGRAM && thread.kind === "ig") {
-      sendResult = await sendInstagramText({
-        instagramBusinessAccountId: phoneOrIgId,
-        accessToken,
-        recipientInstagramScopedId: thread.id,
-        body: draft.body
-      });
-    } else {
-      return {
-        ok: false,
-        code: "NO_META_THREAD",
-        message: "El tipo de canal no coincide con el hilo guardado."
-      };
+  await db.message.update({
+    where: { id: draft.id },
+    data: {
+      senderName: approverName,
+      sentAt: new Date(),
+      approvalStatus: MessageApprovalStatus.APPROVED,
+      deliveryStatus: DeliveryStatus.NOT_SENT
     }
-    const sentAt = new Date();
-    await db.$transaction(async (tx) => {
-      await tx.message.update({
-        where: { id: draft.id },
-        data: {
-          externalMessageId: sendResult?.messageId ?? undefined,
-          senderName: approverName,
-          sentAt,
-          approvalStatus: MessageApprovalStatus.APPROVED,
-          // Meta aceptó el envío; quedará READ/FAILED por webhook cuando aplique.
-          deliveryStatus: DeliveryStatus.DELIVERED
-        }
-      });
-      await tx.lead.update({
-        where: { id: leadId },
-        data: { lastActivityAt: sentAt }
-      });
-    });
-    return { ok: true, messageId: draft.id };
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Error al enviar";
-    await db.message.update({
-      where: { id: draft.id },
-      data: { deliveryStatus: DeliveryStatus.FAILED }
-    });
-    return { ok: false, code: "GRAPH_ERROR", message: msg };
-  }
+  });
+
+  const queued = await enqueueCriticalJob({
+    agencyId,
+    type: "META_OUTBOUND_SEND",
+    payload: {
+      draftMessageId: draft.id
+    },
+    idempotencyKey: `meta_outbound_send:${draft.id}`,
+    maxAttempts: 6
+  });
+
+  // Intento inmediato best-effort para reducir latencia percibida.
+  const immediate = await dispatchApprovedMetaMessageById(agencyId, draft.id);
+  return {
+    ok: true,
+    messageId: draft.id,
+    queuedJobId: queued.id,
+    deliveryStatus: immediate.ok ? DeliveryStatus.DELIVERED : DeliveryStatus.NOT_SENT
+  };
 }
 
 export async function discardMetaOutboundDraft(
@@ -293,4 +260,98 @@ export async function discardMetaOutboundDraft(
     }
   });
   return { ok: true };
+}
+
+export async function dispatchApprovedMetaMessageById(
+  agencyId: string,
+  draftMessageId: string
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const draft = await db.message.findFirst({
+    where: {
+      id: draftMessageId,
+      agencyId,
+      direction: MessageDirection.OUTBOUND
+    },
+    include: {
+      conversation: {
+        include: {
+          channelConnection: true
+        }
+      }
+    }
+  });
+
+  if (!draft || draft.approvalStatus !== MessageApprovalStatus.APPROVED) {
+    return { ok: false, message: "Draft no encontrado o no aprobado." };
+  }
+
+  const conv = draft.conversation;
+  if (!conv?.externalThreadId || !conv.channelConnection) {
+    return { ok: false, message: "Hilo Meta faltante." };
+  }
+
+  const conn = conv.channelConnection;
+  if (!conn.accessTokenEnc) {
+    return { ok: false, message: "Falta token de conexión." };
+  }
+
+  let accessToken: string;
+  try {
+    accessToken = decryptMetaAccessToken(conn.accessTokenEnc);
+  } catch {
+    return { ok: false, message: "No se pudo descifrar el token guardado." };
+  }
+
+  const thread = parseThreadRecipient(conv.externalThreadId);
+  if (!thread) {
+    return { ok: false, message: "Hilo externo inválido." };
+  }
+
+  if (!conn.externalAccountId) {
+    return { ok: false, message: "Falta externalAccountId en conexión." };
+  }
+
+  try {
+    let sendResult: { messageId: string | null } | null = null;
+    if (conn.type === ChannelType.WHATSAPP && thread.kind === "wa") {
+      sendResult = await sendWhatsAppText({
+        phoneNumberId: conn.externalAccountId,
+        accessToken,
+        toDigits: thread.id,
+        body: draft.body
+      });
+    } else if (conn.type === ChannelType.INSTAGRAM && thread.kind === "ig") {
+      sendResult = await sendInstagramText({
+        instagramBusinessAccountId: conn.externalAccountId,
+        accessToken,
+        recipientInstagramScopedId: thread.id,
+        body: draft.body
+      });
+    } else {
+      return { ok: false, message: "Canal/hilo inconsistente." };
+    }
+
+    const sentAt = new Date();
+    await db.$transaction(async (tx) => {
+      await tx.message.update({
+        where: { id: draft.id },
+        data: {
+          externalMessageId: sendResult?.messageId ?? undefined,
+          sentAt,
+          deliveryStatus: DeliveryStatus.DELIVERED
+        }
+      });
+      await tx.lead.update({
+        where: { id: conv.leadId },
+        data: { lastActivityAt: sentAt }
+      });
+    });
+    return { ok: true };
+  } catch (error) {
+    await db.message.update({
+      where: { id: draft.id },
+      data: { deliveryStatus: DeliveryStatus.NOT_SENT }
+    });
+    return { ok: false, message: error instanceof Error ? error.message : "Send failed" };
+  }
 }

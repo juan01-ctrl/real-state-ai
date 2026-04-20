@@ -169,7 +169,7 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
     policy
   };
 
-  const output = runLeadQualificationPipeline(qualificationInput);
+  const output = await runLeadQualificationPipeline(qualificationInput);
 
   let ownerUserId: string | null = null;
   if (input.assignedAgentEmail) {
@@ -303,6 +303,26 @@ export async function ingestLeadAndQualify(input: LeadIntakeRequest) {
           sourceCampaign: input.sourceCampaign ?? null
         },
         idempotencyKey: `qualification:${lead.id}:${stableHash(output.assessment)}`
+      }
+    });
+
+    await tx.analyticsEvent.create({
+      data: {
+        agencyId: agency.id,
+        leadId: lead.id,
+        type: "qualification.eval.online",
+        properties: {
+          extractionStrategy: output.extractionStrategy,
+          confidence: output.confidence.overall,
+          requiresHumanReview: output.confidence.requiresHumanReview,
+          missingCriticalFields: output.confidence.missingCriticalFields,
+          score: output.assessment.leadScore
+        },
+        idempotencyKey: `qualification-eval:${lead.id}:${stableHash({
+          strategy: output.extractionStrategy,
+          confidence: output.confidence.overall,
+          score: output.assessment.leadScore
+        })}`
       }
     });
 
@@ -487,7 +507,7 @@ async function rerunLeadIntelligence(agencyId: string, leadId: string) {
 
   const policy = await getAgencyPolicy(agencyId);
 
-  const output = runLeadQualificationPipeline({
+  const output = await runLeadQualificationPipeline({
     agencyId,
     leadId,
     messages: qualificationMessages,
@@ -620,6 +640,27 @@ async function rerunLeadIntelligence(agencyId: string, leadId: string) {
           reason: "inbound_message_requalification"
         },
         idempotencyKey: `qualification-refresh:${leadId}:${stableHash(output.assessment)}`
+      }
+    });
+
+    await tx.analyticsEvent.create({
+      data: {
+        agencyId,
+        leadId,
+        type: "qualification.eval.online",
+        properties: {
+          extractionStrategy: output.extractionStrategy,
+          confidence: output.confidence.overall,
+          requiresHumanReview: output.confidence.requiresHumanReview,
+          missingCriticalFields: output.confidence.missingCriticalFields,
+          score: output.assessment.leadScore,
+          reason: "inbound_message_requalification"
+        },
+        idempotencyKey: `qualification-eval-refresh:${leadId}:${stableHash({
+          strategy: output.extractionStrategy,
+          confidence: output.confidence.overall,
+          score: output.assessment.leadScore
+        })}`
       }
     });
   });
