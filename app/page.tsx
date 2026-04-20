@@ -36,13 +36,17 @@ function PremiumCursor() {
     const onMouseUp = () => cursor.classList.remove("is-pressed");
     const onMouseLeave = () => (cursor.style.opacity = "0");
     const onMouseEnter = () => (cursor.style.opacity = "1");
+    /** CTAs tipo botón suelen ser `<a class="bg-primary">`; los `<button>` nativos también cuentan. */
+    const isCursorButton = (el: HTMLElement | null) =>
+      Boolean(el?.closest("button, .premium-cursor-button"));
+
     const onPointerOver = (e: PointerEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target?.closest("button")) cursor.classList.add("is-on-button");
+      if (isCursorButton(target)) cursor.classList.add("is-on-button");
     };
     const onPointerOut = (e: PointerEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target?.closest("button")) cursor.classList.remove("is-on-button");
+      if (isCursorButton(target)) cursor.classList.remove("is-on-button");
     };
 
     const animate = () => {
@@ -159,7 +163,7 @@ export default function HomePage() {
               </div>
               <div className="flex flex-col gap-4">
                 <a
-                  className="inline-flex w-fit items-center justify-center bg-primary px-6 py-4 text-xs font-semibold uppercase tracking-widest text-on-primary shadow-[0_18px_36px_-20px_rgba(88,98,78,0.85)] transition-all duration-300 hover:bg-[#4d5643] hover:shadow-[0_28px_46px_-22px_rgba(88,98,78,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-[0.98] sm:px-10 sm:py-5 sm:text-sm"
+                  className="premium-cursor-button inline-flex w-fit items-center justify-center bg-primary px-6 py-4 text-xs font-semibold uppercase tracking-widest text-on-primary shadow-[0_18px_36px_-20px_rgba(88,98,78,0.85)] transition-all duration-300 hover:bg-[#4d5643] hover:shadow-[0_28px_46px_-22px_rgba(88,98,78,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-[0.98] sm:px-10 sm:py-5 sm:text-sm"
                   href="https://wa.me/5491159570977?text=Hola%2C%20quiero%20reservar%20una%20demo%20privada."
                   rel="noopener noreferrer"
                   target="_blank"
@@ -466,7 +470,7 @@ export default function HomePage() {
             </div>
             <div className="space-y-8">
               <a
-                className="inline-flex items-center justify-center bg-primary px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-on-primary shadow-[0_24px_44px_-24px_rgba(88,98,78,0.95)] transition-all duration-300 hover:bg-[#4d5643] hover:shadow-[0_34px_56px_-24px_rgba(88,98,78,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-95 sm:px-16 sm:py-6 sm:text-sm sm:tracking-[0.25em]"
+                className="premium-cursor-button inline-flex items-center justify-center bg-primary px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-on-primary shadow-[0_24px_44px_-24px_rgba(88,98,78,0.95)] transition-all duration-300 hover:bg-[#4d5643] hover:shadow-[0_34px_56px_-24px_rgba(88,98,78,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 active:scale-95 sm:px-16 sm:py-6 sm:text-sm sm:tracking-[0.25em]"
                 href="https://wa.me/5491159570977?text=Hola%2C%20quiero%20reservar%20una%20demo%20privada."
                 rel="noopener noreferrer"
                 target="_blank"
