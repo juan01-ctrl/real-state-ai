@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
@@ -77,10 +76,7 @@ export default function SignInPage() {
         </form>
 
         <p className="mt-5 text-sm text-stone-500">
-          ¿No tenés cuenta?{" "}
-          <Link className="text-[#58624e] underline" href="/sign-up">
-            Crear cuenta
-          </Link>
+          Las cuentas de operador las da el administrador de tu agencia (no hay registro público).
         </p>
       </div>
     </main>

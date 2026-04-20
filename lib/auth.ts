@@ -30,7 +30,9 @@ export const auth = betterAuth({
   basePath: "/api/auth",
   trustedOrigins: [process.env.BETTER_AUTH_URL ?? "http://localhost:3000"],
   emailAndPassword: {
-    enabled: true
+    enabled: true,
+    /** Sin registro público: altas solo vía script operador (`npm run create-account`). */
+    disableSignUp: true
   },
   user: {
     modelName: "User",
