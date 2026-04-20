@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aesthete AI | Team Activity Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,300;0,400;0,700;1,300&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-dim": "#4d5643",
+                        "tertiary-fixed-dim": "#e6db97",
+                        "surface-tint": "#58624e",
+                        "inverse-primary": "#eaf5db",
+                        "on-tertiary": "#fff9e5",
+                        "on-secondary-fixed-variant": "#535f48",
+                        "secondary-fixed-dim": "#ccd9bc",
+                        "tertiary-dim": "#5b541e",
+                        "primary-fixed-dim": "#ced8bf",
+                        "surface-container": "#efeeea",
+                        "secondary-fixed": "#dae7c9",
+                        "primary-fixed": "#dce6cd",
+                        "outline-variant": "#b2b2ae",
+                        "on-tertiary-fixed-variant": "#686028",
+                        "error-dim": "#791903",
+                        "inverse-surface": "#0e0e0d",
+                        "surface-variant": "#e3e3de",
+                        "tertiary-container": "#f5eaa4",
+                        "surface-container-low": "#f5f3f0",
+                        "on-secondary": "#f0fedf",
+                        "on-surface-variant": "#5e5f5c",
+                        "background": "#fbf9f6",
+                        "on-error-container": "#6e1400",
+                        "tertiary-fixed": "#f5eaa4",
+                        "on-tertiary-fixed": "#4a430e",
+                        "on-secondary-fixed": "#37432d",
+                        "secondary-container": "#dae7c9",
+                        "error": "#a73b21",
+                        "surface-container-high": "#e9e8e4",
+                        "primary": "#58624e",
+                        "surface-bright": "#fbf9f6",
+                        "on-primary-fixed-variant": "#555f4b",
+                        "on-tertiary-container": "#5d561f",
+                        "surface": "#fbf9f6",
+                        "secondary-dim": "#4b5740",
+                        "on-secondary-container": "#4a553f",
+                        "on-primary-fixed": "#394230",
+                        "on-primary-container": "#4b5542",
+                        "secondary": "#57634b",
+                        "on-primary": "#f2fde3",
+                        "error-container": "#fd795a",
+                        "surface-dim": "#dadad6",
+                        "on-background": "#313330",
+                        "surface-container-highest": "#e3e3de",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#313330",
+                        "on-error": "#fff7f6",
+                        "inverse-on-surface": "#9e9d9a",
+                        "tertiary": "#686028",
+                        "outline": "#7a7b77",
+                        "primary-container": "#dce6cd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            font-size: 1.25rem;
+        }
+        .editorial-shadow {
+            box-shadow: 0 20px 50px -12px rgba(49, 51, 48, 0.04);
+        }
+        body {
+            background-color: #fbf9f6;
+            color: #313330;
+        }
+        .text-charcoal { color: #313330; }
+        .text-olive { color: #58624e; }
+    </style>
+</head>
+<body class="font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#efeeea] flex flex-col h-full py-8 space-y-8 z-50">
+<div class="px-8">
+<h1 class="font-serif text-lg tracking-widest text-[#313330] uppercase">Aesthete AI</h1>
+<p class="font-sans text-[10px] tracking-[0.1em] text-[#58624e] uppercase font-medium mt-1">Elite Tier</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center text-[#313330]/50 hover:bg-stone-200/50 transition-all py-3 px-8 font-sans text-[10px] tracking-[0.1em] uppercase font-medium" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span> Overview
+            </a>
+<a class="flex items-center text-[#313330] bg-[#fbf9f6] rounded-r-full py-3 px-8 font-sans text-[10px] tracking-[0.1em] uppercase font-medium shadow-sm" href="#">
+<span class="material-symbols-outlined mr-3 text-olive">inbox</span> Leads
+            </a>
+<a class="flex items-center text-[#313330]/50 hover:bg-stone-200/50 transition-all py-3 px-8 font-sans text-[10px] tracking-[0.1em] uppercase font-medium" href="#">
+<span class="material-symbols-outlined mr-3">query_stats</span> Market Insight
+            </a>
+<a class="flex items-center text-[#313330]/50 hover:bg-stone-200/50 transition-all py-3 px-8 font-sans text-[10px] tracking-[0.1em] uppercase font-medium" href="#">
+<span class="material-symbols-outlined mr-3">domain</span> Inventory
+            </a>
+<a class="flex items-center text-[#313330]/50 hover:bg-stone-200/50 transition-all py-3 px-8 font-sans text-[10px] tracking-[0.1em] uppercase font-medium" href="#">
+<span class="material-symbols-outlined mr-3">settings</span> Settings
+            </a>
+</nav>
+<div class="px-8 pb-4">
+<button class="w-full bg-primary text-on-primary py-3 px-4 rounded-lg font-sans text-[10px] tracking-[0.1em] uppercase font-semibold transition-transform active:scale-95">
+                New Analysis
+            </button>
+</div>
+<div class="pt-4 border-t border-stone-200/50">
+<a class="flex items-center text-[#313330]/50 hover:bg-stone-200/50 transition-all py-2 px-8 font-sans text-[10px] tracking-[0.1em] uppercase font-medium" href="#">
+<span class="material-symbols-outlined mr-3">help_outline</span> Support
+            </a>
+<a class="flex items-center text-[#313330]/50 hover:bg-stone-200/50 transition-all py-2 px-8 font-sans text-[10px] tracking-[0.1em] uppercase font-medium" href="#">
+<span class="material-symbols-outlined mr-3">inventory_2</span> Archive
+            </a>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="ml-64 min-h-screen">
+<!-- TopAppBar -->
+<header class="flex items-center justify-between px-10 py-8 bg-[#fbf9f6] sticky top-0 z-40">
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined text-olive cursor-pointer">menu</span>
+<h2 class="font-serif text-2xl italic tracking-tight text-charcoal">Intelligence Dashboard</h2>
+</div>
+<div class="flex items-center space-x-6">
+<div class="flex space-x-4 text-stone-400">
+<span class="material-symbols-outlined cursor-pointer hover:text-olive transition-colors">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-olive transition-colors">search</span>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container border border-stone-200">
+<img alt="Agent Profile" class="w-full h-full object-cover" data-alt="professional portrait of a high-end real estate agent in a neutral studio setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-LDh5CV-uzplkcyeXMN9j75muX4IfGVJx_bMhnOlNEer4uUueA0qmZOW4VVXMzntIDLECmYwTQXsvNgTcStmYy3_rNs-PCXYvixG2xN2LjnJx6gMiFYdLEFscSd7iziG0vDhv-BedGoMAkwRCw1GfsVKqT500Es4JWgEd9IMfk7iZjVd6otlvj52gtXyV9BDHeDEDH0c5fG0lgkQl_k8ufv0xBSwu8Cx3ANkLFWUPbPwT2cbOx_Ns4b3S6ZKHLFKjlnu1l4frZTV2"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="px-10 pb-20 max-w-[1440px] mx-auto">
+<!-- Section 1: Urgent Intelligence -->
+<section class="mb-16">
+<div class="flex items-baseline justify-between mb-6">
+<h3 class="font-sans text-[11px] tracking-[0.2em] uppercase font-semibold text-olive">Urgent Intelligence</h3>
+<div class="h-[1px] flex-1 mx-6 bg-stone-200/60"></div>
+<a class="font-sans text-[10px] tracking-[0.1em] uppercase text-stone-400 hover:text-olive transition-colors" href="#">View All Priority</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Urgent Card 1 -->
+<div class="bg-surface-container-lowest p-8 rounded-lg editorial-shadow border border-transparent hover:border-primary/10 transition-all group">
+<div class="flex justify-between items-start mb-6">
+<span class="text-error font-sans text-[9px] tracking-widest uppercase font-bold border-b border-error/20 pb-1">Immediate Action</span>
+<span class="text-stone-300 group-hover:text-olive transition-colors material-symbols-outlined">bolt</span>
+</div>
+<h4 class="font-serif text-xl text-charcoal mb-2">Julianne Vance</h4>
+<p class="text-stone-500 text-sm mb-6 leading-relaxed">Viewed the <span class="italic">Bel Air Penthouse</span> 4 times in 12 hours.</p>
+<div class="bg-surface-container-low p-4 rounded mb-6">
+<p class="text-[11px] text-stone-400 uppercase tracking-wider mb-2">Recommended</p>
+<p class="text-sm italic text-charcoal">"Julianne, I noticed your interest in the Penthouse. I have an off-market private showing at 4pm..."</p>
+</div>
+<button class="text-olive font-sans text-[10px] tracking-[0.1em] uppercase font-bold flex items-center hover:translate-x-1 transition-transform">
+                            Send Response <span class="material-symbols-outlined ml-2 text-[14px]">chevron_right</span>
+</button>
+</div>
+<!-- Urgent Card 2 -->
+<div class="bg-surface-container-lowest p-8 rounded-lg editorial-shadow border border-transparent hover:border-primary/10 transition-all group">
+<div class="flex justify-between items-start mb-6">
+<span class="text-olive font-sans text-[9px] tracking-widest uppercase font-bold border-b border-olive/20 pb-1">Hot Prospect</span>
+<span class="text-stone-300 group-hover:text-olive transition-colors material-symbols-outlined">star</span>
+</div>
+<h4 class="font-serif text-xl text-charcoal mb-2">Marcus Thorne</h4>
+<p class="text-stone-500 text-sm mb-6 leading-relaxed">Asset appraisal completed. Liquidity event detected for Q4 acquisitions.</p>
+<div class="bg-surface-container-low p-4 rounded mb-6">
+<p class="text-[11px] text-stone-400 uppercase tracking-wider mb-2">Recommended</p>
+<p class="text-sm italic text-charcoal">"Marcus, the portfolio analysis is ready. Your acquisition power has increased by 15%..."</p>
+</div>
+<button class="text-olive font-sans text-[10px] tracking-[0.1em] uppercase font-bold flex items-center hover:translate-x-1 transition-transform">
+                            Call Marcus <span class="material-symbols-outlined ml-2 text-[14px]">call</span>
+</button>
+</div>
+<!-- Urgent Card 3 -->
+<div class="bg-surface-container-lowest p-8 rounded-lg editorial-shadow border border-transparent hover:border-primary/10 transition-all group">
+<div class="flex justify-between items-start mb-6">
+<span class="text-tertiary font-sans text-[9px] tracking-widest uppercase font-bold border-b border-tertiary/20 pb-1">Market Shift</span>
+<span class="text-stone-300 group-hover:text-olive transition-colors material-symbols-outlined">trending_down</span>
+</div>
+<h4 class="font-serif text-xl text-charcoal mb-2">The Glass House</h4>
+<p class="text-stone-500 text-sm mb-6 leading-relaxed">Competitor price drop in 90210. Strategy adjustment required for listing.</p>
+<div class="bg-surface-container-low p-4 rounded mb-6">
+<p class="text-[11px] text-stone-400 uppercase tracking-wider mb-2">Recommended</p>
+<p class="text-sm italic text-charcoal">"Update the digital brochure to highlight the unique architectural provenance vs market..."</p>
+</div>
+<button class="text-olive font-sans text-[10px] tracking-[0.1em] uppercase font-bold flex items-center hover:translate-x-1 transition-transform">
+                            Edit Listing <span class="material-symbols-outlined ml-2 text-[14px]">edit_note</span>
+</button>
+</div>
+</div>
+</section>
+<div class="flex flex-col lg:flex-row gap-16">
+<!-- Section 2: Main Content - Daily Movement -->
+<div class="flex-grow">
+<div class="mb-10">
+<h3 class="font-serif text-3xl text-charcoal mb-2">Daily Movement</h3>
+<p class="text-stone-400 font-sans text-sm tracking-wide">A curated overview of active pursuits and high-value shifts.</p>
+</div>
+<div class="space-y-12">
+<!-- High Value No Response -->
+<div class="relative pl-8 border-l border-stone-200">
+<div class="absolute top-0 -left-1.5 w-3 h-3 rounded-full bg-olive"></div>
+<span class="font-sans text-[10px] tracking-[0.2em] uppercase text-stone-400 mb-4 block">High-Value Stagnation</span>
+<div class="space-y-6">
+<div class="flex items-center justify-between group cursor-pointer">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center text-olive font-serif italic text-lg">E</div>
+<div>
+<h5 class="text-charcoal font-medium text-base">Elena Rodriguez</h5>
+<p class="text-stone-400 text-xs">Portfolio value: $12.4M • No contact in 72h</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-stone-200 group-hover:text-olive transition-colors">arrow_forward_ios</span>
+</div>
+<div class="flex items-center justify-between group cursor-pointer">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center text-olive font-serif italic text-lg">W</div>
+<div>
+<h5 class="text-charcoal font-medium text-base">William Chen</h5>
+<p class="text-stone-400 text-xs">Pre-approved • Silence after contract draft</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-stone-200 group-hover:text-olive transition-colors">arrow_forward_ios</span>
+</div>
+</div>
+</div>
+<!-- Visits Booked Today -->
+<div class="relative pl-8 border-l border-stone-200">
+<div class="absolute top-0 -left-1.5 w-3 h-3 rounded-full bg-stone-300"></div>
+<span class="font-sans text-[10px] tracking-[0.2em] uppercase text-stone-400 mb-6 block">Confirmed Encounters</span>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+<div class="relative group cursor-pointer overflow-hidden">
+<div class="aspect-[16/9] mb-4 bg-stone-200 overflow-hidden rounded-sm">
+<img alt="Property" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="modern minimalist architectural home with large glass windows and concrete facade at dusk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwv_-WSJcEpFbVnHO2RHbER8bD1l8Pba9C2RY2ase9eIZYPG46VxczHkOtrFkPthNIBkLWF-TuwOQlYFUKW85oXmnFNFxKkaRvYYiybevdoaBTnUvkRx0PXfVBABEn6f1N9Tu5zoX2JwYII5mjhnV4_4BlW2GyNs9Wf4-fhQ2BenI9jGwfewp6lpdty6bTHl5HbjfcKslucLcn6P4K9SFOin-FyExZbAN6hiOAxA0yy23uVEvCwtwFRfBXKCir5zFRWWaJuS_sFLT3"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-serif italic text-lg text-charcoal">The Brutalist Retreat</p>
+<p class="text-stone-400 text-[11px] tracking-widest uppercase mt-1">14:00 • Private Showing</p>
+</div>
+<span class="bg-primary-container text-on-primary-container text-[9px] px-2 py-1 uppercase tracking-tighter rounded">VIP</span>
+</div>
+</div>
+<div class="relative group cursor-pointer overflow-hidden">
+<div class="aspect-[16/9] mb-4 bg-stone-200 overflow-hidden rounded-sm">
+<img alt="Property" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" data-alt="luxury infinity pool overlooking the ocean at sunset with a minimalist white villa architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_39Uf8TuHfmqjOJnvnxLwnP9Jms4ZNrAngbG8di8JXoAqEw-45Vy3QKz6zzmm-had-PaJOpWl7jGn74FHXuOBmS6xRhpJ4EwiySRbwL3tAFRbq4jm2vzK3E7adwJen3XYxcxS1bGELzzpuQVKuKtzEtXBGXjyjCKhzurMW43ilQqytF2bebmPyfaUDjmTkVM6mDVGfHRjbKGCAdWVGef0zr9xbPVCR6-po8XxDVQjNRQUF7853BmwHYZWgVEKZ9z2M2YqC2RFYXSC"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<p class="font-serif italic text-lg text-charcoal">Horizon's Edge</p>
+<p class="text-stone-400 text-[11px] tracking-widest uppercase mt-1">16:30 • Final Walkthrough</p>
+</div>
+<span class="bg-surface-container-highest text-on-surface-variant text-[9px] px-2 py-1 uppercase tracking-tighter rounded">Pending</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Leads at Risk -->
+<div class="relative pl-8 border-l border-stone-200">
+<div class="absolute top-0 -left-1.5 w-3 h-3 rounded-full bg-error/40"></div>
+<span class="font-sans text-[10px] tracking-[0.2em] uppercase text-stone-400 mb-4 block">Preservation Required</span>
+<div class="bg-error-container/5 p-6 rounded-lg border border-error/5 flex items-center justify-between">
+<div>
+<h5 class="text-charcoal font-serif text-lg">Sloan Residence Deal</h5>
+<p class="text-stone-500 text-sm mt-1">Probability dropped by <span class="text-error font-semibold">24%</span> due to market appraisal mismatch.</p>
+</div>
+<button class="bg-white border border-stone-200 py-2 px-6 rounded-full text-[10px] uppercase tracking-widest font-bold hover:bg-stone-50 transition-colors">
+                                    Intervene
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3: Sidebar Performance - Agency Momentum -->
+<aside class="w-full lg:w-80">
+<div class="sticky top-32">
+<div class="mb-10">
+<h3 class="font-serif text-xl italic text-charcoal mb-4">Agency Momentum</h3>
+<div class="h-1 w-12 bg-olive opacity-30"></div>
+</div>
+<!-- Progress Circle -->
+<div class="bg-surface-container rounded-2xl p-8 mb-8 text-center">
+<div class="relative inline-flex items-center justify-center mb-6">
+<svg class="w-32 h-32">
+<circle class="text-stone-200" cx="64" fill="transparent" hy="64" r="58" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-olive" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-dasharray="364" stroke-dashoffset="91" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<span class="absolute text-2xl font-serif italic text-charcoal">75%</span>
+</div>
+<p class="font-sans text-[10px] tracking-[0.2em] uppercase text-stone-500 mb-1">Monthly Goal</p>
+<p class="text-charcoal font-medium text-sm">$4.2M / $5.6M</p>
+</div>
+<!-- Team Highlights -->
+<div class="space-y-6">
+<p class="font-sans text-[10px] tracking-[0.2em] uppercase text-olive font-bold">Top Performers</p>
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-stone-200">
+<img alt="Team Member" class="w-full h-full object-cover grayscale" data-alt="portrait of a confident business leader with a clean minimal background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0AsS27dvRVfZq6no_AzLxS9Xl0jRPszkz4Q7wnL5fTxlqJzKyDnpjA-JIkhI9NITDLPWo-K6E8wYiIfKLF1eQzMp8DGq85o-5j6CrLpmpJtX3PHvklKV1IG75z9dHUjM0eZCFPxVGHnP1DcUmbMVw26D0Pg74rtwIeWGVgEjbqIUX80rFXpO8Zmvo1UFvnJfTiSi7BSc8QtoLQofdwFWihG3mQRjKkmAjIIsEuegX_Tr1ZEXqWD9bLt_JmrjykIgJrQck1NjZG28C"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-baseline">
+<p class="text-sm font-medium text-charcoal">David Kessler</p>
+<span class="text-[10px] text-stone-400">3 Close</span>
+</div>
+<div class="w-full bg-stone-200 h-[2px] mt-1">
+<div class="bg-olive h-[2px]" style="width: 85%"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-stone-200">
+<img alt="Team Member" class="w-full h-full object-cover grayscale" data-alt="artistic portrait of a woman professional in a well-lit architect office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2z004VGjgNFarvzXurZklO3GG4cX_KKW1l7CqXcZCs7KZq77Lqi1dzmfa1BmjcsWpVyl4A1EUyD10y3K9XyUhC67NRVAlGOsFSFnNbFc34RFy9vHYa2I7QxlZOYePTCggWbFxS7sIZhtsi6XEA4PM6ovbHc7wklM3B0xT8DniHxLF177ZYV8P9h1TYHiGfXvJsvTEsubutSMfH5r6qzXnEnOwld1p2dozmYHYBvZCNLaHQowpq16d8fyJZu12dDzfdQC-16vzUvwx"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-baseline">
+<p class="text-sm font-medium text-charcoal">Sarah Jenkins</p>
+<span class="text-[10px] text-stone-400">2 Close</span>
+</div>
+<div class="w-full bg-stone-200 h-[2px] mt-1">
+<div class="bg-olive h-[2px]" style="width: 60%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- AI Insight Quote -->
+<div class="mt-12 p-6 bg-white rounded-sm border-l-2 border-olive editorial-shadow">
+<span class="material-symbols-outlined text-olive text-sm mb-3">auto_awesome</span>
+<p class="text-sm italic leading-relaxed text-stone-600">
+                                "The market is shifting toward long-term asset security. Recommend pivoting your top 3 leads to off-market coastal properties."
+                            </p>
+<p class="mt-4 font-sans text-[9px] tracking-widest uppercase text-stone-400">— Intelligence Engine</p>
+</div>
+</div>
+</aside>
+</div>
+</div>
+<!-- Footer -->
+<footer class="mt-20 py-20 px-12 bg-[#efeeea] border-t border-stone-200">
+<div class="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
+<div>
+<h4 class="font-serif italic text-stone-800 text-xl mb-4">Aesthete AI</h4>
+<p class="font-sans text-[11px] tracking-[0.15em] uppercase text-stone-500">© 2024 Aesthete AI. An Editorial Intelligence Project.</p>
+</div>
+<div class="flex flex-wrap gap-8 justify-end">
+<a class="font-sans text-[11px] tracking-[0.15em] uppercase text-stone-500 hover:text-charcoal transition-colors" href="#">Privacy Policy</a>
+<a class="font-sans text-[11px] tracking-[0.15em] uppercase text-stone-500 hover:text-charcoal transition-colors" href="#">Terms of Service</a>
+<a class="font-sans text-[11px] tracking-[0.15em] uppercase text-stone-500 hover:text-charcoal transition-colors" href="#">Press Kit</a>
+<a class="font-sans text-[11px] tracking-[0.15em] uppercase text-stone-500 hover:text-charcoal transition-colors" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</main>
+</body></html>

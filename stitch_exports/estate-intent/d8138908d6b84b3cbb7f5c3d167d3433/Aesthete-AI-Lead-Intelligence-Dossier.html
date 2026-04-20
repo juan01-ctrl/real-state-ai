@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lead Intelligence Dossier | Aesthete AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#9e9d9a",
+                        "surface-container": "#efeeea",
+                        "on-primary-container": "#4b5542",
+                        "surface-variant": "#e3e3de",
+                        "secondary": "#57634b",
+                        "primary-container": "#dce6cd",
+                        "on-tertiary": "#fff9e5",
+                        "on-tertiary-fixed-variant": "#686028",
+                        "secondary-dim": "#4b5740",
+                        "surface-container-high": "#e9e8e4",
+                        "primary-fixed": "#dce6cd",
+                        "on-surface": "#313330",
+                        "background": "#fbf9f6",
+                        "on-secondary-container": "#4a553f",
+                        "surface-container-low": "#f5f3f0",
+                        "on-background": "#313330",
+                        "on-secondary-fixed": "#37432d",
+                        "on-error-container": "#6e1400",
+                        "inverse-surface": "#0e0e0d",
+                        "error-container": "#fd795a",
+                        "tertiary": "#686028",
+                        "tertiary-container": "#f5eaa4",
+                        "on-error": "#fff7f6",
+                        "inverse-primary": "#eaf5db",
+                        "surface-tint": "#58624e",
+                        "on-tertiary-fixed": "#4a430e",
+                        "secondary-container": "#dae7c9",
+                        "on-primary-fixed": "#394230",
+                        "surface-bright": "#fbf9f6",
+                        "on-primary": "#f2fde3",
+                        "surface": "#fbf9f6",
+                        "primary-fixed-dim": "#ced8bf",
+                        "error": "#a73b21",
+                        "on-secondary-fixed-variant": "#535f48",
+                        "on-tertiary-container": "#5d561f",
+                        "tertiary-fixed-dim": "#e6db97",
+                        "outline-variant": "#b2b2ae",
+                        "primary": "#58624e",
+                        "on-surface-variant": "#5e5f5c",
+                        "on-secondary": "#f0fedf",
+                        "primary-dim": "#4d5643",
+                        "on-primary-fixed-variant": "#555f4b",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#7a7b77",
+                        "surface-dim": "#dadad6",
+                        "secondary-fixed": "#dae7c9",
+                        "surface-container-highest": "#e3e3de",
+                        "tertiary-fixed": "#f5eaa4",
+                        "tertiary-dim": "#5b541e",
+                        "secondary-fixed-dim": "#ccd9bc",
+                        "error-dim": "#791903"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #fbf9f6; }
+        .font-serif { font-family: 'Noto Serif', serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased overflow-x-hidden">
+<!-- Sidebar Navigation (SideNavBar) -->
+<aside class="fixed left-0 top-0 h-full w-64 z-40 bg-[#efeeea] dark:bg-[#1a1c1a] flex flex-col py-10 px-6 space-y-8">
+<div class="space-y-1">
+<h1 class="font-serif text-lg tracking-[0.2em] text-[#313330] dark:text-[#fbf9f6]">AESTHETE AI</h1>
+<p class="font-sans text-[10px] tracking-widest uppercase text-[#313330]/40">Digital Atelier</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Dashboard (Inactive) -->
+<a class="flex items-center space-x-3 px-3 py-2 text-[12px] tracking-widest uppercase text-[#313330]/40 hover:bg-[#fbf9f6]/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-lg">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Leads (Active) -->
+<a class="flex items-center space-x-3 px-3 py-2 text-[12px] tracking-widest uppercase text-[#313330] bg-[#fbf9f6] border-l-4 border-[#58624e] transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-lg">person_search</span>
+<span>Leads</span>
+</a>
+<!-- Opportunities -->
+<a class="flex items-center space-x-3 px-3 py-2 text-[12px] tracking-widest uppercase text-[#313330]/40 hover:bg-[#fbf9f6]/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-lg">analytics</span>
+<span>Opportunities</span>
+</a>
+<!-- Insights -->
+<a class="flex items-center space-x-3 px-3 py-2 text-[12px] tracking-widest uppercase text-[#313330]/40 hover:bg-[#fbf9f6]/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-lg">insights</span>
+<span>Insights</span>
+</a>
+<!-- Properties -->
+<a class="flex items-center space-x-3 px-3 py-2 text-[12px] tracking-widest uppercase text-[#313330]/40 hover:bg-[#fbf9f6]/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-lg">domain</span>
+<span>Properties</span>
+</a>
+</nav>
+<div class="pt-6 border-t border-outline-variant/10">
+<a class="flex items-center space-x-3 px-3 py-2 text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-lg">help</span>
+<span>Help</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-lg">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- Intelligence Header -->
+<header class="sticky top-0 z-30 bg-background/80 backdrop-blur-xl px-12 py-8 flex items-end justify-between transition-all">
+<div class="space-y-1">
+<div class="flex items-center gap-4 text-label uppercase text-[10px] tracking-[0.2em] text-on-surface-variant">
+<span>Dossier #821-VDR</span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span>Last active: 2 hours ago</span>
+</div>
+<h2 class="font-serif text-4xl tracking-tight text-on-surface">Valeria Di Rossy</h2>
+</div>
+<div class="flex items-center gap-12 text-right">
+<div>
+<p class="text-[10px] tracking-widest uppercase text-on-surface-variant mb-1">Probability</p>
+<p class="font-serif text-2xl text-primary">82%</p>
+</div>
+<div>
+<p class="text-[10px] tracking-widest uppercase text-on-surface-variant mb-1">Source</p>
+<p class="font-body text-sm font-medium">Palermo Inquiry</p>
+</div>
+<div>
+<p class="text-[10px] tracking-widest uppercase text-on-surface-variant mb-1">Urgency</p>
+<p class="font-body text-sm font-medium text-error flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">priority_high</span>
+                        High
+                    </p>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2.5 text-[11px] tracking-[0.15em] uppercase font-medium hover:opacity-90 transition-all">
+                    Initiate Follow-up
+                </button>
+</div>
+</header>
+<!-- Intelligence Grid -->
+<div class="px-12 pb-20 grid grid-cols-12 gap-12">
+<!-- Left Column: Profile & Activity -->
+<div class="col-span-7 space-y-16">
+<!-- Profile & Parameters -->
+<section>
+<h3 class="text-[12px] tracking-[0.2em] uppercase text-on-surface-variant mb-8 flex items-center gap-3">
+<span class="w-8 h-[1px] bg-primary/30"></span>
+                        Buyer Profile
+                    </h3>
+<div class="grid grid-cols-2 gap-y-10 gap-x-12">
+<div class="space-y-1">
+<label class="text-[10px] tracking-widest uppercase text-on-surface-variant">Capital Allocation</label>
+<p class="font-serif text-xl">$2.5M - $3.2M</p>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] tracking-widest uppercase text-on-surface-variant">Target Neighborhoods</label>
+<p class="font-serif text-xl">Palermo, Mondello</p>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] tracking-widest uppercase text-on-surface-variant">Typology</label>
+<p class="font-serif text-xl text-primary/80">Historic Villa, Penthouse</p>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] tracking-widest uppercase text-on-surface-variant">Temporal Horizon</label>
+<p class="font-serif text-xl">Immediate</p>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] tracking-widest uppercase text-on-surface-variant">Fiscal Status</label>
+<p class="font-serif text-xl flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                Pre-approved
+                            </p>
+</div>
+</div>
+</section>
+<!-- Conversation Timeline -->
+<section>
+<h3 class="text-[12px] tracking-[0.2em] uppercase text-on-surface-variant mb-8 flex items-center gap-3">
+<span class="w-8 h-[1px] bg-primary/30"></span>
+                        Communication Log
+                    </h3>
+<div class="space-y-0 border-l border-outline-variant/20 ml-2">
+<!-- Message 1 -->
+<div class="relative pl-10 pb-10">
+<div class="absolute left-[-5px] top-0 w-[9px] h-[9px] rounded-full bg-primary"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-medium tracking-widest uppercase text-on-surface-variant">WhatsApp • 2 hours ago</span>
+<span class="material-symbols-outlined text-primary/40 text-sm">open_in_new</span>
+</div>
+<div class="p-5 bg-surface-container-low rounded-lg">
+<p class="text-sm leading-relaxed italic text-on-surface/80">"Is the rooftop terrace at the Via Roma penthouse private or shared with the other residents?"</p>
+</div>
+</div>
+<!-- Message 2 -->
+<div class="relative pl-10 pb-10">
+<div class="absolute left-[-5px] top-0 w-[9px] h-[9px] rounded-full bg-outline-variant"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-medium tracking-widest uppercase text-on-surface-variant">Email • Yesterday, 14:20</span>
+</div>
+<div class="p-5 bg-surface-container-lowest shadow-[0_2px_10px_rgba(49,51,48,0.02)] rounded-lg">
+<p class="text-sm font-medium mb-1">Re: Financial Portfolio Verification</p>
+<p class="text-xs text-on-surface/60 line-clamp-1">Documents attached for the Mondello property reservation. Please confirm receipt.</p>
+</div>
+</div>
+<!-- Message 3 -->
+<div class="relative pl-10">
+<div class="absolute left-[-5px] top-0 w-[9px] h-[9px] rounded-full bg-outline-variant"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="text-[10px] font-medium tracking-widest uppercase text-on-surface-variant">Call • 2 days ago</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">call</span>
+<p class="text-xs text-on-surface/60">Duration: 12m 44s • Discussed structural integrity of historic foundations.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Activity & History -->
+<section>
+<h3 class="text-[12px] tracking-[0.2em] uppercase text-on-surface-variant mb-8 flex items-center gap-3">
+<span class="w-8 h-[1px] bg-primary/30"></span>
+                        Engagement Signals
+                    </h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between py-4 border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Modern penthouse interior with floor to ceiling windows and panoramic city view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPxz8S_Z6PW3Avaz54iJ1oDqc7RMhmh1JcX5IdRh37gsvK0HCvzFGvYNjUIPU15rqaQF_YCoUS_4E4y_ZKWH9OX0MRdesSv_r6sQJHlMLrYSPHOMSASw3PgHXM5nJkM7xYKO4HA1i4HkyznYxK6JaXFIUPZOMc_nuV4FWlergTrpKWBQMGgO8txzQvrD1b9Exgkb4KWR-YMEmvRPWXciits8-JHa3cI9m9LPj1HAY0j0QV9jj0CRY-Roa5wurs0BzFrgysSI-Sg33F"/>
+</div>
+<div>
+<p class="text-sm font-medium">The Sky Villa • Palermo</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">4th Viewing Session • Total 42 mins</p>
+</div>
+</div>
+<div class="text-right">
+<span class="px-2 py-1 bg-primary-container text-on-primary-container text-[10px] font-bold tracking-widest uppercase">Hot Engagement</span>
+</div>
+</div>
+<div class="flex items-center justify-between py-4 border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Mediterranean luxury villa with pool and architectural lighting at twilight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJncSqdIkjK-_oP9-dC_qeJa2-18ale0DEVHA3Ipy1lCBEiZndohvmP0izmy6KZxcKjvmZ1VqXPYhBgZG5tVZdOYz-ng7-yhF2xE8EqiVAUUhG9ZHG73mrKq2reRg-07-ArBmsuWW6NrCYZ0RONMqu0xv90my_V6vuCPRnsF45nX0GcJ9jslInde8rtcctlIfqKUY5cybXRyuOzkS5E43vCtcVbo_sKNFynpnSfQJtxWCnvrT5MBHWFGh2wIcmzUFfpCGJRabO2ciB"/>
+</div>
+<div>
+<p class="text-sm font-medium">Villa Maritima • Mondello</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Initial Walkthrough • 18 mins</p>
+</div>
+</div>
+<div class="text-right">
+<span class="px-2 py-1 bg-surface-container text-on-surface-variant text-[10px] font-bold tracking-widest uppercase">Passive</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: AI Recommendations -->
+<div class="col-span-5 space-y-10">
+<!-- Main AI Panel -->
+<div class="bg-surface-container p-10 space-y-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-8xl" style="font-variation-settings: 'wght' 100;">neurology</span>
+</div>
+<div class="space-y-4">
+<p class="text-[10px] tracking-[0.2em] uppercase text-primary font-bold">Predictive Intelligence</p>
+<h4 class="font-serif text-3xl leading-snug">This buyer is highly likely to close in the next 7 days.</h4>
+</div>
+<div class="space-y-6">
+<div>
+<p class="text-[10px] tracking-widest uppercase text-on-surface-variant mb-2">The Logic</p>
+<p class="text-sm leading-relaxed text-on-surface/80">Detected 4th visit to Penthouse Terrace via virtual portal. Time spent on floorplan details exceeds 85% of successful closing profiles. Current engagement fits historical taste profile for Mediterranean Brutalism.</p>
+</div>
+<div class="p-6 bg-surface-container-lowest border-l-2 border-primary">
+<p class="text-[10px] tracking-widest uppercase text-on-surface-variant mb-2">Suggested Action</p>
+<p class="text-sm font-medium mb-4">Schedule private walkthrough for tomorrow morning.</p>
+<button class="flex items-center gap-2 text-primary font-medium text-xs hover:gap-3 transition-all">
+                                Send Invite Now <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Risk Insight -->
+<div class="p-6 bg-error-container/10 flex items-start gap-4">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+<div>
+<p class="text-[11px] font-bold tracking-[0.1em] uppercase text-error mb-1">Urgent Risk Insight</p>
+<p class="text-xs text-on-surface/80 leading-relaxed">High risk of losing this buyer if no follow-up happens in the next 4 hours. Competitor activity detected for similar Palermo listings.</p>
+</div>
+</div>
+<!-- Recommended Properties -->
+<section>
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-[10px] tracking-[0.2em] uppercase text-on-surface-variant font-bold">Intelligence Matches</h3>
+<a class="text-[10px] tracking-widest uppercase text-primary border-b border-primary/20" href="#">View Portfolio</a>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-3">
+<div class="aspect-[4/5] bg-surface-container overflow-hidden group cursor-pointer">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Luxury apartment interior with minimalist concrete walls and high end sculptural furniture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAje6gDMfuQWyE4CBpgPl32agCnTLpR5Q6HOrNnCP2z1EdRKpoQZmh5DhF_ICNCPWS8uRMyzjdBmVhqK0Cl2sH9J757aQuZnU4YXTkHsvJ0LMTS7qT2Bf8AotpR_6s1LCmsymV3DPHp3wdg-x-tD0iXYAW9HZ4eMnc7-FYGw8PxpXXSkbY9GlhRUfpHtiXsyIgc5ZiYh1N1DFDHYn21VPcBLQTQSC2xq39c2TJVxeXWm1_hIUZ_p62RpMTVXIMHg68qZg_y39aE1O7G"/>
+</div>
+<div>
+<p class="text-xs font-medium">Concrete Atelier</p>
+<p class="text-[10px] text-on-surface-variant uppercase mb-2">Palermo Center</p>
+<p class="text-[9px] italic text-primary leading-tight">Matches architectural preference for Brutalist design patterns.</p>
+</div>
+</div>
+<div class="space-y-3">
+<div class="aspect-[4/5] bg-surface-container overflow-hidden group cursor-pointer">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Elegant master suite with neutral tones, warm wood accents and luxury textiles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAsaqXJED610jdUusexOdSwpVGVQj934tvP4gBqL8xh8VhQT9G2F2Vof-JsStxwNN_PX_WXONKXYfW7XcDggkw3uO403yHOvXQ9L3BS_xMyJWnjoSUlPRP5IS8IZWWf3Mu59OPospk9Hd6xJ3wUwO9nnmff9sse2VNnGHZifT3_pWKRYk29afU3KVcXlNVmH_aHqjHYEdFFkAUwM6FOaSJtQ75xsgfQYxpfzDF33irEBZuJK7PMROkVZxDBFe1MQKkRqR6HLKoAq6w"/>
+</div>
+<div>
+<p class="text-xs font-medium">Palazzo Luce</p>
+<p class="text-[10px] text-on-surface-variant uppercase mb-2">Zisa District</p>
+<p class="text-[9px] italic text-primary leading-tight">Aligned with interest in historic renovations and high ceilings.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Suggested Follow-up -->
+<section class="bg-surface-container-low p-8 border-t-4 border-secondary/10">
+<h3 class="text-[10px] tracking-[0.2em] uppercase text-on-surface-variant mb-6 font-bold">Generated Outreach</h3>
+<div class="space-y-6">
+<div class="font-serif text-sm leading-relaxed text-on-surface/90 italic p-6 bg-background rounded">
+                            "Valeria, I noticed you were revisiting the Sky Villa plans today. The light in the atrium between 9:00 and 11:00 AM is truly unique—I've reserved that window tomorrow for a private walkthrough if you'd like to experience the space in person."
+                        </div>
+<div class="flex items-center justify-between">
+<div class="flex gap-4">
+<button class="text-[10px] tracking-widest uppercase font-bold text-on-surface-variant border-b border-outline-variant hover:text-on-surface transition-colors">Edit</button>
+<button class="text-[10px] tracking-widest uppercase font-bold text-on-surface-variant border-b border-outline-variant hover:text-on-surface transition-colors">Personalize</button>
+</div>
+<button class="bg-primary text-on-primary px-5 py-2 text-[10px] tracking-[0.15em] uppercase font-bold hover:opacity-90">Send via WhatsApp</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="ml-64 w-full py-20 mt-auto bg-[#efeeea] dark:bg-[#1a1c1a]">
+<div class="max-w-7xl mx-auto px-12 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="text-left space-y-2">
+<p class="font-serif text-lg tracking-widest text-[#313330] dark:text-[#fbf9f6]">AESTHETE AI</p>
+<p class="font-sans text-[11px] tracking-widest uppercase text-[#58624e] dark:text-[#707A65]">© 2024 Aesthete AI. The Digital Atelier for Real Estate.</p>
+</div>
+<div class="flex gap-10">
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-colors" href="#">Infrastructure</a>
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-colors" href="#">Privacy</a>
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-colors" href="#">Terms</a>
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-colors" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</body></html>

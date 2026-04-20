@@ -23,6 +23,8 @@ export interface LeadInboxItem {
   score: number;
   closeProbability: number;
   fullName: string;
+  budgetMin: number | null;
+  budgetMax: number | null;
   sourceChannel: string;
   sourceCampaign: string | null;
   ownerName: string | null;
@@ -175,6 +177,8 @@ export async function getLeadInboxItems(agencyId: string): Promise<LeadInboxItem
       score: lead.leadScore,
       closeProbability: lead.closeProbability,
       fullName: lead.contactName ?? `Contacto ${lead.id.slice(0, 8)}`,
+      budgetMin: lead.profile?.budgetMin ?? null,
+      budgetMax: lead.profile?.budgetMax ?? null,
       sourceChannel: lead.sourceChannel,
       sourceCampaign: lead.sourceCampaign,
       ownerName: lead.owner?.name ?? null,

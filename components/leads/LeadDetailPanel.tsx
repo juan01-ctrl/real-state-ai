@@ -1,288 +1,204 @@
 import { LeadDetailModel } from "@/lib/server/read-models/leads";
-import { formatCurrencyUSD, formatDateTime, formatRelativeHours } from "@/lib/formatters";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Surface } from "@/components/ui/surface";
-import {
-  displayChannel,
-  displayDeliveryStatus,
-  displayFollowUpEventStatus,
-  displayLeadStage,
-  displayMessageDirection,
-  displayPropertyType,
-  displaySenderLabel,
-  displaySeriousness,
-  displayUrgency,
-  displayUseCase,
-  formatTimelineMonths
-} from "@/lib/i18n/present";
-import styles from "./lead-detail-panel.module.css";
+import { formatRelativeHours } from "@/lib/formatters";
 
 interface LeadDetailPanelProps {
   lead: LeadDetailModel | null;
 }
 
-function renderBudget(min: number | null, max: number | null) {
-  if (min == null && max == null) return "Desconocido";
-  if (min != null && max != null) return `${formatCurrencyUSD(min)} - ${formatCurrencyUSD(max)}`;
-  return formatCurrencyUSD(min ?? max ?? 0);
-}
-
 function aiJudgment(lead: LeadDetailModel) {
-  if (!lead.profile) {
-    return "El perfil está incompleto: el riesgo operativo es mayor hasta confirmar la calificación.";
-  }
-
   if (lead.score >= 85) {
-    return "Comprador de alto valor con intención comercial clara. Una ejecución rápida y precisa puede llevarlo a visita en poco tiempo.";
+    return "Este lead muestra señales de alta intención y una ventana de cierre cercana si el equipo ejecuta con precisión.";
   }
 
   if (lead.score >= 70) {
-    return "Hay señales de compra relevantes, pero hace falta seguimiento disciplinado para no perder momentum.";
+    return "Existe interés real, pero la oportunidad depende de priorizar el siguiente movimiento en el momento correcto.";
   }
 
-  return "La intención es moderada o baja. Nutrición consultiva y reservar el contacto intensivo para oportunidades más fuertes.";
+  return "La intención todavía es media o baja. Conviene nutrir sin desviar foco del equipo comercial.";
 }
 
-function riskIfIgnored(lead: LeadDetailModel) {
+function whyThisLeadMatters(lead: LeadDetailModel) {
+  const why = lead.nextAction?.why?.slice(0, 3) ?? [];
+  if (why.length) return why;
+
   if ((lead.silenceHours ?? 0) >= 24) {
-    return "Si no actuás, la demora en respuesta probablemente baje la probabilidad de cierre en esta etapa.";
+    return [
+      "Hay señales de enfriamiento por tiempo sin respuesta.",
+      "Una acción precisa puede recuperar la conversación con intención real.",
+      "Si se demora más, sube el riesgo de fuga hacia otra agencia."
+    ];
   }
 
-  if (lead.nextAction?.type === "book_visit") {
-    return "Si se deja enfriar, la intención de visita puede caer y otro competidor puede captar al comprador antes.";
-  }
+  return [
+    "El perfil de intención supera al promedio de la bandeja.",
+    "Existe una próxima acción concreta para acercar el cierre.",
+    "La oportunidad requiere foco comercial en este momento."
+  ];
+}
 
-  return "Si se ignora, el avance del lead se frena y la calidad del pipeline se deteriora con el tiempo.";
+function getPersonaSubtitle(lead: LeadDetailModel) {
+  const role = lead.ownerName ?? "Lead priorizado";
+  const profileType = lead.profile?.propertyType ? `• ${lead.profile.propertyType}` : "";
+  return `${role} ${profileType}`.trim();
+}
+
+function getPrimaryAction(lead: LeadDetailModel) {
+  if (lead.nextAction?.title) return lead.nextAction.title;
+  if ((lead.silenceHours ?? 0) >= 24) return "Reactivar conversación con propuesta concreta";
+  return "Definir próximo paso comercial";
+}
+
+function getHeroKpi(lead: LeadDetailModel) {
+  const views = lead.conversation.length;
+  const visits = lead.followUpEvents.filter((event) => event.status === "COMPLETED").length;
+  return {
+    views,
+    visits
+  };
+}
+
+function isMobilePanel() {
+  return "block xl:hidden";
+}
+
+function isDesktopPanel() {
+  return "hidden xl:block";
+}
+
+function PanelContent({ lead }: { lead: LeadDetailModel }) {
+  const topRecommendation = lead.recommendations[0];
+  const signals = whyThisLeadMatters(lead);
+  const kpi = getHeroKpi(lead);
+
+  return (
+    <div className="space-y-8 sm:space-y-10">
+      <div className="text-center">
+        <div className="mx-auto mb-6 h-24 w-24 rounded-full bg-white p-1 shadow-sm">
+          <div className="h-full w-full overflow-hidden rounded-full">
+            <img
+              alt={`Avatar de ${lead.fullName}`}
+              className="h-full w-full object-cover"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy-b4QL61mOOdOWvw8yuTbKV4Lqyk0395YLcyiPneyJRmen0h0AU8UEdd0iSuHP7rdiW5HgIu9bFogzz66pJ57xIoeCmwbERJVcC7EY-8KA30_PAouUlcCu5fKUYpWcSFAF_lM8PsGU0WKH4kRQVbktUt2HOZEifDm3pQ6cUNa5kZlBTqZT6yyn5E9FX6mUcAB382lnAZ1Ju8PRvP3PZR3rzUIII1YXqI1Ha2VqtMZD-PljyqUtAiDip0A3oa0qS7skAcoNz9_6mTf"
+            />
+          </div>
+        </div>
+        <h2 className="text-2xl text-[#313330] sm:text-3xl" style={{ fontFamily: "'Noto Serif', serif" }}>
+          {lead.fullName}
+        </h2>
+        <p className="mt-2 text-xs uppercase tracking-[0.2em] text-stone-500">{getPersonaSubtitle(lead)}</p>
+      </div>
+
+      <div className="rounded-xl bg-white p-6 text-center sm:p-8">
+        <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-stone-400">Probabilidad de cierre</p>
+        <span className="text-4xl font-light text-[#58624e] sm:text-5xl" style={{ fontFamily: "'Noto Serif', serif" }}>
+          {lead.closeProbability}
+          <span className="ml-0.5 text-2xl">%</span>
+        </span>
+        <div className="mt-6 flex justify-center space-x-4">
+          <div className="border-r border-stone-100 px-4 text-center">
+            <p className="text-lg text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
+              {kpi.views}
+            </p>
+            <p className="text-[9px] uppercase tracking-widest text-stone-400">Interacciones</p>
+          </div>
+          <div className="px-4 text-center">
+            <p className="text-lg text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
+              {kpi.visits}
+            </p>
+            <p className="text-[9px] uppercase tracking-widest text-stone-400">Visitas</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3 sm:space-y-4">
+        <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#313330]">Evaluación IA</h4>
+        <p className="text-sm italic leading-relaxed text-stone-600">
+          &quot;{aiJudgment(lead)}&quot;
+        </p>
+      </div>
+
+      <div className="space-y-3 sm:space-y-4">
+        <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#313330]">Por qué importa este lead</h4>
+        <ul className="space-y-3">
+          {signals.map((signal) => (
+            <li key={signal} className="flex items-start text-xs leading-tight text-stone-600">
+              <span className="material-symbols-outlined mr-3 text-[16px] text-[#58624e]">bolt</span>
+              <span>{signal}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="space-y-3 sm:space-y-4">
+        <h4 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#313330]">Propiedad recomendada</h4>
+        <div className="group relative cursor-pointer overflow-hidden rounded bg-white">
+          <div className="aspect-[16/9] w-full overflow-hidden">
+            <img
+              alt="Propiedad recomendada"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbce_zM7D1YnCs0os4o694s3i550EwnncqmhfReiJuv5SeuHKtiY0ndz-tDBM63M3VMjcbrTK2OuWs6wBu9c35jxuYGZvPW8Lyfl9TqsxjOgNvbX7s_y2gW3NhM1MCQOyYcb1etXWZ0Z-__B_KgHgm34HlbS-jTZwZrZ0IAIr2Qg243zI2RtDuZQuM-kWLhRViKgMUTe72dLVJnaEqTrLYEhpq1fbYH8H5eyU3M41GNiVraHcJBYhbMDrBIXc7WWXcwHOQusjRUYrI"
+            />
+          </div>
+          <div className="p-4">
+            <h5 className="text-sm text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
+              {topRecommendation?.title ?? "Portafolio sugerido"}
+            </h5>
+            <p className="mt-1 text-[10px] uppercase tracking-widest text-stone-400">
+              {topRecommendation ? `${topRecommendation.neighborhood} · Coincidencia alta` : "Selección premium"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="sticky bottom-0 pt-3 sm:pt-4">
+        <button
+          className="w-full rounded bg-[#58624e] px-6 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-[#f2fde3] shadow-lg transition-opacity hover:opacity-95"
+          type="button"
+        >
+          {getPrimaryAction(lead)}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export function LeadDetailPanel({ lead }: LeadDetailPanelProps) {
   if (!lead) {
     return (
-      <Card className={styles.empty}>
-        <CardContent className={styles.emptyContent}>
-        <p className={styles.emptyKicker}>Consola de inteligencia</p>
-        <h2>Elegí un lead para abrir la vista operativa</h2>
-        <p>Seleccioná una oportunidad en el feed para ver el juicio de la IA, la guía de ejecución y el contexto comercial.</p>
-        </CardContent>
-      </Card>
+      <div className="rounded-xl bg-white p-6 sm:p-8">
+        <p className="text-[10px] uppercase tracking-[0.15em] text-stone-500">Consola de inteligencia</p>
+        <h3 className="mt-3 text-2xl text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
+          Seleccioná un lead para abrir el panel
+        </h3>
+        <p className="mt-3 text-sm leading-relaxed text-stone-500">
+          Elegí una oportunidad en la columna izquierda para ver señales de cierre, evaluación y recomendación.
+        </p>
+      </div>
     );
   }
 
-  const topRecommendation = lead.recommendations[0];
-  const relatedRecommendations = lead.recommendations.slice(1);
-
   return (
-    <Card className={styles.panel}>
-      <CardContent className={styles.panelContent}>
-      <div className={styles.layout}>
-        <div className={styles.primary}>
-          <section className={styles.identitySection}>
-            <p className={styles.kicker}>Inteligencia de lead</p>
-            <h2>{lead.fullName}</h2>
-            <p className={styles.identityMeta}>
-              {displayChannel(lead.sourceChannel)}
-              {lead.sourceCampaign ? ` · ${lead.sourceCampaign}` : ""}
-              {lead.silenceHours != null ? ` · ${formatRelativeHours(lead.silenceHours)} sin actividad` : ""}
-            </p>
-            <div className={styles.identityBadges}>
-              <Badge variant="secondary">{displayLeadStage(lead.stage)}</Badge>
-              <Badge variant="outline">Prioridad {lead.priority}</Badge>
-            </div>
-          </section>
-
-          <Surface tone="soft" spacing="md" className={styles.assessmentSection}>
-            <h3>Evaluación del lead</h3>
-            <p className={styles.intentSummary}>
-              {lead.profile?.buyingIntentSummary ?? "Aún no hay resumen de intención de compra."}
-            </p>
-            <dl className={styles.assessmentGrid}>
-              <div>
-                <dt>Puntaje</dt>
-                <dd>{lead.score}</dd>
-              </div>
-              <div>
-                <dt>Prob. de cierre</dt>
-                <dd>{lead.closeProbability}%</dd>
-              </div>
-              <div>
-                <dt>Urgencia</dt>
-                <dd>{lead.profile ? displayUrgency(lead.profile.urgency) : "Desconocido"}</dd>
-              </div>
-              <div>
-                <dt>Seriedad</dt>
-                <dd>{lead.profile ? displaySeriousness(lead.profile.seriousness) : "Desconocido"}</dd>
-              </div>
-              <div>
-                <dt>Presupuesto</dt>
-                <dd>{renderBudget(lead.profile?.budgetMin ?? null, lead.profile?.budgetMax ?? null)}</dd>
-              </div>
-              <div>
-                <dt>Plazo</dt>
-                <dd>{lead.profile ? formatTimelineMonths(lead.profile.timelineMonths) : "Desconocido"}</dd>
-              </div>
-            </dl>
-          </Surface>
-
-          <Surface tone="emphasis" spacing="md" className={styles.aiPerspectiveSection}>
-            <p className={styles.aiEyebrow}>Perspectiva de la IA</p>
-            <p className={styles.aiJudgment}>{aiJudgment(lead)}</p>
-            <div className={styles.aiMoveBlock}>
-              <p className={styles.aiMoveLabel}>Movimiento recomendado ahora</p>
-              <p className={styles.aiMoveText}>{lead.nextAction?.title ?? "Definí la próxima acción manualmente"}</p>
-              <p className={styles.aiMoveDetail}>{lead.nextAction?.detail ?? "Aún no hay detalle de acción generado."}</p>
-            </div>
-            <div className={styles.aiFooter}>
-              <p>
-                <strong>Confianza:</strong>{" "}
-                {lead.profile ? `${Math.round(lead.profile.confidenceOverall * 100)}%` : "No disponible"}
-              </p>
-              <p>
-                <strong>Riesgo si se ignora:</strong> {riskIfIgnored(lead)}
-              </p>
-            </div>
-          </Surface>
-
-          <Surface tone="soft" spacing="md" className={styles.recommendationSection}>
-            <h3>Propiedad destacada</h3>
-            {topRecommendation ? (
-              <article className={styles.topRecommendationCard}>
-                <header>
-                  <strong>{topRecommendation.title}</strong>
-                  <span>{Math.round(topRecommendation.fitScore * 100)}% de encaje</span>
-                </header>
-                <p>
-                  {topRecommendation.neighborhood} · {formatCurrencyUSD(topRecommendation.price)} ·{" "}
-                  {topRecommendation.bedrooms} dorm. / {topRecommendation.bathrooms} baños ·{" "}
-                  {displayUseCase(topRecommendation.useCase)}
-                </p>
-                <ul>
-                  {topRecommendation.reasons.map((reason) => (
-                    <li key={reason}>{reason}</li>
-                  ))}
-                </ul>
-                {topRecommendation.tradeoff ? <p className={styles.tradeoff}>{topRecommendation.tradeoff}</p> : null}
-                {topRecommendation.appreciationNote ? (
-                  <p className={styles.appreciation}>{topRecommendation.appreciationNote}</p>
-                ) : null}
-              </article>
-            ) : (
-              <p className={styles.placeholder}>Todavía no hay recomendación generada.</p>
-            )}
-          </Surface>
-
-          <Surface tone="soft" spacing="md" className={styles.conversationSection}>
-            <h3>Historial de conversación</h3>
-            <div className={styles.conversationList}>
-              {lead.conversation.length ? (
-                lead.conversation.map((message) => (
-                  <article
-                    key={message.id}
-                    className={`${styles.message} ${message.direction === "INBOUND" ? styles.inbound : styles.outbound}`}
-                  >
-                    <header>
-                      <strong>{displaySenderLabel(message.direction, message.senderName)}</strong>
-                      <span>
-                        {formatDateTime(message.sentAt)} · {displayMessageDirection(message.direction)} ·{" "}
-                        {displayDeliveryStatus(message.deliveryStatus)}
-                      </span>
-                    </header>
-                    <p>{message.body}</p>
-                  </article>
-                ))
-              ) : (
-                <p className={styles.placeholder}>No hay mensajes registrados.</p>
-              )}
-            </div>
-          </Surface>
-        </div>
-
-        <aside className={styles.secondaryRail}>
-          <Surface tone="soft" spacing="sm" className={styles.railBlock}>
-            <h4>Metadatos</h4>
-            <ul>
-              <li>
-                <span>Etapa</span>
-                <strong>{displayLeadStage(lead.stage)}</strong>
-              </li>
-              <li>
-                <span>Prioridad</span>
-                <strong>{lead.priority}</strong>
-              </li>
-              <li>
-                <span>Responsable</span>
-                <strong>{lead.ownerName ?? "Sin asignar"}</strong>
-              </li>
-              <li>
-                <span>Tipo de propiedad</span>
-                <strong>{lead.profile ? displayPropertyType(lead.profile.propertyType) : "Desconocido"}</strong>
-              </li>
-              <li>
-                <span>Zonas</span>
-                <strong>{lead.profile?.preferredZones.join(", ") || "Desconocido"}</strong>
-              </li>
-            </ul>
-          </Surface>
-
-          <Surface tone="soft" spacing="sm" className={styles.railBlock}>
-            <h4>Cronología y seguimiento</h4>
-            {lead.followUpEvents.length ? (
-              <ul className={styles.timelineList}>
-                {lead.followUpEvents.map((event) => (
-                  <li key={event.id}>
-                    <strong>{event.title}</strong>
-                    <span>
-                      {displayFollowUpEventStatus(event.status)} · {formatDateTime(event.scheduledFor)}
-                    </span>
-                    <p>{event.detail}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className={styles.placeholder}>Aún no hay plan de seguimiento.</p>
-            )}
-          </Surface>
-
-          <Surface tone="soft" spacing="sm" className={styles.railBlock}>
-            <h4>Notas</h4>
-            {lead.notes.length ? (
-              <ul className={styles.notesList}>
-                {lead.notes.map((note) => (
-                  <li key={note.id}>
-                    <strong>{note.author}</strong>
-                    <p>{note.body}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className={styles.placeholder}>Sin notas por ahora.</p>
-            )}
-          </Surface>
-
-          <Surface tone="soft" spacing="sm" className={styles.railBlock}>
-            <h4>Propiedades relacionadas</h4>
-            {relatedRecommendations.length ? (
-              <ul className={styles.relatedList}>
-                {relatedRecommendations.map((item) => (
-                  <li key={item.id}>
-                    <strong>
-                      #{item.rank} {item.title}
-                    </strong>
-                    <span>
-                      {Math.round(item.fitScore * 100)}% encaje · {item.neighborhood}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className={styles.placeholder}>No hay propiedades secundarias.</p>
-            )}
-          </Surface>
-        </aside>
+    <>
+      <div className={isDesktopPanel()}>
+        <PanelContent lead={lead} />
       </div>
-      <Separator className="mt-4" />
-      </CardContent>
-    </Card>
+      <div className={`${isMobilePanel()} rounded-xl bg-[#f5f3f0] p-5 sm:p-6`}>
+        <div className="mb-4 flex items-center justify-between border-b border-stone-200 pb-4">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.15em] text-stone-500">Lead activo</p>
+            <h3 className="mt-1 text-lg text-[#313330] sm:text-xl" style={{ fontFamily: "'Noto Serif', serif" }}>
+              {lead.fullName}
+            </h3>
+          </div>
+          <span className="text-xl text-[#58624e] sm:text-2xl" style={{ fontFamily: "'Noto Serif', serif" }}>
+            {lead.closeProbability}%
+          </span>
+        </div>
+        <p className="text-[13px] leading-relaxed text-stone-600 sm:text-sm">
+          {lead.silenceHours != null ? `${formatRelativeHours(lead.silenceHours)} sin actividad.` : "Actividad reciente."}{" "}
+          {aiJudgment(lead)}
+        </p>
+      </div>
+    </>
   );
 }

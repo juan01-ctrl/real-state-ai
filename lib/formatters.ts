@@ -10,8 +10,9 @@ export function formatCurrencyUSD(value: number) {
 
 export function formatDateTime(input: string) {
   return new Intl.DateTimeFormat(locale, {
-    month: "short",
     day: "numeric",
+    month: "short",
+    year: "numeric",
     hour: "2-digit",
     minute: "2-digit"
   }).format(new Date(input));

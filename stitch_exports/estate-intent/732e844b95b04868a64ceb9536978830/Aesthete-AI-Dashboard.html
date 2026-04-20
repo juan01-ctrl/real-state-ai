@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aesthete AI Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Noto+Serif:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#f5eaa4",
+                        "on-primary-fixed": "#394230",
+                        "surface-variant": "#e3e3de",
+                        "inverse-primary": "#eaf5db",
+                        "on-surface": "#313330",
+                        "on-background": "#313330",
+                        "error-container": "#fd795a",
+                        "tertiary-dim": "#5b541e",
+                        "primary-fixed": "#dce6cd",
+                        "primary-fixed-dim": "#ced8bf",
+                        "outline": "#7a7b77",
+                        "on-secondary-fixed-variant": "#535f48",
+                        "tertiary": "#686028",
+                        "surface-tint": "#58624e",
+                        "on-primary-fixed-variant": "#555f4b",
+                        "primary-container": "#dce6cd",
+                        "surface-container-high": "#e9e8e4",
+                        "secondary": "#57634b",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#5d561f",
+                        "inverse-surface": "#0e0e0d",
+                        "surface-container": "#efeeea",
+                        "on-secondary-fixed": "#37432d",
+                        "error": "#a73b21",
+                        "primary-dim": "#4d5643",
+                        "on-primary": "#f2fde3",
+                        "on-error": "#fff7f6",
+                        "secondary-fixed": "#dae7c9",
+                        "on-secondary-container": "#4a553f",
+                        "on-tertiary-fixed": "#4a430e",
+                        "on-tertiary-fixed-variant": "#686028",
+                        "surface-container-low": "#f5f3f0",
+                        "on-error-container": "#6e1400",
+                        "surface-bright": "#fbf9f6",
+                        "on-secondary": "#f0fedf",
+                        "secondary-dim": "#4b5740",
+                        "secondary-fixed-dim": "#ccd9bc",
+                        "inverse-on-surface": "#9e9d9a",
+                        "on-surface-variant": "#5e5f5c",
+                        "primary": "#58624e",
+                        "error-dim": "#791903",
+                        "outline-variant": "#b2b2ae",
+                        "background": "#fbf9f6",
+                        "tertiary-container": "#f5eaa4",
+                        "on-primary-container": "#4b5542",
+                        "on-tertiary": "#fff9e5",
+                        "surface": "#fbf9f6",
+                        "surface-container-highest": "#e3e3de",
+                        "secondary-container": "#dae7c9",
+                        "tertiary-fixed-dim": "#e6db97",
+                        "surface-dim": "#dadad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        body {
+            background-color: #fbf9f6;
+            color: #313330;
+        }
+        .serif-headline {
+            font-family: 'Noto Serif', serif;
+            letter-spacing: 0.04em;
+        }
+        .label-caps {
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary-fixed">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-64 z-40 bg-[#efeeea] flex flex-col py-10 px-6 space-y-8 fade-in duration-300 ease-out">
+<div class="mb-6 flex flex-col">
+<span class="font-serif text-lg tracking-widest text-[#313330] uppercase">AESTHETE AI</span>
+<span class="font-sans text-[10px] tracking-widest uppercase text-[#58624e]">Digital Atelier</span>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Active: Dashboard -->
+<a class="flex items-center gap-3 py-3 px-2 text-[#313330] bg-[#fbf9f6] border-l-4 border-[#58624e] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="label-caps">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-2 text-[#313330]/40 hover:bg-[#fbf9f6]/50 hover:text-[#58624e] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person_search">person_search</span>
+<span class="label-caps">Leads</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-2 text-[#313330]/40 hover:bg-[#fbf9f6]/50 hover:text-[#58624e] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="label-caps">Opportunities</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-2 text-[#313330]/40 hover:bg-[#fbf9f6]/50 hover:text-[#58624e] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="label-caps">Insights</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-2 text-[#313330]/40 hover:bg-[#fbf9f6]/50 hover:text-[#58624e] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="domain">domain</span>
+<span class="label-caps">Properties</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-2 text-[#313330]/40 hover:bg-[#fbf9f6]/50 hover:text-[#58624e] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="label-caps">Team</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-2 text-[#313330]/40 hover:bg-[#fbf9f6]/50 hover:text-[#58624e] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="label-caps">Settings</span>
+</a>
+</nav>
+<div class="pt-6 border-t border-outline-variant/10 space-y-4">
+<a class="flex items-center gap-3 px-2 text-[#313330]/40 hover:text-[#58624e] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="label-caps">Help</span>
+</a>
+<a class="flex items-center gap-3 px-2 text-[#313330]/40 hover:text-[#58624e] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="label-caps">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-64 z-50 bg-[#fbf9f6]/80 backdrop-blur-xl shadow-[0_40px_60px_rgba(49,51,48,0.05)]">
+<div class="max-w-7xl mx-auto px-12 flex justify-between items-center py-6">
+<div class="flex items-center gap-12">
+<span class="text-xl font-serif tracking-[0.2em] text-[#313330]">AESTHETE AI</span>
+<nav class="hidden md:flex items-center gap-8">
+<a class="label-caps text-[#58624e] font-medium border-b border-[#58624e]/20 py-1" href="#">Dashboard</a>
+<a class="label-caps text-[#313330]/60 hover:text-[#58624e] transition-all duration-500 py-1" href="#">Leads</a>
+<a class="label-caps text-[#313330]/60 hover:text-[#58624e] transition-all duration-500 py-1" href="#">Opportunities</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<button class="label-caps px-4 py-2 bg-primary text-on-primary hover:scale-98 transition-transform">New Lead</button>
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden">
+<img alt="Agency Owner Avatar" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional agency owner in a neutral-toned office environment with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBz_EQnLr8wctXemAXbXABTNSyk_J2OKiIChCX8HKZheQMOzlIJxz6-fUVA5U0FC3qXKUT5KDujfWf9I3WLPQiQQS69cJ4b2ZJ_zUt836TwMib5CmZAI8WZCw3V1j4nKu5wVjg-ve8XloMzdH7K19hHQSW-XSogBFeMMqZxL3lw3wZPUkB0rLMYO970iokIEmBzxOFTR96mPXYPYbmmth8fjNw2gWZf8IJUygm_fhYyA0Wr25tL7cdbOljTM_AkNOtYkYOMDLeRT3B1"/>
+</div>
+</div>
+</div>
+</header>
+<div class="mt-24 px-12 py-12 max-w-7xl mx-auto w-full space-y-16">
+<!-- Hero Insight -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-outline-variant/10 pb-12">
+<div class="max-w-2xl">
+<span class="label-caps text-primary mb-4 block">Morning Briefing</span>
+<h1 class="serif-headline text-5xl text-on-background leading-tight">3 high-intent buyers need attention today.</h1>
+<p class="mt-4 text-on-surface-variant text-lg max-w-lg leading-relaxed">Intelligence detects immediate urgency in your Palermo and Heights portfolios. Early response is predicted to increase conversion by 22%.</p>
+</div>
+<button class="bg-primary text-on-primary px-8 py-4 label-caps hover:bg-primary-dim transition-colors">
+                    Review opportunities
+                </button>
+</section>
+<!-- Priority Leads Strip -->
+<section class="space-y-6">
+<div class="flex justify-between items-center">
+<h2 class="label-caps text-on-surface-variant">Priority Intelligence</h2>
+<a class="label-caps text-primary hover:underline transition-all" href="#">View all active leads</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-1">
+<!-- Lead 1 -->
+<div class="bg-surface-container-low p-8 transition-all hover:bg-surface-container-high group cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="serif-headline text-xl">Valeria Di Rossy</h3>
+<p class="text-xs text-on-surface-variant mt-1">High Urgency</p>
+</div>
+<div class="text-right">
+<span class="text-2xl font-serif text-primary">82%</span>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant">Match</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4">
+<p class="text-sm text-on-surface leading-snug">Recommend: 2 properties in Palermo</p>
+</div>
+</div>
+<!-- Lead 2 -->
+<div class="bg-surface-container p-8 transition-all hover:bg-surface-container-high group cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="serif-headline text-xl">Dr. Elena Sterling</h3>
+<p class="text-xs text-primary mt-1 font-medium">Immediate</p>
+</div>
+<div class="text-right">
+<span class="text-2xl font-serif text-primary">94%</span>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant">Match</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4">
+<p class="text-sm text-on-surface leading-snug">Action: Schedule visit for Penthouse Terrace</p>
+</div>
+</div>
+<!-- Lead 3 -->
+<div class="bg-surface-container-low p-8 transition-all hover:bg-surface-container-high group cursor-pointer">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="serif-headline text-xl">Julian Vane</h3>
+<p class="text-xs text-on-surface-variant mt-1">Medium Urgency</p>
+</div>
+<div class="text-right">
+<span class="text-2xl font-serif text-primary">78%</span>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant">Match</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4">
+<p class="text-sm text-on-surface leading-snug">Action: Follow up on mortgage status</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Opportunity Loss Insight & Revenue Strip -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Loss Insight -->
+<div class="lg:col-span-8 bg-surface-container-low p-12 relative overflow-hidden">
+<div class="relative z-10">
+<h2 class="serif-headline text-3xl mb-8">You lost 4 likely buyers this week.</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div>
+<p class="label-caps text-error mb-2">Slow response</p>
+<div class="h-1 bg-error/10 w-full mb-4">
+<div class="h-full bg-error w-3/4"></div>
+</div>
+<p class="text-sm text-on-surface-variant">Avg. lag: 4.5 hours above benchmark.</p>
+</div>
+<div>
+<p class="label-caps text-on-surface mb-2">Wrong property</p>
+<div class="h-1 bg-on-surface/10 w-full mb-4">
+<div class="h-full bg-on-surface w-1/4"></div>
+</div>
+<p class="text-sm text-on-surface-variant">2 leads cited mismatch in amenities.</p>
+</div>
+<div>
+<p class="label-caps text-on-surface mb-2">No follow-up</p>
+<div class="h-1 bg-on-surface/10 w-full mb-4">
+<div class="h-full bg-on-surface w-1/2"></div>
+</div>
+<p class="text-sm text-on-surface-variant">Inactivity period exceeded 72 hours.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Activity Timeline -->
+<div class="lg:col-span-4 space-y-8">
+<h2 class="label-caps text-on-surface-variant">Recent Activity</h2>
+<div class="space-y-8">
+<div class="flex gap-6 items-start">
+<div class="mt-1.5 w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>
+<div>
+<p class="text-sm font-medium text-on-surface">Lead qualified: Sarah Jenkins</p>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant mt-1">2 hours ago</p>
+</div>
+</div>
+<div class="flex gap-6 items-start">
+<div class="mt-1.5 w-2 h-2 rounded-full bg-outline-variant flex-shrink-0"></div>
+<div>
+<p class="text-sm font-medium text-on-surface">Property recommended: The Obsidian Heights</p>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant mt-1">4 hours ago</p>
+</div>
+</div>
+<div class="flex gap-6 items-start">
+<div class="mt-1.5 w-2 h-2 rounded-full bg-outline-variant flex-shrink-0"></div>
+<div>
+<p class="text-sm font-medium text-on-surface">Follow-up sent: Marcos G.</p>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant mt-1">6 hours ago</p>
+</div>
+</div>
+<div class="flex gap-6 items-start">
+<div class="mt-1.5 w-2 h-2 rounded-full bg-primary flex-shrink-0"></div>
+<div>
+<p class="text-sm font-medium text-on-surface">Visit booked: Penthouse Loft 4</p>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant mt-1">Yesterday</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Revenue / Conversion Strip -->
+<section class="bg-[#313330] p-10 text-surface-bright flex flex-col md:flex-row justify-between gap-12">
+<div class="space-y-1">
+<p class="label-caps text-surface-bright/50">Qualified visits</p>
+<p class="text-3xl font-serif">35%</p>
+</div>
+<div class="space-y-1">
+<p class="label-caps text-surface-bright/50">Close probability</p>
+<p class="text-3xl font-serif">64%</p>
+</div>
+<div class="space-y-1">
+<p class="label-caps text-surface-bright/50">First response</p>
+<p class="text-3xl font-serif">12m</p>
+</div>
+<div class="space-y-1">
+<p class="label-caps text-surface-bright/50">Conversion rate</p>
+<p class="text-3xl font-serif text-primary-fixed">8.4%</p>
+</div>
+</section>
+</div>
+<!-- Footer -->
+<footer class="w-full py-20 mt-auto bg-[#efeeea]">
+<div class="max-w-7xl mx-auto px-12 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex flex-col gap-2">
+<span class="font-serif text-lg tracking-widest text-[#313330] uppercase">AESTHETE AI</span>
+<p class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40">© 2024 Aesthete AI. The Digital Atelier for Real Estate.</p>
+</div>
+<div class="flex gap-8">
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-all" href="#">Infrastructure</a>
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-all" href="#">Privacy</a>
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-all" href="#">Terms</a>
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-all" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</main>
+</body></html>

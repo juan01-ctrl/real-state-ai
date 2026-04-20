@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 
-interface AnalyticsRedirectPageProps {
+interface LeadCommandCenterPageProps {
   searchParams: Promise<{ agencyId?: string }>;
 }
 
-export default async function AnalyticsRedirectPage({ searchParams }: AnalyticsRedirectPageProps) {
+export default async function LeadCommandCenterPage({ searchParams }: LeadCommandCenterPageProps) {
   const params = await searchParams;
   const agencyId = params.agencyId ?? "agency_demo_001";
-  redirect(`/insights?agencyId=${agencyId}`);
+  redirect(`/team?agencyId=${agencyId}`);
 }

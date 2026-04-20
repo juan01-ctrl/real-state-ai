@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AESTHETE AI | The Digital Atelier for Real Estate</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#686028",
+                        "outline": "#7a7b77",
+                        "on-primary": "#f2fde3",
+                        "error": "#a73b21",
+                        "secondary-container": "#dae7c9",
+                        "on-error-container": "#6e1400",
+                        "surface-tint": "#58624e",
+                        "tertiary-container": "#f5eaa4",
+                        "primary-dim": "#4d5643",
+                        "secondary": "#57634b",
+                        "on-tertiary-container": "#5d561f",
+                        "secondary-fixed-dim": "#ccd9bc",
+                        "surface-container-low": "#f5f3f0",
+                        "primary-fixed-dim": "#ced8bf",
+                        "on-secondary-fixed-variant": "#535f48",
+                        "on-surface-variant": "#5e5f5c",
+                        "on-secondary-container": "#4a553f",
+                        "secondary-fixed": "#dae7c9",
+                        "outline-variant": "#b2b2ae",
+                        "surface": "#fbf9f6",
+                        "on-tertiary-fixed": "#4a430e",
+                        "inverse-primary": "#eaf5db",
+                        "error-container": "#fd795a",
+                        "on-background": "#313330",
+                        "inverse-surface": "#0e0e0d",
+                        "surface-container-highest": "#e3e3de",
+                        "secondary-dim": "#4b5740",
+                        "on-primary-fixed-variant": "#555f4b",
+                        "primary-container": "#dce6cd",
+                        "primary": "#58624e",
+                        "surface-dim": "#dadad6",
+                        "tertiary-fixed-dim": "#e6db97",
+                        "surface-bright": "#fbf9f6",
+                        "on-primary-fixed": "#394230",
+                        "on-primary-container": "#4b5542",
+                        "on-secondary-fixed": "#37432d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#fff9e5",
+                        "surface-container-high": "#e9e8e4",
+                        "tertiary-dim": "#5b541e",
+                        "inverse-on-surface": "#9e9d9a",
+                        "error-dim": "#791903",
+                        "surface-variant": "#e3e3de",
+                        "primary-fixed": "#dce6cd",
+                        "background": "#fbf9f6",
+                        "on-secondary": "#f0fedf",
+                        "tertiary-fixed": "#f5eaa4",
+                        "surface-container": "#efeeea",
+                        "on-error": "#fff7f6",
+                        "on-surface": "#313330",
+                        "on-tertiary-fixed-variant": "#686028"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .serif { font-family: 'Noto Serif', serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .letter-spacing-display { letter-spacing: 0.04em; }
+        .letter-spacing-label { letter-spacing: 0.1em; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fbf9f6]/80 backdrop-blur-xl transition-all duration-500 shadow-[0_40px_60px_rgba(49,51,48,0.05)]">
+<div class="max-w-7xl mx-auto px-12 flex justify-between items-center py-6">
+<div class="text-xl font-serif tracking-[0.2em] text-[#313330]">AESTHETE AI</div>
+<div class="hidden md:flex items-center gap-10">
+<a class="text-[#58624e] font-medium border-b border-[#58624e]/20 text-[12px] uppercase tracking-[0.1em]" href="#">Solutions</a>
+<a class="text-[#313330]/60 hover:text-[#58624e] transition-all duration-500 text-[12px] uppercase tracking-[0.1em]" href="#">Infrastructure</a>
+<a class="text-[#313330]/60 hover:text-[#58624e] transition-all duration-500 text-[12px] uppercase tracking-[0.1em]" href="#">Intelligence</a>
+<a class="text-[#313330]/60 hover:text-[#58624e] transition-all duration-500 text-[12px] uppercase tracking-[0.1em]" href="#">Network</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-[#313330]/60 hover:text-[#58624e] transition-all duration-500 text-[12px] uppercase tracking-[0.1em]">Login</button>
+<button class="bg-primary text-on-primary px-6 py-2.5 text-[11px] uppercase tracking-[0.15em] font-medium transition-transform active:scale-95">Request Access</button>
+</div>
+</div>
+</nav>
+<main class="pt-24">
+<!-- Hero Section -->
+<section class="min-h-screen flex items-center px-12 max-w-7xl mx-auto overflow-hidden">
+<div class="grid grid-cols-12 gap-16 items-center">
+<div class="col-span-6 space-y-10">
+<div class="space-y-6">
+<h1 class="text-6xl font-normal leading-[1.1] letter-spacing-display text-on-background">
+                            Most agencies do not need <span class="italic text-primary/80">more leads</span>. They need to know which ones will close.
+                        </h1>
+<p class="text-lg text-on-surface-variant font-light leading-relaxed max-w-xl">
+                            An AI sales system that identifies serious buyers, recommends the next move, and helps your team focus where deals are most likely to happen.
+                        </p>
+</div>
+<div class="flex flex-col gap-4">
+<button class="bg-primary text-on-primary w-fit px-10 py-5 text-sm uppercase tracking-widest font-semibold transition-transform active:scale-98 shadow-lg shadow-primary/10">
+                            Book a private demo
+                        </button>
+<p class="text-[10px] uppercase tracking-[0.2em] text-outline font-medium flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-primary rounded-full"></span>
+                            Typically reduces response time by 70%
+                        </p>
+</div>
+</div>
+<div class="col-span-6 relative">
+<!-- Luxury Background Image Placeholder for "Product Composition" -->
+<div class="absolute -right-20 -top-20 w-[120%] h-[120%] bg-surface-container opacity-50 -z-10 rounded-full blur-3xl"></div>
+<div class="relative space-y-4">
+<!-- Main Panel -->
+<div class="bg-surface-container-lowest p-8 shadow-[0_40px_80px_-20px_rgba(49,51,48,0.1)] relative z-10 border-l-2 border-primary/20">
+<div class="flex justify-between items-start mb-8">
+<div>
+<span class="text-[10px] uppercase tracking-widest text-outline block mb-1">Lead Analysis</span>
+<h3 class="text-xl serif italic">Valeria Di Rossy</h3>
+</div>
+<div class="text-right">
+<span class="text-3xl font-light text-primary">82%</span>
+<span class="text-[10px] uppercase tracking-widest block text-outline">Likelihood to Close</span>
+</div>
+</div>
+<div class="space-y-4 border-t border-surface-container pt-6">
+<div class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="lightbulb">lightbulb</span>
+<p class="text-sm leading-relaxed text-on-surface">This lead is highly likely to book a visit within 3 days.</p>
+</div>
+<div class="flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="rocket_launch">rocket_launch</span>
+<div class="bg-surface-container-low p-4 w-full">
+<span class="text-[10px] uppercase tracking-widest text-outline block mb-2">Recommended Move</span>
+<p class="text-sm font-medium">Show 2 properties in Palermo and suggest a call tomorrow.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Panel -->
+<div class="bg-surface-container p-6 w-[85%] ml-auto relative z-20 -mt-8 shadow-xl">
+<div class="flex gap-4 items-center">
+<img alt="" class="w-16 h-16 object-cover grayscale brightness-110" data-alt="minimalist architectural photography of a modern luxury villa with large windows and clean concrete lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUZ7WQrGPfrLOgpeN-T8hDVZ-ex8nCFeSsy3bZ4SO6vE8X9r8-_KsOOBLqX_MFhqzMqgTiQj_kWtXdTVlhM6yliPpqROfKd7y2eGjvbjjxNz95Uml17ov5xE27RAzfb7fKUIcwBNKWowCrvKG5lH1R1hCP8Bc8fkXhkuapbL1QX6bgOte8JeQk5-8FyK9Q-IOc5JDMk8vPKJ5ouy7uXfof9YFB1RiIg3tIGtpXLY_2qIiGdXWQNkKY189IZfAkYotbRRgMKO9xVoWA"/>
+<div>
+<span class="text-[10px] uppercase tracking-widest text-outline block mb-1">Top Match</span>
+<p class="text-xs font-semibold">Palazzo Della Flora, Unit 12B</p>
+<p class="text-[11px] text-on-surface-variant italic mt-1">Fits buyer's budget and architectural preference for brutalist design.</p>
+</div>
+</div>
+</div>
+<!-- Floating Signal -->
+<div class="absolute -left-12 bottom-20 bg-error-container/10 border-l border-error px-4 py-3 backdrop-blur-md z-30 flex items-center gap-3">
+<span class="material-symbols-outlined text-error text-sm" data-icon="warning" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="text-[10px] uppercase tracking-[0.15em] text-on-error-container font-semibold">High risk if ignored in next 4h</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Problem Section -->
+<section class="py-32 bg-surface-container">
+<div class="max-w-7xl mx-auto px-12">
+<div class="max-w-3xl mb-24">
+<h2 class="text-5xl font-normal leading-tight letter-spacing-display text-on-background">
+                        You are already paying for leads. <br/>You are just <span class="italic text-error-dim">losing</span> the best ones.
+                    </h2>
+</div>
+<div class="grid grid-cols-12 gap-20 items-center">
+<!-- Scattered Noise -->
+<div class="col-span-7 relative h-[400px]">
+<div class="absolute top-0 left-0 p-4 bg-surface-container-lowest opacity-40 blur-[1px] rotate-2 text-xs border border-outline-variant/10">Lead #4928 - Inquiry</div>
+<div class="absolute top-20 left-40 p-4 bg-surface-container-lowest opacity-60 -rotate-3 text-xs border border-outline-variant/10 shadow-sm">Lead #5011 - Facebook</div>
+<div class="absolute bottom-10 left-10 p-4 bg-surface-container-lowest opacity-30 blur-[2px] rotate-6 text-xs border border-outline-variant/10">Lead #3882 - Website</div>
+<div class="absolute top-1/2 left-1/3 p-4 bg-surface-container-lowest opacity-50 rotate-1 text-xs border border-outline-variant/10">Lead #4001 - Portal</div>
+<div class="absolute bottom-1/4 right-1/4 p-4 bg-surface-container-lowest opacity-70 -rotate-6 text-xs border border-outline-variant/10 shadow-md">Lead #4122 - Referral</div>
+<!-- Visual representation of chaos -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+<span class="material-symbols-outlined text-[120px] text-outline font-extralight" data-icon="grain">grain</span>
+</div>
+</div>
+<!-- The Focused Lead -->
+<div class="col-span-5 bg-surface-container-lowest p-10 shadow-2xl relative">
+<div class="absolute -top-6 -left-6 bg-primary text-on-primary p-4 text-[10px] uppercase tracking-widest font-bold">The Opportunity</div>
+<div class="space-y-8">
+<div class="flex justify-between items-center pb-6 border-b border-surface-container">
+<h4 class="serif text-2xl italic">Dr. Elena Sterling</h4>
+<span class="text-primary font-bold text-lg">94%</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between text-xs uppercase tracking-widest text-outline">
+<span>Signal Strength</span>
+<span class="text-on-surface">Very High</span>
+</div>
+<div class="w-full h-1 bg-surface-container">
+<div class="w-[94%] h-full bg-primary"></div>
+</div>
+</div>
+<div class="bg-surface-container-low p-6">
+<p class="text-sm italic text-on-surface-variant leading-relaxed">
+                                    "Detected 4 separate visits to 'Penthouse Terrace' floorplan in the last 12 minutes. High urgency profile."
+                                </p>
+</div>
+<button class="w-full py-4 border border-primary text-primary text-[11px] uppercase tracking-widest font-bold hover:bg-primary hover:text-on-primary transition-all duration-300">
+                                Contact Immediately
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Story 1: Know who is likely to close -->
+<section class="py-40 bg-surface">
+<div class="max-w-7xl mx-auto px-12 grid grid-cols-12 gap-16 items-center">
+<div class="col-span-5">
+<img alt="" class="w-full h-[600px] object-cover grayscale brightness-105 shadow-2xl" data-alt="lifestyle shot of a professional looking at a digital screen in a high-end, softly lit minimalist office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfh9p4s4u3O2k_qb2f0NHT79FpQ2BtUOtmWJ7swUvCSRNv7-slhXqw1jcYWpvn7-o51UPqeMNcGKkKroZaoo1eCUXB9Lf4mbfyrumfTT_Io6ZVuvkokqz2V8QUmnhsx2MtufVMohVOEfdwFZv256MOScYrLOnzCf391S4tEK56h6A9IBPoqcIpq2txDR7wS2Y56IVVXOCKMeMiVDXx6qw0dr-XATnDzUofzPIa5vf8XU9bEMdh_G5wmR9dadKwCOHjpGSSXxITIc8t"/>
+</div>
+<div class="col-span-7 space-y-12 pl-12">
+<h2 class="text-6xl font-normal leading-tight letter-spacing-display">
+                        Know who is actually likely <span class="italic text-primary">to close.</span>
+</h2>
+<div class="grid grid-cols-2 gap-x-12 gap-y-16">
+<div class="space-y-3">
+<span class="text-[10px] uppercase tracking-[0.2em] text-primary font-bold">01 / Seriousness</span>
+<p class="text-sm text-on-surface-variant leading-relaxed">Our AI analyzes digital footprints to distinguish casual browsers from intent-driven investors.</p>
+</div>
+<div class="space-y-3">
+<span class="text-[10px] uppercase tracking-[0.2em] text-primary font-bold">02 / Urgency</span>
+<p class="text-sm text-on-surface-variant leading-relaxed">Real-time behavior triggers identify windows of opportunity before they close.</p>
+</div>
+<div class="space-y-3">
+<span class="text-[10px] uppercase tracking-[0.2em] text-primary font-bold">03 / Capacity</span>
+<p class="text-sm text-on-surface-variant leading-relaxed">Automated budget verification and asset assessment without intrusive questions.</p>
+</div>
+<div class="space-y-3">
+<span class="text-[10px] uppercase tracking-[0.2em] text-primary font-bold">04 / Precision</span>
+<p class="text-sm text-on-surface-variant leading-relaxed">Geographical and architectural matching based on historical taste profiles.</p>
+</div>
+</div>
+<div class="pt-8">
+<p class="text-2xl serif text-on-background/60 italic font-light leading-relaxed max-w-lg">
+                            We don't just count clicks. We measure commitment.
+                        </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Story 2: Know what to do next -->
+<section class="py-40 bg-surface-container-low overflow-hidden">
+<div class="max-w-7xl mx-auto px-12">
+<div class="text-center mb-24 max-w-3xl mx-auto space-y-4">
+<span class="text-[11px] uppercase tracking-[0.3em] text-primary font-bold">The Playbook</span>
+<h2 class="text-5xl font-normal leading-tight letter-spacing-display">
+                        Know what to do next — before the buyer disappears.
+                    </h2>
+</div>
+<!-- Product Rhythm Layout -->
+<div class="flex items-center gap-1">
+<!-- Step 1 -->
+<div class="flex-1 bg-surface-container-lowest p-10 h-[380px] flex flex-col justify-between shadow-sm border-r border-surface-container-low">
+<div class="space-y-4">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="auto_awesome">auto_awesome</span>
+<h4 class="serif text-xl">Identify Action</h4>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">AI analyzes the gap in the lead's journey and suggests the exact next touchpoint.</p>
+<div class="text-[10px] uppercase tracking-widest text-primary font-bold">Step One</div>
+</div>
+<!-- Step 2 -->
+<div class="flex-1 bg-surface-container-lowest p-10 h-[420px] flex flex-col justify-between shadow-xl relative z-10 scale-105">
+<div class="space-y-4">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="house">house</span>
+<h4 class="serif text-xl">Perfect Property</h4>
+</div>
+<div class="bg-surface p-4 border border-surface-container-high">
+<p class="text-[10px] uppercase tracking-widest text-outline mb-2">Ideal Matching Asset</p>
+<p class="text-xs font-semibold">The Obsidian Heights — Loft 4</p>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Matching the specific attributes the buyer engaged with most during their search.</p>
+<div class="text-[10px] uppercase tracking-widest text-primary font-bold">Step Two</div>
+</div>
+<!-- Step 3 -->
+<div class="flex-1 bg-surface-container-lowest p-10 h-[380px] flex flex-col justify-between shadow-sm border-l border-surface-container-low">
+<div class="space-y-4">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="schedule">schedule</span>
+<h4 class="serif text-xl">Ideal Timing</h4>
+</div>
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-sm" data-icon="bolt">bolt</span>
+<span class="text-xs font-bold uppercase tracking-widest">Send at 10:15 AM</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Historical response data indicates this buyer is most active during mid-mornings.</p>
+<div class="text-[10px] uppercase tracking-widest text-primary font-bold">Step Three</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Proof Section -->
+<section class="py-32 bg-surface">
+<div class="max-w-7xl mx-auto px-12">
+<div class="flex flex-col md:flex-row justify-between items-center gap-16 mb-32 border-b border-surface-container pb-20">
+<div class="text-center md:text-left flex-1">
+<span class="text-5xl font-serif text-primary block mb-2">35%</span>
+<span class="text-[11px] uppercase tracking-[0.2em] text-outline font-medium">more qualified visits</span>
+</div>
+<div class="text-center md:text-left flex-1">
+<span class="text-5xl font-serif text-primary block mb-2">2x</span>
+<span class="text-[11px] uppercase tracking-[0.2em] text-outline font-medium">more follow-ups completed</span>
+</div>
+<div class="text-center md:text-left flex-1">
+<span class="text-5xl font-serif text-primary block mb-2">70%</span>
+<span class="text-[11px] uppercase tracking-[0.2em] text-outline font-medium">faster response time</span>
+</div>
+</div>
+<div class="max-w-4xl mx-auto text-center space-y-10">
+<span class="material-symbols-outlined text-primary/30 text-5xl" data-icon="format_quote">format_quote</span>
+<blockquote class="text-4xl serif italic leading-snug text-on-background">
+                        "For the first time, we know which leads are actually worth our team’s attention. Our conversion rate hasn't just increased; it's evolved."
+                    </blockquote>
+<div class="flex flex-col items-center gap-2">
+<span class="text-xs uppercase tracking-[0.25em] font-bold">Julian Vane</span>
+<span class="text-[10px] uppercase tracking-widest text-outline">Founder, Vane Global Realty</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA Section -->
+<section class="py-48 bg-surface-container-high relative overflow-hidden">
+<!-- Decorative Texture -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none flex items-center justify-center">
+<span class="material-symbols-outlined text-[800px]" data-icon="fingerprint">fingerprint</span>
+</div>
+<div class="max-w-4xl mx-auto px-12 text-center relative z-10 space-y-12">
+<div class="space-y-6">
+<h2 class="text-5xl font-normal leading-tight letter-spacing-display">
+                        See which opportunities your agency is losing — and what to do about it.
+                    </h2>
+<p class="text-lg text-on-surface-variant font-light max-w-2xl mx-auto leading-relaxed">
+                        A private walkthrough for agencies that want more from the leads they already generate.
+                    </p>
+</div>
+<div class="space-y-8">
+<button class="bg-primary text-on-primary px-16 py-6 text-sm uppercase tracking-[0.25em] font-bold shadow-2xl transition-transform active:scale-95">
+                        Book a private demo
+                    </button>
+<div class="flex items-center justify-center gap-2">
+<span class="w-12 h-px bg-outline/20"></span>
+<p class="text-[10px] uppercase tracking-[0.2em] text-outline italic">Currently onboarding a limited number of agencies</p>
+<span class="w-12 h-px bg-outline/20"></span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-20 bg-surface-container text-[#58624e]">
+<div class="max-w-7xl mx-auto px-12 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="font-serif text-lg tracking-widest text-[#313330]">AESTHETE AI</div>
+<div class="flex gap-10">
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-colors" href="#">Infrastructure</a>
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-colors" href="#">Privacy</a>
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-colors" href="#">Terms</a>
+<a class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40 hover:text-[#58624e] transition-colors" href="#">Contact</a>
+</div>
+<div class="font-sans text-[12px] tracking-widest uppercase text-[#313330]/40">
+                © 2024 Aesthete AI. The Digital Atelier for Real Estate.
+            </div>
+</div>
+</footer>
+</body></html>

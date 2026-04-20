@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Agency Settings | AESTHETE AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-dim": "#5b541e",
+                        "primary-container": "#dce6cd",
+                        "surface-variant": "#e3e3de",
+                        "on-primary-fixed-variant": "#555f4b",
+                        "on-secondary-fixed": "#37432d",
+                        "on-primary-fixed": "#394230",
+                        "inverse-surface": "#0e0e0d",
+                        "inverse-on-surface": "#9e9d9a",
+                        "on-tertiary": "#fff9e5",
+                        "on-secondary": "#f0fedf",
+                        "background": "#fbf9f6",
+                        "secondary-dim": "#4b5740",
+                        "primary-fixed-dim": "#ced8bf",
+                        "outline": "#7a7b77",
+                        "secondary-fixed": "#dae7c9",
+                        "surface-container-highest": "#e3e3de",
+                        "surface-container": "#efeeea",
+                        "inverse-primary": "#eaf5db",
+                        "tertiary": "#686028",
+                        "on-error-container": "#6e1400",
+                        "secondary-container": "#dae7c9",
+                        "tertiary-container": "#f5eaa4",
+                        "surface-container-high": "#e9e8e4",
+                        "on-primary": "#f2fde3",
+                        "on-background": "#313330",
+                        "secondary": "#57634b",
+                        "tertiary-fixed-dim": "#e6db97",
+                        "surface": "#fbf9f6",
+                        "on-surface": "#313330",
+                        "primary-fixed": "#dce6cd",
+                        "primary-dim": "#4d5643",
+                        "error-dim": "#791903",
+                        "secondary-fixed-dim": "#ccd9bc",
+                        "on-tertiary-container": "#5d561f",
+                        "outline-variant": "#b2b2ae",
+                        "on-secondary-container": "#4a553f",
+                        "surface-bright": "#fbf9f6",
+                        "error": "#a73b21",
+                        "tertiary-fixed": "#f5eaa4",
+                        "on-error": "#fff7f6",
+                        "on-secondary-fixed-variant": "#535f48",
+                        "surface-dim": "#dadad6",
+                        "surface-container-low": "#f5f3f0",
+                        "on-primary-container": "#4b5542",
+                        "on-surface-variant": "#5e5f5c",
+                        "error-container": "#fd795a",
+                        "surface-tint": "#58624e",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#686028",
+                        "primary": "#58624e",
+                        "on-tertiary-fixed": "#4a430e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Noto Serif"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #fbf9f6; color: #313330; }
+        .font-serif { font-family: 'Noto Serif', serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-full w-64 z-40 bg-surface-container flex flex-col py-10 px-6 space-y-8 fade-in duration-300 ease-out">
+<div class="flex items-center space-x-3 px-2">
+<div class="w-8 h-8 bg-primary rounded-none flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-sm" style="font-variation-settings: 'FILL' 1;">architecture</span>
+</div>
+<div>
+<h1 class="font-serif text-lg tracking-[0.2em] text-on-surface">AESTHETE AI</h1>
+<p class="text-[10px] tracking-widest uppercase text-on-surface/40">Digital Atelier</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center space-x-3 px-4 py-3 text-[12px] tracking-widest uppercase text-on-surface/40 hover:bg-surface/50 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-[12px] tracking-widest uppercase text-on-surface/40 hover:bg-surface/50 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">person_search</span>
+<span>Leads</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-[12px] tracking-widest uppercase text-on-surface/40 hover:bg-surface/50 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+<span>Opportunities</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-[12px] tracking-widest uppercase text-on-surface/40 hover:bg-surface/50 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">insights</span>
+<span>Insights</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-[12px] tracking-widest uppercase text-on-surface/40 hover:bg-surface/50 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">domain</span>
+<span>Properties</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-[12px] tracking-widest uppercase text-on-surface/40 hover:bg-surface/50 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span>Team</span>
+</a>
+<!-- Active State Logic: Settings -->
+<a class="flex items-center space-x-3 px-4 py-3 text-[12px] tracking-widest uppercase text-on-surface bg-surface border-l-4 border-primary shadow-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="pt-8 mt-auto space-y-1">
+<a class="flex items-center space-x-3 px-4 py-3 text-[12px] tracking-widest uppercase text-on-surface/40 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">help</span>
+<span>Help</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-[12px] tracking-widest uppercase text-on-surface/40 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span>Logout</span>
+</a>
+<div class="px-4 pt-6">
+<button class="w-full bg-primary text-on-primary py-3 text-[10px] tracking-widest uppercase font-medium hover:opacity-90 transition-all">
+                    Support
+                </button>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<div class="max-w-5xl mx-auto px-16 py-24 space-y-32">
+<!-- Header Section -->
+<header class="space-y-4">
+<h2 class="font-serif text-5xl md:text-6xl text-on-surface tracking-tight">Agency Settings</h2>
+<p class="text-on-surface-variant font-body text-lg max-w-2xl leading-relaxed">
+                    Configure your digital atelier and intelligence parameters. Your agency's behavior is modeled after these high-fidelity settings.
+                </p>
+</header>
+<!-- Connected Channels & Lead Sources (Bento Layout Grid) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-20">
+<!-- Connected Channels -->
+<section class="space-y-8">
+<div class="space-y-1">
+<span class="text-[10px] tracking-[0.2em] uppercase text-primary font-semibold">Communication</span>
+<h3 class="font-serif text-2xl">Connected Channels</h3>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between group">
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined text-primary/60">chat</span>
+<div>
+<p class="text-sm font-medium">WhatsApp</p>
+<p class="text-[11px] text-primary uppercase tracking-wider font-semibold">Status: Active</p>
+</div>
+</div>
+<a class="text-[11px] uppercase tracking-widest text-on-surface/40 group-hover:text-primary transition-colors border-b border-transparent group-hover:border-primary/20 pb-1" href="#">Configure</a>
+</div>
+<div class="flex items-center justify-between group">
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined text-primary/60">mail</span>
+<div>
+<p class="text-sm font-medium">Email</p>
+<p class="text-[11px] text-primary uppercase tracking-wider font-semibold">Status: Active</p>
+</div>
+</div>
+<a class="text-[11px] uppercase tracking-widest text-on-surface/40 group-hover:text-primary transition-colors border-b border-transparent group-hover:border-primary/20 pb-1" href="#">Configure</a>
+</div>
+<div class="flex items-center justify-between group">
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined text-primary/60">call</span>
+<div>
+<p class="text-sm font-medium">Phone</p>
+<p class="text-[11px] text-primary uppercase tracking-wider font-semibold">Status: Active</p>
+</div>
+</div>
+<a class="text-[11px] uppercase tracking-widest text-on-surface/40 group-hover:text-primary transition-colors border-b border-transparent group-hover:border-primary/20 pb-1" href="#">Configure</a>
+</div>
+</div>
+</section>
+<!-- Lead Sources -->
+<section class="space-y-8">
+<div class="space-y-1">
+<span class="text-[10px] tracking-[0.2em] uppercase text-primary font-semibold">Acquisition</span>
+<h3 class="font-serif text-2xl">Lead Sources</h3>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container p-6 flex flex-col justify-between h-32 transition-all hover:bg-surface-container-high cursor-pointer">
+<span class="text-[11px] uppercase tracking-widest text-on-surface/60">Instagram</span>
+<p class="text-2xl font-serif">12 <span class="text-[12px] font-body text-on-surface/40 font-normal italic">this week</span></p>
+</div>
+<div class="bg-surface-container p-6 flex flex-col justify-between h-32 transition-all hover:bg-surface-container-high cursor-pointer">
+<span class="text-[11px] uppercase tracking-widest text-on-surface/60">Zillow</span>
+<p class="text-2xl font-serif">08 <span class="text-[12px] font-body text-on-surface/40 font-normal italic">this week</span></p>
+</div>
+<div class="bg-surface-container p-6 flex flex-col justify-between h-32 transition-all hover:bg-surface-container-high cursor-pointer">
+<span class="text-[11px] uppercase tracking-widest text-on-surface/60">Personal Website</span>
+<p class="text-2xl font-serif">24 <span class="text-[12px] font-body text-on-surface/40 font-normal italic">this week</span></p>
+</div>
+<div class="bg-surface-container p-6 flex flex-col justify-between h-32 transition-all hover:bg-surface-container-high cursor-pointer">
+<span class="text-[11px] uppercase tracking-widest text-on-surface/60">Portal</span>
+<p class="text-2xl font-serif">05 <span class="text-[12px] font-body text-on-surface/40 font-normal italic">this week</span></p>
+</div>
+</div>
+</section>
+</div>
+<!-- Property Feed Integration (Asymmetric Section) -->
+<section class="flex flex-col md:flex-row gap-12 items-start bg-surface-container-low p-12 -mx-12">
+<div class="md:w-1/3 space-y-4">
+<span class="text-[10px] tracking-[0.2em] uppercase text-primary font-semibold">Inventory</span>
+<h3 class="font-serif text-3xl">Property Feed Integration</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Ensure your inventory is current. Syncs occur automatically every 15 minutes.</p>
+</div>
+<div class="md:w-2/3 w-full bg-surface-container-lowest p-8 flex items-center justify-between">
+<div class="flex items-center space-x-6">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">database</span>
+</div>
+<div>
+<p class="text-sm font-medium">Primary Feed: Elite Global Inventory</p>
+<div class="flex items-center space-x-2 mt-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span class="text-[10px] uppercase tracking-widest text-primary font-semibold">Syncing</span>
+</div>
+</div>
+</div>
+<button class="text-[11px] uppercase tracking-[0.2em] font-semibold text-on-surface/40 hover:text-on-surface transition-colors">Force Refresh</button>
+</div>
+</section>
+<!-- Team Members (Editorial List) -->
+<section class="space-y-12">
+<div class="flex justify-between items-end border-b border-outline-variant/10 pb-4">
+<div class="space-y-1">
+<span class="text-[10px] tracking-[0.2em] uppercase text-primary font-semibold">Curation Team</span>
+<h3 class="font-serif text-3xl">Active Agents</h3>
+</div>
+<button class="text-[11px] uppercase tracking-[0.2em] font-semibold text-primary underline decoration-primary/30 underline-offset-8">Add Member</button>
+</div>
+<div class="divide-y divide-outline-variant/5">
+<div class="flex items-center justify-between py-8">
+<div class="flex items-center space-x-6">
+<img alt="Agent" class="w-14 h-14 object-cover grayscale brightness-110" data-alt="professional portrait of a middle-aged man in a charcoal suit, minimalist studio lighting, high fashion editorial style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsApkYhYEu_WoUMMMBL0BFw-P6nV7rc0C3dhi5fVvMpBWkngln2g7UWI7vDflbIycU6RJKb8QzieRDZ7QEOc2Z94sV3PrBqYloKhr4N9PEDi4ubhPfgPrs11gQxYrjKasYyI56agpZASOL6KdSvXNq96PtszFcFVqIfL5pSQG-_pjpGhvaASXutH38BpqQHAdN1TkPiiKYZthoSCZJjlXHAdh-x3FCYQbk-u8rPfLjf0lIKVpAqIutdybuERyFGN1rfIpRRlfKKQeY"/>
+<div>
+<h4 class="text-lg font-medium">Julian Thorne</h4>
+<p class="text-[11px] uppercase tracking-widest text-on-surface/40">Elite Agent</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface/20 cursor-pointer hover:text-on-surface transition-colors">more_vert</span>
+</div>
+<div class="flex items-center justify-between py-8">
+<div class="flex items-center space-x-6">
+<img alt="Agent" class="w-14 h-14 object-cover grayscale brightness-110" data-alt="close-up portrait of a woman with sleek hair, wearing a beige turtleneck, soft natural lighting, elegant minimalist aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWQ_Pjv69ZiFhonEgqI1yBzqUbkOXaEIMYn8B7bVPwQJsSXF6p1ihKUNNGX4ge6n9PmzL5KV4kIAHz-DtdAPIw6IObtghqACr5uedr8fr3EriS7byxX7FeZw4A0AxEnVH25pUPH7zgfTjoMiwWzhwqptFZm6FE789UbvOM9PpGRXsZTNu-FWGPXo27gf3n5UPFwsxJx_ofjW3eEkJJIiH61J7c042TTFnJnwOCceos463vHkZxvdVxidt2JPSikLmTFbxlhrYCraRc"/>
+<div>
+<h4 class="text-lg font-medium">Sienna Vance</h4>
+<p class="text-[11px] uppercase tracking-widest text-on-surface/40">Admin</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface/20 cursor-pointer hover:text-on-surface transition-colors">more_vert</span>
+</div>
+<div class="flex items-center justify-between py-8">
+<div class="flex items-center space-x-6">
+<img alt="Agent" class="w-14 h-14 object-cover grayscale brightness-110" data-alt="portrait of a young professional man in a tailored white shirt, dramatic side lighting, high contrast black and white style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL7xfS9IuuwkVm1foXhEfhf1N4lS5rmy6HxbVnYxprBeFcF7JG3q2MYLTqp0St3UYJksmE9qQbd4R8aQQKjlT6FDDK9gasFdD8ZvHwKA0qeBS4BIyR5NBpFPpn9JANU-2Sf2OrrCUiynME-kE1AA0ryxBr-T0G4I-6Pgm62KG7Uutl8DLICoANN_WgjKAOQOcFkcDLKDlyAhwTFK421QquKWSaYiT0_DvIS-YEbYs6dkMYJ94yZIhenWy8uiFbZwVAcOv-zKq__IAn"/>
+<div>
+<h4 class="text-lg font-medium">Adrian Locke</h4>
+<p class="text-[11px] uppercase tracking-widest text-on-surface/40">Elite Agent</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface/20 cursor-pointer hover:text-on-surface transition-colors">more_vert</span>
+</div>
+</div>
+</section>
+<!-- AI Preferences (Intelligence Core) -->
+<section class="space-y-12 pb-32">
+<div class="bg-primary-container/30 p-12 border-l-8 border-primary">
+<div class="max-w-2xl space-y-10">
+<div class="space-y-2">
+<span class="text-[10px] tracking-[0.2em] uppercase text-primary font-bold">Intelligence Core</span>
+<h3 class="font-serif text-3xl italic">AI Preferences</h3>
+</div>
+<div class="space-y-10">
+<!-- Urgency Threshold -->
+<div class="space-y-4">
+<div class="flex justify-between items-baseline">
+<label class="text-[12px] uppercase tracking-widest font-semibold">Urgency Thresholds</label>
+<span class="text-[10px] font-medium text-primary">Priority Focused</span>
+</div>
+<div class="relative w-full h-px bg-outline-variant/30 mt-2">
+<div class="absolute top-1/2 left-3/4 -translate-y-1/2 w-4 h-4 rounded-full bg-primary ring-8 ring-primary/10"></div>
+</div>
+<p class="text-[11px] text-on-surface/50 italic">Determines how quickly the AI engages high-value leads.</p>
+</div>
+<!-- Matching Rigor -->
+<div class="space-y-4">
+<label class="text-[12px] uppercase tracking-widest font-semibold block">Matching Rigor</label>
+<div class="flex space-x-4">
+<button class="flex-1 py-4 border border-primary text-primary text-[11px] tracking-widest uppercase font-semibold">Conservative</button>
+<button class="flex-1 py-4 bg-surface-container text-on-surface/40 text-[11px] tracking-widest uppercase font-semibold hover:bg-surface-container-high transition-colors">Aggressive</button>
+</div>
+<p class="text-[11px] text-on-surface/50 italic">Conservative matching ensures only perfect architectural fits are presented.</p>
+</div>
+<!-- Auto-Outreach Tone -->
+<div class="space-y-4">
+<label class="text-[12px] uppercase tracking-widest font-semibold block text-on-surface">Auto-Outreach Tone</label>
+<select class="w-full bg-transparent border-0 border-b border-outline-variant py-3 text-sm focus:ring-0 focus:border-primary transition-all font-body">
+<option>Sophisticated &amp; Reserved</option>
+<option>Direct &amp; Professional</option>
+<option>Warm &amp; Welcoming</option>
+<option>Technical &amp; Precise</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer Anchor -->
+<footer class="ml-64 w-full py-20 bg-surface-container mt-auto">
+<div class="max-w-7xl mx-auto px-12 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex items-center space-x-3">
+<span class="font-serif text-lg tracking-widest text-on-surface uppercase">AESTHETE AI</span>
+</div>
+<p class="text-[12px] tracking-widest uppercase text-on-surface/40">© 2024 Aesthete AI. The Digital Atelier for Real Estate.</p>
+<div class="flex space-x-8">
+<a class="text-[12px] tracking-widest uppercase text-on-surface/40 hover:text-primary transition-all" href="#">Infrastructure</a>
+<a class="text-[12px] tracking-widest uppercase text-on-surface/40 hover:text-primary transition-all" href="#">Privacy</a>
+<a class="text-[12px] tracking-widest uppercase text-on-surface/40 hover:text-primary transition-all" href="#">Terms</a>
+<a class="text-[12px] tracking-widest uppercase text-on-surface/40 hover:text-primary transition-all" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</body></html>

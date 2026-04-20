@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Leads Inbox | Aesthete AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,300;0,400;0,700;1,300;1,400&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-dim": "#dadad6",
+                      "tertiary-fixed-dim": "#e6db97",
+                      "secondary-container": "#dae7c9",
+                      "surface-container-highest": "#e3e3de",
+                      "on-tertiary": "#fff9e5",
+                      "surface": "#fbf9f6",
+                      "tertiary-container": "#f5eaa4",
+                      "on-primary-container": "#4b5542",
+                      "outline-variant": "#b2b2ae",
+                      "background": "#fbf9f6",
+                      "error-dim": "#791903",
+                      "on-surface-variant": "#5e5f5c",
+                      "inverse-on-surface": "#9e9d9a",
+                      "primary": "#58624e",
+                      "secondary-fixed-dim": "#ccd9bc",
+                      "secondary-dim": "#4b5740",
+                      "surface-bright": "#fbf9f6",
+                      "on-secondary": "#f0fedf",
+                      "on-error-container": "#6e1400",
+                      "surface-container-low": "#f5f3f0",
+                      "on-tertiary-fixed": "#4a430e",
+                      "on-tertiary-fixed-variant": "#686028",
+                      "secondary-fixed": "#dae7c9",
+                      "on-secondary-container": "#4a553f",
+                      "on-error": "#fff7f6",
+                      "on-primary": "#f2fde3",
+                      "on-secondary-fixed": "#37432d",
+                      "error": "#a73b21",
+                      "primary-dim": "#4d5643",
+                      "surface-container": "#efeeea",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#5d561f",
+                      "inverse-surface": "#0e0e0d",
+                      "secondary": "#57634b",
+                      "on-primary-fixed-variant": "#555f4b",
+                      "surface-container-high": "#e9e8e4",
+                      "primary-container": "#dce6cd",
+                      "primary-fixed-dim": "#ced8bf",
+                      "outline": "#7a7b77",
+                      "tertiary": "#686028",
+                      "surface-tint": "#58624e",
+                      "on-secondary-fixed-variant": "#535f48",
+                      "tertiary-dim": "#5b541e",
+                      "primary-fixed": "#dce6cd",
+                      "error-container": "#fd795a",
+                      "on-background": "#313330",
+                      "on-surface": "#313330",
+                      "inverse-primary": "#eaf5db",
+                      "on-primary-fixed": "#394230",
+                      "tertiary-fixed": "#f5eaa4",
+                      "surface-variant": "#e3e3de"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Noto Serif"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #fbf9f6; color: #313330; }
+        .font-serif { font-family: 'Noto Serif', serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #fbf9f6; }
+        ::-webkit-scrollbar-thumb { background: #e3e3de; }
+        .tonal-shift-bottom { background: linear-gradient(to bottom, rgba(239, 238, 234, 0.2), transparent); }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased">
+<!-- SideNavBar (Shared Component) -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#efeeea] dark:bg-stone-900 border-r border-transparent flex flex-col py-8 space-y-8 z-50">
+<div class="px-6">
+<h1 class="font-serif text-lg tracking-widest text-[#313330] dark:text-stone-100 uppercase">Aesthete AI</h1>
+<p class="font-sans text-[10px] tracking-[0.1em] font-medium uppercase text-[#58624e] dark:text-[#707A65] mt-1">Elite Tier</p>
+</div>
+<nav class="flex-1">
+<div class="space-y-1">
+<a class="flex items-center text-[#313330]/50 dark:text-stone-500 py-3 px-6 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-all font-sans text-[10px] tracking-[0.1em] font-medium uppercase" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span> Overview
+                </a>
+<a class="flex items-center text-[#313330] dark:text-white bg-[#fbf9f6] dark:bg-stone-800 rounded-l-none rounded-r-full py-3 px-6 shadow-sm font-sans text-[10px] tracking-[0.1em] font-medium uppercase" href="#">
+<span class="material-symbols-outlined mr-3">inbox</span> Leads
+                </a>
+<a class="flex items-center text-[#313330]/50 dark:text-stone-500 py-3 px-6 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-all font-sans text-[10px] tracking-[0.1em] font-medium uppercase" href="#">
+<span class="material-symbols-outlined mr-3">query_stats</span> Market Insight
+                </a>
+<a class="flex items-center text-[#313330]/50 dark:text-stone-500 py-3 px-6 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-all font-sans text-[10px] tracking-[0.1em] font-medium uppercase" href="#">
+<span class="material-symbols-outlined mr-3">domain</span> Inventory
+                </a>
+<a class="flex items-center text-[#313330]/50 dark:text-stone-500 py-3 px-6 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-all font-sans text-[10px] tracking-[0.1em] font-medium uppercase" href="#">
+<span class="material-symbols-outlined mr-3">settings</span> Settings
+                </a>
+</div>
+</nav>
+<div class="px-6 space-y-4">
+<button class="w-full bg-primary text-on-primary py-3 px-4 rounded font-sans text-[10px] tracking-[0.1em] font-medium uppercase hover:opacity-90 transition-opacity">New Analysis</button>
+<div class="pt-4 border-t border-stone-200/50">
+<a class="flex items-center text-[#313330]/50 py-2 font-sans text-[10px] tracking-[0.1em] font-medium uppercase hover:text-[#313330]" href="#">
+<span class="material-symbols-outlined mr-3">help_outline</span> Support
+                </a>
+<a class="flex items-center text-[#313330]/50 py-2 font-sans text-[10px] tracking-[0.1em] font-medium uppercase hover:text-[#313330]" href="#">
+<span class="material-symbols-outlined mr-3">inventory_2</span> Archive
+                </a>
+</div>
+</div>
+</aside>
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- TopAppBar (Shared Component) -->
+<header class="w-full py-4 bg-[#fbf9f6] flex items-center justify-between px-10 tonal-shift-bottom sticky top-0 z-40">
+<div class="flex items-center space-x-6">
+<span class="material-symbols-outlined text-[#58624e] cursor-pointer">menu</span>
+<h2 class="font-serif text-2xl italic tracking-tight text-on-background">Intelligence Dashboard</h2>
+</div>
+<div class="flex items-center space-x-6">
+<span class="material-symbols-outlined text-stone-400 cursor-pointer hover:opacity-70 transition-opacity">search</span>
+<span class="material-symbols-outlined text-stone-400 cursor-pointer hover:opacity-70 transition-opacity">notifications</span>
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a professional male agent with a warm, confident expression in soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_771vXlGMjwmvhsyeN9o_6udq1QJBjX6BZzQPmbcCbGAu5F6iISyd4PvMEjjuYLdtn9opFSRkEdQZmpwVyN54pH7BBn3DwELjhq87FKZ8RSDYf5Jx2v_7g9U5IEfwrdsUso8QgakdgFt9QRFowyIpzp9EUctH_1iIyq-c0EL8KGtU4TmWaABitpBE_cACYJztBK7YUjbu7CX0vqfAZoSs8BfJzvcVqRdCTxUS6q-sTqiM9CDXxnQpMzp9WrFiyXNqAjIVn4JFKGG7"/>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Column: Lead List -->
+<section class="flex-1 overflow-y-auto px-10 py-8 border-r border-transparent">
+<!-- Filters -->
+<div class="flex items-center space-x-8 mb-10 overflow-x-auto whitespace-nowrap pb-2">
+<button class="text-[11px] font-medium uppercase tracking-[0.15em] text-on-background border-b border-primary pb-1">High probability</button>
+<button class="text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400 hover:text-on-background transition-colors pb-1">At risk</button>
+<button class="text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400 hover:text-on-background transition-colors pb-1">New today</button>
+<button class="text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400 hover:text-on-background transition-colors pb-1">Waiting follow-up</button>
+<button class="flex items-center text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400 hover:text-on-background transition-colors pb-1">Source <span class="material-symbols-outlined text-[14px] ml-1">expand_more</span></button>
+</div>
+<!-- Lead Rows -->
+<div class="space-y-4">
+<!-- Hot Lead Item (Selected Style) -->
+<div class="group flex items-center justify-between p-6 bg-surface-container-lowest rounded-xl shadow-sm border-l-2 border-primary cursor-pointer transition-all">
+<div class="flex-1 grid grid-cols-4 gap-4 items-center">
+<div class="col-span-1">
+<h3 class="font-serif text-lg text-on-background">Julianne Sterling</h3>
+<p class="text-[11px] uppercase tracking-wider text-stone-400 mt-1">Upper West Side</p>
+</div>
+<div>
+<p class="text-sm font-medium text-on-background">$4.8M</p>
+<p class="text-[10px] uppercase tracking-wider text-stone-400">Budget</p>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="text-sm font-semibold text-primary">94%</span>
+<div class="h-1 w-12 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[94%]"></div>
+</div>
+</div>
+<p class="text-[10px] uppercase tracking-wider text-stone-400">Probability</p>
+</div>
+<div>
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest rounded">High Urgency</span>
+<p class="text-[10px] uppercase tracking-wider text-stone-400 mt-1">Last active 12m ago</p>
+</div>
+</div>
+<div class="flex items-center space-x-6">
+<button class="text-[11px] font-bold uppercase tracking-widest text-primary border-b border-primary/30 hover:border-primary transition-all">Schedule Visit</button>
+<span class="material-symbols-outlined text-stone-300">chevron_right</span>
+</div>
+</div>
+<!-- Regular Lead Item -->
+<div class="group flex items-center justify-between p-6 hover:bg-surface-container-low rounded-xl cursor-pointer transition-all border-l-2 border-transparent">
+<div class="flex-1 grid grid-cols-4 gap-4 items-center">
+<div class="col-span-1">
+<h3 class="font-serif text-lg text-on-background">Marcus Vane</h3>
+<p class="text-[11px] uppercase tracking-wider text-stone-400 mt-1">SoHo Loft District</p>
+</div>
+<div>
+<p class="text-sm font-medium text-on-background">$2.4M</p>
+<p class="text-[10px] uppercase tracking-wider text-stone-400">Budget</p>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="text-sm font-medium text-on-background">82%</span>
+<div class="h-1 w-12 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-dim w-[82%]"></div>
+</div>
+</div>
+<p class="text-[10px] uppercase tracking-wider text-stone-400">Probability</p>
+</div>
+<div>
+<span class="px-2 py-0.5 bg-surface-container text-stone-500 text-[10px] font-bold uppercase tracking-widest rounded">Medium</span>
+<p class="text-[10px] uppercase tracking-wider text-stone-400 mt-1">Last active 2h ago</p>
+</div>
+</div>
+<div class="flex items-center space-x-6">
+<button class="text-[11px] font-bold uppercase tracking-widest text-stone-400 hover:text-on-background transition-all">Send Brief</button>
+<span class="material-symbols-outlined text-stone-300">chevron_right</span>
+</div>
+</div>
+<!-- At Risk Lead -->
+<div class="group flex items-center justify-between p-6 hover:bg-surface-container-low rounded-xl cursor-pointer transition-all border-l-2 border-transparent">
+<div class="flex-1 grid grid-cols-4 gap-4 items-center">
+<div class="col-span-1 flex items-start">
+<div class="w-1.5 h-1.5 rounded-full bg-primary mt-2 mr-3"></div>
+<div>
+<h3 class="font-serif text-lg text-on-background">Eleanor Fitzgerald</h3>
+<p class="text-[11px] uppercase tracking-wider text-stone-400 mt-1">Brooklyn Heights</p>
+</div>
+</div>
+<div>
+<p class="text-sm font-medium text-on-background">$3.1M</p>
+<p class="text-[10px] uppercase tracking-wider text-stone-400">Budget</p>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="text-sm font-medium text-error">45%</span>
+<div class="h-1 w-12 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-error w-[45%]"></div>
+</div>
+</div>
+<p class="text-[10px] uppercase tracking-wider text-stone-400">At Risk</p>
+</div>
+<div>
+<span class="px-2 py-0.5 bg-error/10 text-error text-[10px] font-bold uppercase tracking-widest rounded">Delayed Response</span>
+<p class="text-[10px] uppercase tracking-wider text-stone-400 mt-1">4 days inactive</p>
+</div>
+</div>
+<div class="flex items-center space-x-6">
+<button class="text-[11px] font-bold uppercase tracking-widest text-primary border-b border-primary/30">Re-engage</button>
+<span class="material-symbols-outlined text-stone-300">chevron_right</span>
+</div>
+</div>
+<!-- Additional Lead Item -->
+<div class="group flex items-center justify-between p-6 hover:bg-surface-container-low rounded-xl cursor-pointer transition-all border-l-2 border-transparent">
+<div class="flex-1 grid grid-cols-4 gap-4 items-center">
+<div class="col-span-1">
+<h3 class="font-serif text-lg text-on-background">Soren Kjeldsen</h3>
+<p class="text-[11px] uppercase tracking-wider text-stone-400 mt-1">TriBeCa</p>
+</div>
+<div>
+<p class="text-sm font-medium text-on-background">$12.5M</p>
+<p class="text-[10px] uppercase tracking-wider text-stone-400">Budget</p>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="text-sm font-medium text-on-background">76%</span>
+<div class="h-1 w-12 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-dim w-[76%]"></div>
+</div>
+</div>
+<p class="text-[10px] uppercase tracking-wider text-stone-400">Probability</p>
+</div>
+<div>
+<span class="px-2 py-0.5 bg-surface-container text-stone-500 text-[10px] font-bold uppercase tracking-widest rounded">Institutional</span>
+<p class="text-[10px] uppercase tracking-wider text-stone-400 mt-1">Last active 5h ago</p>
+</div>
+</div>
+<div class="flex items-center space-x-6">
+<button class="text-[11px] font-bold uppercase tracking-widest text-stone-400 hover:text-on-background transition-all">Preview Report</button>
+<span class="material-symbols-outlined text-stone-300">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Lead Preview -->
+<aside class="w-[420px] bg-surface-container-low p-10 overflow-y-auto sticky top-0">
+<div class="space-y-10">
+<!-- Profile Header -->
+<div class="text-center">
+<div class="w-24 h-24 rounded-full bg-surface-container-lowest mx-auto mb-6 p-1 shadow-sm">
+<div class="w-full h-full rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Sophisticated woman with elegant features in professional attire against a blurred architectural background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy-b4QL61mOOdOWvw8yuTbKV4Lqyk0395YLcyiPneyJRmen0h0AU8UEdd0iSuHP7rdiW5HgIu9bFogzz66pJ57xIoeCmwbERJVcC7EY-8KA30_PAouUlcCu5fKUYpWcSFAF_lM8PsGU0WKH4kRQVbktUt2HOZEifDm3pQ6cUNa5kZlBTqZT6yyn5E9FX6mUcAB382lnAZ1Ju8PRvP3PZR3rzUIII1YXqI1Ha2VqtMZD-PljyqUtAiDip0A3oa0qS7skAcoNz9_6mTf"/>
+</div>
+</div>
+<h2 class="font-serif text-3xl text-on-background">Julianne Sterling</h2>
+<p class="text-xs uppercase tracking-[0.2em] text-stone-500 mt-2">Principal Investor • Luxury Residential</p>
+</div>
+<!-- Metric -->
+<div class="p-8 bg-surface-container-lowest rounded-xl text-center">
+<p class="text-[10px] uppercase tracking-[0.2em] text-stone-400 mb-2">Probability to close</p>
+<span class="font-serif text-5xl text-primary font-light">94<span class="text-2xl ml-0.5">%</span></span>
+<div class="mt-6 flex justify-center space-x-4">
+<div class="text-center px-4 border-r border-stone-100">
+<p class="text-lg font-serif">14</p>
+<p class="text-[9px] uppercase tracking-widest text-stone-400">Views</p>
+</div>
+<div class="text-center px-4">
+<p class="text-lg font-serif">2</p>
+<p class="text-[9px] uppercase tracking-widest text-stone-400">Visits</p>
+</div>
+</div>
+</div>
+<!-- AI Assessment -->
+<div class="space-y-4">
+<h4 class="text-[11px] font-bold uppercase tracking-[0.15em] text-on-background">AI Assessment</h4>
+<p class="text-sm leading-relaxed text-stone-600 font-light italic">
+                            "Julianne is demonstrating high-intent signals focused on vertical expansion in the Upper West Side. Her recent engagement patterns suggest a readiness to transact within the next 14 days if the proper off-market inventory is presented."
+                        </p>
+</div>
+<!-- Behavioral Signals -->
+<div class="space-y-4">
+<h4 class="text-[11px] font-bold uppercase tracking-[0.15em] text-on-background">Why this lead matters</h4>
+<ul class="space-y-3">
+<li class="flex items-start text-xs text-stone-600 leading-tight">
+<span class="material-symbols-outlined text-[16px] text-primary mr-3">bolt</span>
+<span>Visited Penthouse Loft 4 times in 24 hours.</span>
+</li>
+<li class="flex items-start text-xs text-stone-600 leading-tight">
+<span class="material-symbols-outlined text-[16px] text-primary mr-3">visibility</span>
+<span>Viewed tax history and floorplans for Riverside Drive listing.</span>
+</li>
+<li class="flex items-start text-xs text-stone-600 leading-tight">
+<span class="material-symbols-outlined text-[16px] text-primary mr-3">trending_up</span>
+<span>Recent liquidity event noted in high-tier market data.</span>
+</li>
+</ul>
+</div>
+<!-- Recommended Property -->
+<div class="space-y-4">
+<h4 class="text-[11px] font-bold uppercase tracking-[0.15em] text-on-background">Recommended Property</h4>
+<div class="group relative bg-surface-container-lowest rounded overflow-hidden cursor-pointer">
+<div class="aspect-[16/9] w-full overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Ultra-modern luxury penthouse living room with floor-to-ceiling windows overlooking a sunset city skyline" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbce_zM7D1YnCs0os4o694s3i550EwnncqmhfReiJuv5SeuHKtiY0ndz-tDBM63M3VMjcbrTK2OuWs6wBu9c35jxuYGZvPW8Lyfl9TqsxjOgNvbX7s_y2gW3NhM1MCQOyYcb1etXWZ0Z-__B_KgHgm34HlbS-jTZwZrZ0IAIr2Qg243zI2RtDuZQuM-kWLhRViKgMUTe72dLVJnaEqTrLYEhpq1fbYH8H5eyU3M41GNiVraHcJBYhbMDrBIXc7WWXcwHOQusjRUYrI"/>
+</div>
+<div class="p-4">
+<h5 class="font-serif text-sm text-on-background">The Verdant Penthouse</h5>
+<p class="text-[10px] text-stone-400 uppercase tracking-widest mt-1">Off-Market Exclusive</p>
+</div>
+</div>
+</div>
+<!-- Primary Action -->
+<div class="pt-4 sticky bottom-0">
+<button class="w-full bg-primary text-on-primary py-4 px-6 rounded shadow-lg font-sans text-[11px] tracking-[0.2em] font-bold uppercase hover:opacity-95 active:scale-[0.98] transition-all">
+                            Send Personal Portfolio Invitation
+                        </button>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="ml-64 bg-[#efeeea] dark:bg-stone-950 py-20 px-12 border-t border-stone-200 dark:border-stone-800 grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
+<div>
+<span class="font-serif italic text-2xl text-stone-800 dark:text-stone-200">Aesthete AI</span>
+<p class="font-sans text-[11px] tracking-[0.15em] uppercase text-stone-500 mt-4 leading-relaxed">
+                © 2024 Aesthete AI. An Editorial Intelligence Project.
+            </p>
+</div>
+<div class="flex flex-wrap gap-8 justify-end">
+<a class="font-sans text-[11px] tracking-[0.15em] uppercase text-stone-500 hover:text-[#313330] dark:hover:text-white transition-colors no-underline" href="#">Privacy Policy</a>
+<a class="font-sans text-[11px] tracking-[0.15em] uppercase text-stone-500 hover:text-[#313330] dark:hover:text-white transition-colors no-underline" href="#">Terms of Service</a>
+<a class="font-sans text-[11px] tracking-[0.15em] uppercase text-stone-500 hover:text-[#313330] dark:hover:text-white transition-colors no-underline" href="#">Press Kit</a>
+<a class="font-sans text-[11px] tracking-[0.15em] uppercase text-stone-500 hover:text-[#313330] dark:hover:text-white transition-colors no-underline" href="#">Contact</a>
+</div>
+</footer>
+</body></html>
