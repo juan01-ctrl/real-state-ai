@@ -9,7 +9,8 @@ import {
   changeLeadStage,
   completeLeadTask,
   createLeadTask,
-  markVisitBooked
+  markVisitBooked,
+  reopenLeadTask
 } from "@/lib/server/lead-mutations";
 
 function revalidateLeadSurfaces(leadId: string) {
@@ -83,6 +84,14 @@ export async function actionCreateLeadTask(
 export async function actionCompleteLeadTask(leadId: string, taskId: string) {
   return withSession(async ({ agencyId }) => {
     const result = await completeLeadTask(leadId, agencyId, taskId);
+    if (result.ok) revalidateLeadSurfaces(leadId);
+    return result;
+  });
+}
+
+export async function actionReopenLeadTask(leadId: string, taskId: string) {
+  return withSession(async ({ agencyId }) => {
+    const result = await reopenLeadTask(leadId, agencyId, taskId);
     if (result.ok) revalidateLeadSurfaces(leadId);
     return result;
   });

@@ -18,6 +18,7 @@ import {
 
 export interface LeadInboxItem {
   id: string;
+  createdAt: string;
   stage: LeadStage;
   priority: LeadPriority;
   score: number;
@@ -173,6 +174,7 @@ export async function getLeadInboxItems(agencyId: string): Promise<LeadInboxItem
     const manualReview = lead.tasks.some((task) => task.type === "MANUAL_REVIEW");
     return {
       id: lead.id,
+      createdAt: lead.createdAt.toISOString(),
       stage: lead.stage,
       priority: lead.priority,
       score: lead.leadScore,

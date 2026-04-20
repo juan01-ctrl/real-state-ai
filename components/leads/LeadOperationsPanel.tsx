@@ -2,14 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { LeadStage, TaskType } from "@prisma/client";
+import { LeadStage, TaskStatus, TaskType } from "@prisma/client";
 import {
   actionAddLeadNote,
   actionAssignLeadOwner,
   actionChangeLeadStage,
   actionCompleteLeadTask,
   actionCreateLeadTask,
-  actionMarkVisitBooked
+  actionMarkVisitBooked,
+  actionReopenLeadTask
 } from "@/lib/server/actions/lead-actions";
 import { displayLeadStage, displayTaskStatus } from "@/lib/i18n/present";
 import type { AgencyOperator } from "@/lib/server/read-models/operators";
@@ -32,6 +33,15 @@ const TASK_TYPES: { value: TaskType; label: string }[] = [
   { value: TaskType.VISIT_CONFIRM, label: "Confirmar visita" },
   { value: TaskType.MANUAL_REVIEW, label: "Revisión manual" }
 ];
+
+function taskTypeLabel(type: string) {
+  return TASK_TYPES.find((x) => x.value === type)?.label ?? type;
+}
+
+/** El modelo serializa enums como string; normalizamos por si el runtime difiere. */
+function isTaskOpenStatus(status: string) {
+  return status === TaskStatus.OPEN || status === "OPEN";
+}
 
 interface LeadOperationsPanelProps {
   leadId: string;
@@ -62,6 +72,9 @@ export function LeadOperationsPanel({
     variant === "panel"
       ? "rounded-xl border border-stone-200/80 bg-white p-5 shadow-sm"
       : "rounded-lg border border-outline-variant/20 bg-surface-container-low p-6";
+
+  const openTasks = lead.tasks.filter((t) => isTaskOpenStatus(t.status));
+  const closedTasks = lead.tasks.filter((t) => !isTaskOpenStatus(t.status));
 
   return (
     <div className={`space-y-6 ${shell}`}>
@@ -125,35 +138,75 @@ export function LeadOperationsPanel({
 
       <div className="border-t border-stone-100 pt-5">
         <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-stone-400">Tareas</p>
-        <ul className="mb-4 space-y-2">
+        <ul className="mb-4 space-y-3">
           {lead.tasks.length === 0 ? (
             <li className="text-xs text-stone-400">No hay tareas registradas.</li>
           ) : (
-            lead.tasks.map((t) => (
-              <li
-                key={t.id}
-                className="flex items-start justify-between gap-3 rounded border border-stone-100 bg-[#fafaf8] px-3 py-2 text-xs text-[#313330]"
-              >
-                <div>
-                  <p className="font-medium">{t.title}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-stone-400">{displayTaskStatus(t.status)}</p>
-                </div>
-                {t.status === "OPEN" ? (
-                  <button
-                    className="flex-shrink-0 text-[10px] font-bold uppercase tracking-wider text-[#58624e] underline-offset-2 hover:underline disabled:opacity-40"
-                    disabled={pending}
-                    type="button"
-                    onClick={() => runAction(() => actionCompleteLeadTask(leadId, t.id))}
-                  >
-                    Hecho
-                  </button>
-                ) : null}
-              </li>
-            ))
+            <>
+              {openTasks.length > 0 ? (
+                <li className="list-none">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#58624e]">Pendientes</p>
+                  <ul className="space-y-2">
+                    {openTasks.map((t) => (
+                      <li
+                        key={t.id}
+                        className="flex items-start justify-between gap-3 rounded border border-stone-200 bg-white px-3 py-2.5 text-xs text-[#313330]"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium leading-snug">{t.title}</p>
+                          <p className="mt-1 text-[10px] text-stone-500">
+                            {taskTypeLabel(t.type)} ·{" "}
+                            <span className="font-medium text-[#58624e]">{displayTaskStatus(t.status)}</span>
+                          </p>
+                        </div>
+                        <button
+                          className="shrink-0 rounded border border-[#58624e]/40 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#58624e] transition-colors hover:bg-[#58624e]/10 disabled:opacity-40"
+                          disabled={pending}
+                          type="button"
+                          onClick={() => runAction(() => actionCompleteLeadTask(leadId, t.id))}
+                        >
+                          Marcar hecha
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ) : null}
+              {closedTasks.length > 0 ? (
+                <li className="list-none">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-stone-400">Historial</p>
+                  <ul className="space-y-2">
+                    {closedTasks.map((t) => (
+                      <li
+                        key={t.id}
+                        className="flex items-start justify-between gap-3 rounded border border-stone-100 bg-[#fafaf8] px-3 py-2 text-xs text-stone-600"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium leading-snug">{t.title}</p>
+                          <p className="mt-1 text-[10px] text-stone-500">
+                            {taskTypeLabel(t.type)} · {displayTaskStatus(t.status)}
+                          </p>
+                        </div>
+                        {t.status === TaskStatus.COMPLETED || t.status === "COMPLETED" ? (
+                          <button
+                            className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-[#58624e] underline-offset-2 hover:underline disabled:opacity-40"
+                            disabled={pending}
+                            type="button"
+                            onClick={() => runAction(() => actionReopenLeadTask(leadId, t.id))}
+                          >
+                            Reabrir
+                          </button>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ) : null}
+            </>
           )}
         </ul>
         <form
-          className="flex flex-col gap-2 sm:flex-row sm:items-end"
+          className="flex flex-col gap-3"
           onSubmit={(e) => {
             e.preventDefault();
             const fd = new FormData(e.currentTarget);
@@ -166,7 +219,7 @@ export function LeadOperationsPanel({
             });
           }}
         >
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 w-full">
             <span className="mb-1 block text-[10px] uppercase tracking-widest text-stone-400">Nueva tarea</span>
             <input
               className="w-full border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-[#58624e]"
@@ -177,7 +230,7 @@ export function LeadOperationsPanel({
             />
           </div>
           <select
-            className="border border-stone-200 bg-white px-2 py-2 text-xs text-[#313330] sm:max-w-[11rem]"
+            className="w-full border border-stone-200 bg-white px-3 py-2 text-sm text-[#313330]"
             name="taskType"
             disabled={pending}
           >
@@ -188,7 +241,7 @@ export function LeadOperationsPanel({
             ))}
           </select>
           <button
-            className="bg-[#313330] px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#fbf9f6] transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="w-full bg-[#313330] px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-[#fbf9f6] transition-opacity hover:opacity-90 disabled:opacity-40"
             disabled={pending}
             type="submit"
           >

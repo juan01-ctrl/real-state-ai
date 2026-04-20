@@ -2,13 +2,64 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { ChannelType, LeadStage } from "@prisma/client";
 import { LeadInboxItem } from "@/lib/server/read-models/leads";
 import { formatCurrencyUSD, formatRelativeHours } from "@/lib/formatters";
+import { displayChannel } from "@/lib/i18n/present";
 
 interface LeadsInboxListProps {
   items: LeadInboxItem[];
   agencyId: string;
   selectedLeadId: string | null;
+}
+
+const INBOX_TABS = [
+  { id: "todos" as const, label: "Todos" },
+  { id: "alta" as const, label: "Alta probabilidad" },
+  { id: "riesgo" as const, label: "En riesgo" },
+  { id: "nuevos" as const, label: "Nuevos hoy" },
+  { id: "seguimiento" as const, label: "Esperando seguimiento" }
+];
+
+const SOURCE_OPTIONS: ChannelType[] = [
+  ChannelType.WHATSAPP,
+  ChannelType.INSTAGRAM,
+  ChannelType.WEB_FORM,
+  ChannelType.PORTAL,
+  ChannelType.MANUAL_IMPORT
+];
+
+function isCreatedToday(iso: string): boolean {
+  const d = new Date(iso);
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+}
+
+/** Criterios alineados con la tarjeta (probabilidad / silencio / tareas). */
+function matchesTab(item: LeadInboxItem, tab: (typeof INBOX_TABS)[number]["id"]): boolean {
+  switch (tab) {
+    case "todos":
+      return true;
+    case "alta":
+      return item.closeProbability >= 70;
+    case "riesgo":
+      return item.closeProbability < 60 || (item.silenceHours ?? 0) >= 48;
+    case "nuevos":
+      return isCreatedToday(item.createdAt);
+    case "seguimiento":
+      return (
+        item.hasManualReviewTask ||
+        (item.silenceHours ?? 0) >= 24 ||
+        ((item.stage === LeadStage.NEW || item.stage === LeadStage.CONTACTED) && (item.silenceHours ?? 0) >= 8)
+      );
+    default:
+      return true;
+  }
 }
 
 function buildArea(item: LeadInboxItem) {
@@ -57,6 +108,23 @@ function buildActionLabel(item: LeadInboxItem) {
 
 export function LeadsInboxList({ items, agencyId, selectedLeadId }: LeadsInboxListProps) {
   const router = useRouter();
+  const [tab, setTab] = useState<(typeof INBOX_TABS)[number]["id"]>("todos");
+  const [source, setSource] = useState<"all" | ChannelType>("all");
+
+  const filtered = useMemo(() => {
+    return items.filter((item) => {
+      if (!matchesTab(item, tab)) return false;
+      if (source !== "all" && item.sourceChannel !== source) return false;
+      return true;
+    });
+  }, [items, tab, source]);
+
+  useEffect(() => {
+    if (selectedLeadId == null) return;
+    const stillVisible = filtered.some((i) => i.id === selectedLeadId);
+    if (stillVisible || filtered.length === 0) return;
+    router.replace(`/leads?agencyId=${agencyId}&leadId=${filtered[0].id}`);
+  }, [tab, source, selectedLeadId, filtered, agencyId, router]);
 
   const handleRowClick = (leadId: string) => {
     router.push(`/leads?agencyId=${agencyId}&leadId=${leadId}`);
@@ -64,30 +132,53 @@ export function LeadsInboxList({ items, agencyId, selectedLeadId }: LeadsInboxLi
 
   return (
     <div>
-      <div className="mb-8 flex items-center gap-5 overflow-x-auto whitespace-nowrap pb-2 sm:mb-10 sm:gap-6">
-        {["Alta probabilidad", "En riesgo", "Nuevos hoy", "Esperando seguimiento"].map((filter, index) => (
-          <button
-            key={filter}
-            className={`pb-1 text-[10px] font-medium uppercase tracking-[0.15em] sm:text-[11px] ${
-              index === 0
-                ? "border-b border-[#58624e] text-[#313330]"
-                : "text-stone-400 transition-colors hover:text-[#313330]"
-            }`}
-            type="button"
+      <div className="mb-8 flex flex-wrap items-center gap-x-5 gap-y-2 overflow-x-auto pb-2 sm:mb-10 sm:gap-6">
+        {INBOX_TABS.map((t) => {
+          const active = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              className={`pb-1 text-[10px] font-medium uppercase tracking-[0.15em] sm:text-[11px] ${
+                active
+                  ? "border-b border-[#58624e] text-[#313330]"
+                  : "text-stone-400 transition-colors hover:text-[#313330]"
+              }`}
+              type="button"
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+            </button>
+          );
+        })}
+        <label className="flex items-center gap-1 pb-1 text-[10px] font-medium uppercase tracking-[0.15em] text-stone-500 sm:text-[11px]">
+          <span className="sr-only">Filtrar por fuente</span>
+          <span className="text-stone-400">Fuente</span>
+          <select
+            className="max-w-[11rem] cursor-pointer border-0 bg-transparent py-0 pl-0 pr-6 text-[10px] font-medium uppercase tracking-[0.15em] text-[#313330] outline-none focus:ring-0 sm:text-[11px]"
+            value={source}
+            onChange={(e) => {
+              const v = e.target.value;
+              setSource(v === "all" ? "all" : (v as ChannelType));
+            }}
           >
-            {filter}
-          </button>
-        ))}
-        <button
-          className="flex items-center pb-1 text-[10px] font-medium uppercase tracking-[0.15em] text-stone-400 transition-colors hover:text-[#313330] sm:text-[11px]"
-          type="button"
-        >
-          Fuente <span className="material-symbols-outlined ml-1 text-[14px]">expand_more</span>
-        </button>
+            <option value="all">Todas</option>
+            {SOURCE_OPTIONS.map((ch) => (
+              <option key={ch} value={ch}>
+                {displayChannel(ch)}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
+      {filtered.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-stone-200 bg-[#fafaf8] px-4 py-10 text-center text-sm text-stone-500">
+          No hay leads que coincidan con este filtro. Probá otra pestaña o cambiá la fuente.
+        </p>
+      ) : null}
+
       <div className="space-y-3 sm:space-y-4">
-        {items.map((item) => {
+        {filtered.map((item) => {
           const isActive = item.id === selectedLeadId;
           const priority = buildPriorityLabel(item);
           const scoreBar = Math.max(8, Math.min(100, item.closeProbability));

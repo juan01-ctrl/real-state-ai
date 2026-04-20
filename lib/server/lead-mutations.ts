@@ -278,6 +278,38 @@ export async function completeLeadTask(leadId: string, agencyId: string, taskId:
   return { ok: true as const, alreadyDone: false };
 }
 
+export async function reopenLeadTask(leadId: string, agencyId: string, taskId: string) {
+  const task = await db.task.findFirst({
+    where: { id: taskId, leadId },
+    select: { id: true, status: true, lead: { select: { agencyId: true } } }
+  });
+
+  if (!task || task.lead.agencyId !== agencyId) {
+    return { ok: false as const, error: "NOT_FOUND" as const };
+  }
+
+  if (task.status === TaskStatus.OPEN) {
+    return { ok: true as const, unchanged: true as const };
+  }
+
+  if (task.status === TaskStatus.CANCELLED) {
+    return { ok: false as const, error: "CANNOT_REOPEN" as const };
+  }
+
+  await db.$transaction(async (tx) => {
+    await tx.task.update({
+      where: { id: taskId },
+      data: { status: TaskStatus.OPEN }
+    });
+    await tx.lead.update({
+      where: { id: leadId },
+      data: bumpActivity()
+    });
+  });
+
+  return { ok: true as const, unchanged: false as const };
+}
+
 /**
  * Marca visita como agendada: avanza a VISIT_SCHEDULED si aún está antes en el embudo;
  * registra historial; opcionalmente crea un evento de seguimiento para confirmar visita.
