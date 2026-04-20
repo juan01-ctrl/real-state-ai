@@ -145,22 +145,29 @@ export function LeadOperationsPanel({
             <>
               {openTasks.length > 0 ? (
                 <li className="list-none">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#58624e]">Pendientes</p>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-amber-800/90">Pendientes</p>
                   <ul className="space-y-2">
                     {openTasks.map((t) => (
                       <li
                         key={t.id}
-                        className="flex items-start justify-between gap-3 rounded border border-stone-200 bg-white px-3 py-2.5 text-xs text-[#313330]"
+                        className="flex items-start gap-3 rounded-lg border border-amber-200/90 bg-amber-50/90 px-3 py-2.5 text-xs text-[#313330] shadow-[inset_3px_0_0_0_rgba(217,119,6,0.45)]"
                       >
+                        <span
+                          aria-hidden
+                          className="material-symbols-outlined mt-0.5 shrink-0 text-[20px] text-amber-700/90"
+                          title="Pendiente"
+                        >
+                          schedule
+                        </span>
                         <div className="min-w-0 flex-1">
                           <p className="font-medium leading-snug">{t.title}</p>
-                          <p className="mt-1 text-[10px] text-stone-500">
+                          <p className="mt-1 text-[10px] text-stone-600">
                             {taskTypeLabel(t.type)} ·{" "}
-                            <span className="font-medium text-[#58624e]">{displayTaskStatus(t.status)}</span>
+                            <span className="font-medium text-amber-900/80">{displayTaskStatus(t.status)}</span>
                           </p>
                         </div>
                         <button
-                          className="shrink-0 rounded border border-[#58624e]/40 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#58624e] transition-colors hover:bg-[#58624e]/10 disabled:opacity-40"
+                          className="shrink-0 rounded border border-amber-300/80 bg-white/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-900/85 transition-colors hover:bg-amber-50 disabled:opacity-40"
                           disabled={pending}
                           type="button"
                           onClick={() => runAction(() => actionCompleteLeadTask(leadId, t.id))}
@@ -174,22 +181,40 @@ export function LeadOperationsPanel({
               ) : null}
               {closedTasks.length > 0 ? (
                 <li className="list-none">
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-stone-400">Historial</p>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-stone-500">Historial</p>
                   <ul className="space-y-2">
-                    {closedTasks.map((t) => (
+                    {closedTasks.map((t) => {
+                      const isCancelled = t.status === TaskStatus.CANCELLED || t.status === "CANCELLED";
+                      const isDone = t.status === TaskStatus.COMPLETED || t.status === "COMPLETED";
+                      return (
                       <li
                         key={t.id}
-                        className="flex items-start justify-between gap-3 rounded border border-stone-100 bg-[#fafaf8] px-3 py-2 text-xs text-stone-600"
+                        className={`flex items-start gap-3 rounded-lg border px-3 py-2.5 text-xs ${
+                          isCancelled
+                            ? "border-stone-200/90 bg-stone-50 text-stone-600"
+                            : "border-emerald-200/85 bg-emerald-50/80 text-stone-700 shadow-[inset_3px_0_0_0_rgba(5,150,105,0.35)]"
+                        }`}
                       >
+                        <span
+                          aria-hidden
+                          className={`material-symbols-outlined mt-0.5 shrink-0 text-[20px] ${
+                            isCancelled ? "text-stone-400" : "text-emerald-600"
+                          }`}
+                          title={isCancelled ? "Cancelada" : "Hecha"}
+                        >
+                          {isCancelled ? "cancel" : "check_circle"}
+                        </span>
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium leading-snug">{t.title}</p>
-                          <p className="mt-1 text-[10px] text-stone-500">
+                          <p className={`font-medium leading-snug ${isCancelled ? "text-stone-700" : "text-stone-800"}`}>
+                            {t.title}
+                          </p>
+                          <p className={`mt-1 text-[10px] ${isCancelled ? "text-stone-500" : "text-emerald-900/70"}`}>
                             {taskTypeLabel(t.type)} · {displayTaskStatus(t.status)}
                           </p>
                         </div>
-                        {t.status === TaskStatus.COMPLETED || t.status === "COMPLETED" ? (
+                        {isDone ? (
                           <button
-                            className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-[#58624e] underline-offset-2 hover:underline disabled:opacity-40"
+                            className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-emerald-800 underline-offset-2 hover:underline disabled:opacity-40"
                             disabled={pending}
                             type="button"
                             onClick={() => runAction(() => actionReopenLeadTask(leadId, t.id))}
@@ -198,7 +223,8 @@ export function LeadOperationsPanel({
                           </button>
                         ) : null}
                       </li>
-                    ))}
+                      );
+                    })}
                   </ul>
                 </li>
               ) : null}
