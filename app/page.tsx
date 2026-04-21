@@ -149,9 +149,12 @@ export default function HomePage() {
         </div>
       </nav>
 
-      <main className="bg-background pt-16 text-on-background selection:bg-[#dce6cd] selection:text-[#4b5542] sm:pt-24">
-        <section className="mx-auto flex max-w-7xl items-center overflow-hidden px-4 py-8 sm:px-6 sm:py-10 lg:min-h-screen lg:px-12 lg:py-0" id="soluciones">
-          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-16">
+      <main className="bg-background pt-8 text-on-background selection:bg-[#dce6cd] selection:text-[#4b5542] sm:pt-11 lg:pt-[4.5rem]">
+        <section
+          className="mx-auto flex max-w-7xl items-center overflow-hidden px-4 pb-8 pt-2 sm:px-6 sm:pb-10 sm:pt-3 lg:min-h-[calc(100dvh-4.5rem)] lg:px-12 lg:py-0"
+          id="soluciones"
+        >
+          <div className="grid w-full grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-12 lg:gap-16">
             <div className="space-y-8 lg:col-span-6 lg:space-y-10">
               <div className="space-y-5 sm:space-y-6">
                 <h1 className="letter-spacing-display text-[2.2rem] font-normal leading-[1.08] text-on-background sm:text-5xl lg:text-6xl lg:leading-[1.1]">
