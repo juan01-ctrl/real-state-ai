@@ -85,7 +85,7 @@ export function MetaChannelConnections({
 
   const [testConnectionId, setTestConnectionId] = useState("");
   const [testRecipientId, setTestRecipientId] = useState("");
-  const [testText, setTestText] = useState("Hola, este es un mensaje de prueba de Aesthete.");
+  const [testText, setTestText] = useState("Hola, este es un mensaje de prueba de LeadSignal.");
   const [testLoading, setTestLoading] = useState(false);
   const [testResult, setTestResult] = useState<string | null>(null);
   const [removeConfirmId, setRemoveConfirmId] = useState<string | null>(null);
@@ -244,7 +244,7 @@ export function MetaChannelConnections({
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Asistente de configuración</p>
             <p className="mt-2 text-sm leading-relaxed text-[#5e5f5c]">
-              Completá estos pasos operativos para dejar WhatsApp e Instagram funcionando en Aesthete.
+              Completá estos pasos operativos para dejar WhatsApp e Instagram funcionando en LeadSignal.
             </p>
           </div>
           <button
@@ -292,7 +292,7 @@ export function MetaChannelConnections({
       ) : null}
 
       <form className="space-y-4 rounded-lg border border-[#e9e8e4] bg-white p-5 sm:p-6" onSubmit={onSubmit}>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Registrar número o cuenta en Aesthete</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#58624e]">Registrar número o cuenta en LeadSignal</p>
         <p className="text-xs text-[#5e5f5c]">
           <strong>WhatsApp:</strong> usá el identificador del número en Meta (no el número visible). <strong>Instagram:</strong>{" "}
           usá el identificador de la cuenta conectada.

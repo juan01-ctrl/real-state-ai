@@ -117,7 +117,7 @@ export function AiPreferencesEditor({
               </div>
               <div className="relative mt-2 h-px w-full bg-[#b2b2ae]/30">
                 <input
-                  className="aesthete-range-slider absolute left-0 top-1/2 z-10 h-4 w-full -translate-y-1/2 cursor-pointer bg-transparent"
+                  className="leadsignal-range-slider absolute left-0 top-1/2 z-10 h-4 w-full -translate-y-1/2 cursor-pointer bg-transparent"
                   max={100}
                   min={0}
                   onChange={(event) => setUrgencyThreshold(Number(event.target.value))}

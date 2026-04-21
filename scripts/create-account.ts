@@ -56,7 +56,7 @@ async function ensureAgency(
 
 async function main() {
   const emailRaw =
-    parseArg("--email") ?? process.env.CREATE_ACCOUNT_EMAIL ?? "demo.operator@aesthete.local";
+    parseArg("--email") ?? process.env.CREATE_ACCOUNT_EMAIL ?? "demo.operator@leadsignal.local";
   const password = parseArg("--password") ?? process.env.CREATE_ACCOUNT_PASSWORD;
   const name = parseArg("--name") ?? process.env.CREATE_ACCOUNT_NAME ?? "Operador demo";
   const newAgency = wantsNewAgency();

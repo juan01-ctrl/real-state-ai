@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { AestheteFooter } from "@/components/layout/AestheteFooter";
-import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
-import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
+import { LeadSignalFooter } from "@/components/layout/LeadSignalFooter";
+import { LeadSignalSidebar } from "@/components/layout/LeadSignalSidebar";
+import { LeadSignalTopBar } from "@/components/layout/LeadSignalTopBar";
 import type { OpportunitiesModel } from "@/lib/server/read-models/opportunities";
 
 interface StrategicOpportunitiesViewProps {
@@ -155,11 +155,11 @@ function IntelligencePanel({ model }: { model: OpportunitiesModel }) {
 
 export function StrategicOpportunitiesView({ model }: StrategicOpportunitiesViewProps) {
   return (
-    <main className="aesthete-page min-h-screen bg-surface text-on-surface">
-      <AestheteSidebar active="Oportunidades" />
+    <main className="leadsignal-page min-h-screen bg-surface text-on-surface">
+      <LeadSignalSidebar active="Oportunidades" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar />
+        <LeadSignalTopBar />
 
         <div className="mx-auto flex max-w-[1600px] flex-col gap-10 px-4 py-8 sm:px-8 sm:py-10 lg:flex-row lg:gap-12 lg:px-12">
           <div className="flex-1 space-y-12">
@@ -194,7 +194,7 @@ export function StrategicOpportunitiesView({ model }: StrategicOpportunitiesView
           </div>
         </div>
 
-        <AestheteFooter className="mt-10" variant="atelier" />
+        <LeadSignalFooter className="mt-10" variant="atelier" />
       </div>
     </main>
   );

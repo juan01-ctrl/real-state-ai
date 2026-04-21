@@ -1,7 +1,7 @@
 /**
  * Navegación principal del app shell (sidebar + menú móvil).
  */
-export const AESTHETE_NAV_ITEMS = [
+export const LEADSIGNAL_NAV_ITEMS = [
   { icon: "dashboard", label: "Tablero", href: "/dashboard" },
   { icon: "person_search", label: "Leads", href: "/leads" },
   { icon: "analytics", label: "Oportunidades", href: "/opportunities" },
@@ -12,8 +12,8 @@ export const AESTHETE_NAV_ITEMS = [
   { icon: "admin_panel_settings", label: "Backoffice", href: "/backoffice" }
 ] as const;
 
-export type AestheteNavLabel = (typeof AESTHETE_NAV_ITEMS)[number]["label"];
+export type LeadSignalNavLabel = (typeof LEADSIGNAL_NAV_ITEMS)[number]["label"];
 
-export function aestheteNavHref(href: string): string {
+export function leadsignalNavHref(href: string): string {
   return href;
 }

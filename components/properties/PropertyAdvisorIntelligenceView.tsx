@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { AestheteFooter } from "@/components/layout/AestheteFooter";
-import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
-import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
+import { LeadSignalFooter } from "@/components/layout/LeadSignalFooter";
+import { LeadSignalSidebar } from "@/components/layout/LeadSignalSidebar";
+import { LeadSignalTopBar } from "@/components/layout/LeadSignalTopBar";
 import { PropertyInventorySection } from "@/components/properties/PropertyInventorySection";
 import type { PropertiesPageModel } from "@/lib/server/read-models/properties-page";
 
@@ -70,11 +70,11 @@ function RelatedIntelligenceCard({ rows }: { rows: PropertiesPageModel["relatedR
 
 export function PropertyAdvisorIntelligenceView({ model }: PropertyAdvisorIntelligenceViewProps) {
   return (
-    <main className="aesthete-page min-h-screen bg-background text-on-background">
-      <AestheteSidebar active="Propiedades" />
+    <main className="leadsignal-page min-h-screen bg-background text-on-background">
+      <LeadSignalSidebar active="Propiedades" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar />
+        <LeadSignalTopBar />
 
         <section className="mx-auto w-full max-w-[1440px] px-4 py-8 sm:px-8 sm:py-12 lg:px-12">
           <header className="mb-10 sm:mb-14 lg:mb-16">
@@ -100,7 +100,7 @@ export function PropertyAdvisorIntelligenceView({ model }: PropertyAdvisorIntell
           </div>
         </section>
 
-        <AestheteFooter variant="editorial" className="mt-12 sm:mt-16 lg:mt-20" />
+        <LeadSignalFooter variant="editorial" className="mt-12 sm:mt-16 lg:mt-20" />
       </div>
     </main>
   );

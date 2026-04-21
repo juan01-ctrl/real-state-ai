@@ -1,9 +1,9 @@
 import { CreateDemoLeadsButton } from "@/components/leads/CreateDemoLeadsButton";
 import { LeadDetailPanel } from "@/components/leads/LeadDetailPanel";
 import { LeadsInboxList } from "@/components/leads/LeadsInboxList";
-import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
-import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
-import { AestheteFooter } from "@/components/layout/AestheteFooter";
+import { LeadSignalSidebar } from "@/components/layout/LeadSignalSidebar";
+import { LeadSignalTopBar } from "@/components/layout/LeadSignalTopBar";
+import { LeadSignalFooter } from "@/components/layout/LeadSignalFooter";
 import type { AgencyOperator } from "@/lib/server/read-models/operators";
 import type { LeadDetailModel, LeadInboxItem } from "@/lib/server/read-models/leads";
 
@@ -16,11 +16,11 @@ interface LeadsWorkspaceProps {
 
 export function LeadsWorkspace({ inboxItems, selectedLeadId, leadDetail, operators }: LeadsWorkspaceProps) {
   return (
-    <main className="aesthete-page min-h-screen overflow-x-hidden bg-[#fbf9f6] font-body text-[#313330] antialiased">
-      <AestheteSidebar active="Leads" />
+    <main className="leadsignal-page min-h-screen overflow-x-hidden bg-[#fbf9f6] font-body text-[#313330] antialiased">
+      <LeadSignalSidebar active="Leads" />
 
       <div className="min-h-screen min-w-0 lg:ml-64">
-        <AestheteTopBar />
+        <LeadSignalTopBar />
 
         <div className="flex min-h-[calc(100vh-72px)] min-w-0 overflow-hidden">
           <section className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden border-r border-transparent px-4 py-6 sm:px-8 sm:py-8 lg:px-10">
@@ -41,7 +41,7 @@ export function LeadsWorkspace({ inboxItems, selectedLeadId, leadDetail, operato
         </div>
       </div>
 
-      <AestheteFooter className="lg:ml-64" variant="editorial" />
+      <LeadSignalFooter className="lg:ml-64" variant="editorial" />
     </main>
   );
 }

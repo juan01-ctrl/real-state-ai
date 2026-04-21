@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AestheteFooter } from "@/components/layout/AestheteFooter";
-import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
-import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
+import { LeadSignalFooter } from "@/components/layout/LeadSignalFooter";
+import { LeadSignalSidebar } from "@/components/layout/LeadSignalSidebar";
+import { LeadSignalTopBar } from "@/components/layout/LeadSignalTopBar";
 import { LeadOperationsPanel } from "@/components/leads/LeadOperationsPanel";
 import { MetaOutboundComposer } from "@/components/leads/MetaOutboundComposer";
 import type { AgencyOperator } from "@/lib/server/read-models/operators";
@@ -92,11 +92,11 @@ export function LeadIntelligenceDossierView({ lead, operators }: LeadIntelligenc
       : "Hay presión competitiva. Mantené la respuesta bajo 4 horas para proteger la probabilidad de cierre.";
 
   return (
-    <main className="aesthete-page min-h-screen bg-background text-on-background antialiased">
-      <AestheteSidebar active="Leads" />
+    <main className="leadsignal-page min-h-screen bg-background text-on-background antialiased">
+      <LeadSignalSidebar active="Leads" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar title="Dossier de inteligencia del lead" />
+        <LeadSignalTopBar title="Dossier de inteligencia del lead" />
 
         <header className="sticky top-[76px] z-30 bg-[#fbf9f6]/80 px-4 py-6 backdrop-blur-xl sm:px-8 lg:px-12">
           <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
@@ -390,7 +390,7 @@ export function LeadIntelligenceDossierView({ lead, operators }: LeadIntelligenc
           </aside>
         </div>
 
-        <AestheteFooter className="lg:ml-0" variant="atelier" />
+        <LeadSignalFooter className="lg:ml-0" variant="atelier" />
       </div>
     </main>
   );

@@ -111,11 +111,11 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="aesthete-page has-premium-cursor bg-background text-on-background">
+    <div className="leadsignal-page has-premium-cursor bg-background text-on-background">
       <PremiumCursor />
       <nav className="fixed top-0 z-50 w-full bg-[#fbf9f6]/80 shadow-[0_40px_60px_rgba(49,51,48,0.05)] backdrop-blur-xl transition-all duration-500">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-5 lg:px-12 lg:py-6">
-          <div className="font-serif text-sm tracking-[0.2em] text-[#313330] sm:text-xl">AESTHETE AI</div>
+          <div className="font-serif text-sm tracking-[0.2em] text-[#313330] sm:text-xl">LEADSIGNAL</div>
           <div className="hidden items-center gap-10 lg:flex">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
@@ -491,7 +491,7 @@ export default function HomePage() {
 
       <footer className="w-full bg-surface-container py-12 text-[#58624e] sm:py-16 lg:py-20">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-7 px-6 text-center sm:px-6 md:flex-row md:gap-8 md:text-left lg:px-12">
-          <div className="font-serif text-[1.45rem] tracking-[0.14em] text-[#313330] sm:text-lg sm:tracking-widest">AESTHETE AI</div>
+          <div className="font-serif text-[1.45rem] tracking-[0.14em] text-[#313330] sm:text-lg sm:tracking-widest">LEADSIGNAL</div>
           <div className="flex w-full flex-col items-center gap-2 sm:w-auto sm:flex-row sm:flex-nowrap sm:justify-center sm:gap-6 md:gap-8 lg:gap-10">
             <a
               className="whitespace-nowrap py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest"
@@ -513,7 +513,7 @@ export default function HomePage() {
             </a>
             <a
               className="whitespace-nowrap py-1.5 font-sans text-[0.88rem] uppercase tracking-[0.12em] text-[#313330]/45 transition-colors hover:text-[#58624e] sm:py-0 sm:text-[12px] sm:tracking-widest"
-              href="https://wa.me/5491159570977?text=Hola%2C%20quiero%20contactar%20al%20equipo%20de%20Aesthete%20AI."
+              href="https://wa.me/5491159570977?text=Hola%2C%20quiero%20contactar%20al%20equipo%20de%20LeadSignal."
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -521,7 +521,7 @@ export default function HomePage() {
             </a>
           </div>
           <div className="max-w-[30ch] font-sans text-[0.72rem] uppercase leading-[1.4] tracking-[0.1em] text-[#313330]/45 sm:max-w-none sm:text-[12px] sm:tracking-widest">
-            © 2024 Aesthete AI. El atelier digital para el sector inmobiliario.
+            © 2024 LeadSignal. Infraestructura de ventas para inmobiliarias.
           </div>
         </div>
       </footer>

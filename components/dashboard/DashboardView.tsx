@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
-import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
-import { AestheteFooter } from "@/components/layout/AestheteFooter";
+import { LeadSignalSidebar } from "@/components/layout/LeadSignalSidebar";
+import { LeadSignalTopBar } from "@/components/layout/LeadSignalTopBar";
+import { LeadSignalFooter } from "@/components/layout/LeadSignalFooter";
 import type { DashboardModel } from "@/lib/server/read-models/dashboard";
 
 interface DashboardViewProps {
@@ -161,9 +161,9 @@ function KpiStrip({ kpis }: { kpis: DashboardModel["kpis"] }) {
 export function DashboardView({ model }: DashboardViewProps) {
   return (
     <div className="min-h-screen bg-[#fbf9f6] text-[#313330]" style={{ fontFamily: "Inter, sans-serif" }}>
-      <AestheteSidebar active="Tablero" />
+      <LeadSignalSidebar active="Tablero" />
       <main className="min-h-screen lg:ml-64">
-        <AestheteTopBar />
+        <LeadSignalTopBar />
         <div className="mx-auto w-full max-w-7xl space-y-14 px-4 py-10 sm:space-y-16 sm:px-8 sm:py-12 lg:px-12">
           <MorningBriefing dataAsOf={model.dataAsOf} model={model.briefing} />
           <PriorityIntelligence priorityLeads={model.priorityLeads} />
@@ -174,7 +174,7 @@ export function DashboardView({ model }: DashboardViewProps) {
           />
           <KpiStrip kpis={model.kpis} />
         </div>
-        <AestheteFooter variant="atelier" />
+        <LeadSignalFooter variant="atelier" />
       </main>
     </div>
   );

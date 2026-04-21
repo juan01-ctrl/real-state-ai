@@ -1,6 +1,6 @@
-import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
-import { AestheteFooter } from "@/components/layout/AestheteFooter";
-import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
+import { LeadSignalSidebar } from "@/components/layout/LeadSignalSidebar";
+import { LeadSignalFooter } from "@/components/layout/LeadSignalFooter";
+import { LeadSignalTopBar } from "@/components/layout/LeadSignalTopBar";
 import { AiPreferencesEditor } from "@/components/settings/AiPreferencesEditor";
 import { MetaChannelConnections } from "@/components/settings/MetaChannelConnections";
 import { TeamMembersManager } from "@/components/settings/TeamMembersManager";
@@ -50,11 +50,11 @@ export function AgencySettingsView({
       : [{ label: "Sin datos aún", value: 0 }];
 
   return (
-    <main className="aesthete-page min-h-screen bg-[#fbf9f6] text-[#313330] antialiased">
-      <AestheteSidebar active="Configuración" />
+    <main className="leadsignal-page min-h-screen bg-[#fbf9f6] text-[#313330] antialiased">
+      <LeadSignalSidebar active="Configuración" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar />
+        <LeadSignalTopBar />
 
         <main className="mx-auto max-w-5xl space-y-20 px-4 py-10 sm:space-y-24 sm:px-8 sm:py-14 lg:space-y-32 lg:px-16 lg:py-24">
           <header className="space-y-4">
@@ -162,7 +162,7 @@ export function AgencySettingsView({
           />
         </main>
 
-        <AestheteFooter variant="atelier" />
+        <LeadSignalFooter variant="atelier" />
       </div>
     </main>
   );

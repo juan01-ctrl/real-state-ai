@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { AESTHETE_NAV_ITEMS, aestheteNavHref, type AestheteNavLabel } from "@/lib/nav/aesthete-app-nav";
+import { LEADSIGNAL_NAV_ITEMS, leadsignalNavHref, type LeadSignalNavLabel } from "@/lib/nav/leadsignal-app-nav";
 
-interface AestheteSidebarProps {
-  active: AestheteNavLabel;
+interface LeadSignalSidebarProps {
+  active: LeadSignalNavLabel;
 }
 
 function MaterialIcon({ icon, className = "" }: { icon: string; className?: string }) {
@@ -19,20 +19,20 @@ function MaterialIcon({ icon, className = "" }: { icon: string; className?: stri
   );
 }
 
-export function AestheteSidebar({ active }: AestheteSidebarProps) {
+export function LeadSignalSidebar({ active }: LeadSignalSidebarProps) {
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-full w-64 flex-col space-y-8 bg-[#efeeea] px-6 py-10 lg:flex">
       <div className="mb-6 flex flex-col">
         <span className="text-lg uppercase tracking-widest text-[#313330]" style={{ fontFamily: "'Noto Serif', serif" }}>
-          AESTHETE AI
+          LEADSIGNAL
         </span>
-        <span className="text-[10px] uppercase tracking-widest text-[#58624e]">Atelier digital</span>
+        <span className="text-[10px] uppercase tracking-widest text-[#58624e]">Pipeline calificado</span>
       </div>
 
       <nav className="flex-1 space-y-2">
-        {AESTHETE_NAV_ITEMS.map((item) => {
+        {LEADSIGNAL_NAV_ITEMS.map((item) => {
           const isActive = item.label === active;
-          const href = aestheteNavHref(item.href);
+          const href = leadsignalNavHref(item.href);
 
           return (
             <Link
@@ -54,7 +54,7 @@ export function AestheteSidebar({ active }: AestheteSidebarProps) {
       <div className="space-y-4 border-t border-[#b2b2ae]/10 pt-6">
         <a
           className="flex items-center gap-3 px-2 text-[#313330]/40 transition-all hover:text-[#58624e]"
-          href="https://wa.me/5491159570977?text=Hola%2C%20necesito%20ayuda%20con%20Aesthete%20AI."
+          href="https://wa.me/5491159570977?text=Hola%2C%20necesito%20ayuda%20con%20LeadSignal."
           rel="noopener noreferrer"
           target="_blank"
         >

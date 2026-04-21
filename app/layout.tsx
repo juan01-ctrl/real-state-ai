@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Real State AI | Bandeja de leads",
+  title: "LeadSignal | Bandeja de leads",
   description: "Bandeja de leads y espacio de calificación para inmobiliarias"
 };
 

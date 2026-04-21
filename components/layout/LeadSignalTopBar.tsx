@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { AESTHETE_NAV_ITEMS, aestheteNavHref, type AestheteNavLabel } from "@/lib/nav/aesthete-app-nav";
+import { LEADSIGNAL_NAV_ITEMS, leadsignalNavHref, type LeadSignalNavLabel } from "@/lib/nav/leadsignal-app-nav";
 
-interface AestheteTopBarProps {
+interface LeadSignalTopBarProps {
   title?: string;
 }
 
@@ -22,10 +22,10 @@ function inferTitle(pathname: string) {
   if (pathname.startsWith("/properties")) return "Inteligencia de Propiedades";
   if (pathname.startsWith("/settings")) return "Configuración de la Agencia";
   if (pathname.startsWith("/backoffice")) return "Backoffice Operativo";
-  return "Aesthete AI";
+  return "LeadSignal";
 }
 
-function activeLabelForPath(pathname: string): AestheteNavLabel | null {
+function activeLabelForPath(pathname: string): LeadSignalNavLabel | null {
   const p = pathname || "/";
   if (p.startsWith("/dashboard")) return "Tablero";
   if (p.startsWith("/leads")) return "Leads";
@@ -38,7 +38,7 @@ function activeLabelForPath(pathname: string): AestheteNavLabel | null {
   return null;
 }
 
-export function AestheteTopBar({ title }: AestheteTopBarProps) {
+export function LeadSignalTopBar({ title }: LeadSignalTopBarProps) {
   const pathname = usePathname();
   const resolvedTitle = title ?? inferTitle(pathname ?? "");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -101,8 +101,8 @@ export function AestheteTopBar({ title }: AestheteTopBarProps) {
           >
             <p className="mb-6 text-[10px] uppercase tracking-widest text-[#58624e]">Menú</p>
             <ul className="flex flex-1 flex-col gap-1">
-              {AESTHETE_NAV_ITEMS.map((item) => {
-                const href = aestheteNavHref(item.href);
+              {LEADSIGNAL_NAV_ITEMS.map((item) => {
+                const href = leadsignalNavHref(item.href);
                 const isActive = activeNav === item.label;
                 return (
                   <li key={item.href}>
@@ -125,7 +125,7 @@ export function AestheteTopBar({ title }: AestheteTopBarProps) {
             <div className="mt-auto space-y-2 border-t border-[#b2b2ae]/20 pt-6">
               <a
                 className="flex items-center gap-2 px-3 py-2 text-[11px] uppercase tracking-[0.1em] text-[#313330]/50"
-                href="https://wa.me/5491159570977?text=Hola%2C%20necesito%20ayuda%20con%20Aesthete%20AI."
+                href="https://wa.me/5491159570977?text=Hola%2C%20necesito%20ayuda%20con%20LeadSignal."
                 rel="noopener noreferrer"
                 target="_blank"
               >

@@ -1,6 +1,6 @@
-import { AestheteFooter } from "@/components/layout/AestheteFooter";
-import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
-import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
+import { LeadSignalFooter } from "@/components/layout/LeadSignalFooter";
+import { LeadSignalSidebar } from "@/components/layout/LeadSignalSidebar";
+import { LeadSignalTopBar } from "@/components/layout/LeadSignalTopBar";
 
 interface BackofficeViewProps {
   model: {
@@ -44,10 +44,10 @@ interface BackofficeViewProps {
 
 export function BackofficeView({ model, slo }: BackofficeViewProps) {
   return (
-    <main className="aesthete-page min-h-screen bg-[#fbf9f6] text-[#313330] antialiased">
-      <AestheteSidebar active="Backoffice" />
+    <main className="leadsignal-page min-h-screen bg-[#fbf9f6] text-[#313330] antialiased">
+      <LeadSignalSidebar active="Backoffice" />
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar />
+        <LeadSignalTopBar />
 
         <main className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:px-8 lg:px-16">
           <header className="space-y-2">
@@ -159,7 +159,7 @@ export function BackofficeView({ model, slo }: BackofficeViewProps) {
           </section>
         </main>
 
-        <AestheteFooter variant="atelier" />
+        <LeadSignalFooter variant="atelier" />
       </div>
     </main>
   );

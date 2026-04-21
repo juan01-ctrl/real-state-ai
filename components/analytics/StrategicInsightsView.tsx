@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
-import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
-import { AestheteFooter } from "@/components/layout/AestheteFooter";
+import { LeadSignalSidebar } from "@/components/layout/LeadSignalSidebar";
+import { LeadSignalTopBar } from "@/components/layout/LeadSignalTopBar";
+import { LeadSignalFooter } from "@/components/layout/LeadSignalFooter";
 import { displayChannel, displayLeadStage } from "@/lib/i18n/present";
 import type { StrategicInsightsModel } from "@/lib/server/read-models/strategic-insights";
 
@@ -47,11 +47,11 @@ export function StrategicInsightsView({ insights }: StrategicInsightsViewProps) 
   const maxLossCount = insights.lossReasons.buckets[0]?.count ?? 1;
 
   return (
-    <main className="aesthete-page min-h-screen bg-[#fbf9f6] text-[#313330]">
-      <AestheteSidebar active="Analítica" />
+    <main className="leadsignal-page min-h-screen bg-[#fbf9f6] text-[#313330]">
+      <LeadSignalSidebar active="Analítica" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar />
+        <LeadSignalTopBar />
 
         <div className="max-w-[1200px] px-4 py-10 sm:px-8 sm:py-12 lg:px-12">
           <header className="mb-10 border-b border-[#e9e8e4] pb-8">
@@ -270,7 +270,7 @@ export function StrategicInsightsView({ insights }: StrategicInsightsViewProps) 
           </details>
         </div>
 
-        <AestheteFooter className="mt-20 sm:mt-24" variant="editorial" />
+        <LeadSignalFooter className="mt-20 sm:mt-24" variant="editorial" />
       </div>
     </main>
   );

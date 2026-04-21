@@ -18,7 +18,7 @@ export default function SignOutPage() {
   }, [router]);
 
   return (
-    <main className="aesthete-page flex min-h-screen items-center justify-center bg-[#fbf9f6] text-[#313330]">
+    <main className="leadsignal-page flex min-h-screen items-center justify-center bg-[#fbf9f6] text-[#313330]">
       <p className="text-sm uppercase tracking-[0.14em] text-stone-500">Cerrando sesión...</p>
     </main>
   );

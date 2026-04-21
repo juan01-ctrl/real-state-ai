@@ -1,9 +1,9 @@
-interface AestheteFooterProps {
+interface LeadSignalFooterProps {
   variant: "editorial" | "atelier";
   className?: string;
 }
 
-export function AestheteFooter({ variant, className }: AestheteFooterProps) {
+export function LeadSignalFooter({ variant, className }: LeadSignalFooterProps) {
   const isEditorial = variant === "editorial";
   const links = isEditorial
     ? [
@@ -12,7 +12,7 @@ export function AestheteFooter({ variant, className }: AestheteFooterProps) {
         { label: "Prensa", href: "/insights" },
         {
           label: "Contacto",
-          href: "https://wa.me/5491159570977?text=Hola%2C%20quiero%20contactar%20al%20equipo%20de%20Aesthete%20AI."
+          href: "https://wa.me/5491159570977?text=Hola%2C%20quiero%20contactar%20al%20equipo%20de%20LeadSignal."
         }
       ]
     : [
@@ -21,7 +21,7 @@ export function AestheteFooter({ variant, className }: AestheteFooterProps) {
         { label: "Términos", href: "/#diferenciacion" },
         {
           label: "Contacto",
-          href: "https://wa.me/5491159570977?text=Hola%2C%20quiero%20contactar%20al%20equipo%20de%20Aesthete%20AI."
+          href: "https://wa.me/5491159570977?text=Hola%2C%20quiero%20contactar%20al%20equipo%20de%20LeadSignal."
         }
       ];
 
@@ -37,12 +37,12 @@ export function AestheteFooter({ variant, className }: AestheteFooterProps) {
             className={`${isEditorial ? "text-2xl italic normal-case text-stone-800" : "text-lg uppercase tracking-widest text-[#313330]"}`}
             style={{ fontFamily: "'Noto Serif', serif" }}
           >
-            {isEditorial ? "Aesthete AI" : "AESTHETE AI"}
+            {isEditorial ? "LeadSignal" : "LEADSIGNAL"}
           </span>
           <p className={`${isEditorial ? "text-[11px] tracking-[0.15em] text-stone-500" : "text-[12px] text-[#313330]/40"} uppercase`}>
             {isEditorial
-              ? "© 2024 Aesthete AI. Un proyecto editorial de inteligencia."
-              : "© 2024 Aesthete AI. El atelier digital para el sector inmobiliario."}
+              ? "© 2024 LeadSignal. Visibilidad y acción sobre tu embudo de ventas."
+              : "© 2024 LeadSignal. Infraestructura de ventas para inmobiliarias."}
           </p>
         </div>
         <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 sm:gap-x-8 md:flex-nowrap md:justify-center md:gap-x-8">

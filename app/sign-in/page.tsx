@@ -35,9 +35,9 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="aesthete-page flex min-h-screen items-center justify-center bg-[#fbf9f6] p-4 text-[#313330]">
+    <main className="leadsignal-page flex min-h-screen items-center justify-center bg-[#fbf9f6] p-4 text-[#313330]">
       <div className="w-full max-w-md rounded-xl border border-stone-200 bg-white p-8 shadow-sm">
-        <p className="text-[10px] uppercase tracking-[0.16em] text-[#58624e]">Aesthete AI</p>
+        <p className="text-[10px] uppercase tracking-[0.16em] text-[#58624e]">LeadSignal</p>
         <h1 className="mt-2 text-3xl serif">Ingresar</h1>
         <p className="mt-2 text-sm text-stone-500">Accedé a tu espacio de inteligencia comercial.</p>
 

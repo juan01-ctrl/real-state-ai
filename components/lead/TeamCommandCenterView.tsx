@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { TaskType } from "@prisma/client";
-import { AestheteSidebar } from "@/components/layout/AestheteSidebar";
-import { AestheteTopBar } from "@/components/layout/AestheteTopBar";
-import { AestheteFooter } from "@/components/layout/AestheteFooter";
+import { LeadSignalSidebar } from "@/components/layout/LeadSignalSidebar";
+import { LeadSignalTopBar } from "@/components/layout/LeadSignalTopBar";
+import { LeadSignalFooter } from "@/components/layout/LeadSignalFooter";
 import { formatRelativeHours } from "@/lib/formatters";
 import type { TeamCommandCenterModel, TeamUrgentItem } from "@/lib/server/read-models/team-command-center";
 
@@ -136,11 +136,11 @@ export function TeamCommandCenterView({ team }: TeamCommandCenterViewProps) {
   const maxLoad = Math.max(1, ...workloadByMember.map((w) => w.activeLeads));
 
   return (
-    <main className="aesthete-page min-h-screen bg-[#fbf9f6] font-body text-[#313330]">
-      <AestheteSidebar active="Equipo" />
+    <main className="leadsignal-page min-h-screen bg-[#fbf9f6] font-body text-[#313330]">
+      <LeadSignalSidebar active="Equipo" />
 
       <div className="min-h-screen lg:ml-64">
-        <AestheteTopBar />
+        <LeadSignalTopBar />
 
         <div className="mx-auto max-w-[1440px] px-4 pb-16 sm:px-8 sm:pb-20 lg:px-10">
           <div className="mb-8 rounded-lg border border-[#dce6cd] bg-[#f5f3f0] px-4 py-4 sm:px-6 sm:py-5">
@@ -361,7 +361,7 @@ export function TeamCommandCenterView({ team }: TeamCommandCenterViewProps) {
           ) : null}
         </div>
 
-        <AestheteFooter className="mt-16 sm:mt-20" variant="editorial" />
+        <LeadSignalFooter className="mt-16 sm:mt-20" variant="editorial" />
       </div>
     </main>
   );
